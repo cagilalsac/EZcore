@@ -1,0 +1,22 @@
+﻿#nullable disable
+
+using System.ComponentModel.DataAnnotations;
+
+namespace EZcore.Attributes
+{
+    public class EZRequiredAttribute : RequiredAttribute
+    {
+        public override bool IsValid(object value)
+        {
+            var valid = base.IsValid(value);
+            if (!valid && string.IsNullOrWhiteSpace(ErrorMessage))
+            {
+                if (Thread.CurrentThread.CurrentCulture.Name == "tr-TR")
+                    ErrorMessage = "Bu alan zorunludur!";
+                else
+                    ErrorMessage = "This field is required!";
+            }
+            return valid;
+        }
+    }
+}

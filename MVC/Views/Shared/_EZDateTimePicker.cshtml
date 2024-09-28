@@ -1,0 +1,65 @@
+﻿@using EZcore.Models
+
+@* https://xdsoft.net/jqplugins/datetimepicker *@
+<link rel="stylesheet" href="~/lib/jquery-datetimepicker/jquery.datetimepicker.min.css" />
+<script src="~/lib/jquery-datetimepicker/jquery.datetimepicker.full.min.js"></script>
+
+<style>
+	.xdsoft_label {
+		z-index: 100 !important;
+	}
+</style>
+
+<script>
+	$(function () {
+		@if ((Lang)(ViewData["Lang"] ?? 0) == Lang.TR)
+		{
+			@:$.datetimepicker.setLocale("tr");
+			@:$('.datetimepicker').datetimepicker({
+				@:timepicker: true,
+				@:format: 'd.m.Y H:i',
+				@:i18n: {
+					@:tr: {
+						@:months: [
+							@:'Ocak', 'Şubat', 'Mart', 'Nisan',
+							@:'Mayıs', 'Haziran', 'Temmuz', 'Ağustos',
+							@:'Eylül', 'Ekim', 'Kasım', 'Aralık'
+						@:],
+						@:dayOfWeek: [
+							@:"Paz", "Pzt", "Sal", "Çar",
+							@:"Per", "Cum", "Cmt"
+						@:]
+					@:}
+				@:}
+			@:});
+			@:$('.datepicker').datetimepicker({
+				@:timepicker: false,
+				@:format: 'd.m.Y',
+				@:i18n: {
+					@:tr: {
+						@:months: [
+							@:'Ocak', 'Şubat', 'Mart', 'Nisan',
+							@:'Mayıs', 'Haziran', 'Temmuz', 'Ağustos',
+							@:'Eylül', 'Ekim', 'Kasım', 'Aralık'
+						@:],
+						@:dayOfWeek: [
+							@:"Paz", "Pzt", "Sal", "Çar",
+							@:"Per", "Cum", "Cmt"
+						@:]
+					@:}
+				@:}
+			@:});
+		}
+		else
+		{
+			@:$('.datetimepicker').datetimepicker({
+				@:timepicker: true,
+				@:format: 'm/d/Y H:i'
+			@:});
+			@:$('.datepicker').datetimepicker({
+				@:timepicker: false,
+				@:format: 'm/d/Y'
+			@:});
+		}
+	});
+</script>
