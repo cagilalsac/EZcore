@@ -79,6 +79,8 @@
 
                 foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
                 {
+                    if (item.Name != "Guid" && item.Name != "IsDeleted" && item.Name != "CreateDate" && item.Name != "CreatedBy" && item.Name != "UpdateDate" && item.Name != "UpdatedBy")
+                    {
                     if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
                         && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
                     {
@@ -92,6 +94,7 @@
                         @@Html.DisplayNameFor(model => model.@GetValueExpression(navigation))
                     </th>
                     }
+                    }
                 }
                     @:<th></th>
                 @:</tr>
@@ -101,6 +104,8 @@
 				@:<tr>
 				foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
 				{
+                    if (item.Name != "Guid" && item.Name != "IsDeleted" && item.Name != "CreateDate" && item.Name != "CreatedBy" && item.Name != "UpdateDate" && item.Name != "UpdatedBy")
+                    {
 					if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
 						&& property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
 					{
@@ -114,6 +119,7 @@
 						@@Html.DisplayFor(modelItem => item.@GetValueExpression(navigation))
 					</td>
 					}
+                    }
 				}
 				string pkName = GetPrimaryKeyName();
 				if (pkName != null)

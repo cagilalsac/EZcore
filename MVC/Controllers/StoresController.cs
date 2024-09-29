@@ -11,27 +11,27 @@ using BLL.DAL;
 
 namespace MVC.Controllers
 {
-    public class CategoriesController : MvcController
+    public class StoresController : MvcController
     {
         // Views may be configured here by overriding the base controller properties starting with "View", "Lang" base property can also be overriden if necessary:
-        protected override string ViewModelName => Lang == Lang.TR ? "Kategori" : "Category";
+        protected override string ViewModelName => Lang == Lang.TR ? "Mağaza" : "Store";
         protected override bool ViewPageOrder => false;
         
         // Service injections:
-        private readonly ServiceBase<Category, CategoryModel> _categoryService;
+        private readonly ServiceBase<Store, StoreModel> _storeService;
 
         /* Can be uncommented and used for many to many relationships. ManyToManyRecord may be replaced with the related entiy name in the controller and views. */
         //private readonly Service<ManyToManyRecord, ManyToManyRecordModel> _ManyToManyRecordService;
 
-        public CategoriesController(HttpServiceBase httpService
-			, ServiceBase<Category, CategoryModel> categoryService
+        public StoresController(HttpServiceBase httpService
+			, ServiceBase<Store, StoreModel> storeService
 
             /* Can be uncommented and used for many to many relationships. ManyToManyRecord may be replaced with the related entiy name in the controller and views. */
             //, Service<ManyToManyRecord, ManyToManyRecordModel> ManyToManyRecordService
         ) : base(httpService)
         {
-            _categoryService = categoryService;
-            _categoryService.Lang = Lang;
+            _storeService = storeService;
+            _storeService.Lang = Lang;
 
             /* Can be uncommented and used for many to many relationships. ManyToManyRecord may be replaced with the related entiy name in the controller and views. */
             //_ManyToManyRecordService = ManyToManyRecordService;
@@ -45,7 +45,7 @@ namespace MVC.Controllers
             //ViewBag.ManyToManyRecordIds = new MultiSelectList(_ManyToManyRecordService.Read(), "Record.Id", "Name");
         }
 
-        // GET: Categories
+        // GET: Stores
         public IActionResult Index(PageOrder pageOrder = null)
         {
             PageOrder = pageOrder;
@@ -54,98 +54,98 @@ namespace MVC.Controllers
             PageOrder?.AddOrderExpression("Id", "Id");
 
             // Get collection service logic:
-            var list = _categoryService.Read(PageOrder);
+            var list = _storeService.Read(PageOrder);
 
-            SetViewData(_categoryService.Message);
+            SetViewData(_storeService.Message);
             return View(list);
         }
 
-        // GET: Categories/Details/5
+        // GET: Stores/Details/5
         public IActionResult Details(int id)
         {
             // Get item service logic:
-            var item = _categoryService.Read(id);
+            var item = _storeService.Read(id);
 
-            SetViewData(_categoryService.Message);
+            SetViewData(_storeService.Message);
             return View(item);
         }
 
-        // GET: Categories/Create
+        // GET: Stores/Create
         public IActionResult Create()
         {
             SetViewData();
             return View();
         }
 
-        // POST: Categories/Create
+        // POST: Stores/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CategoryModel category)
+        public IActionResult Create(StoreModel store)
         {
             if (ModelState.IsValid)
             {
                 // Insert item service logic:
-                var result = _categoryService.Create(category.Record);
+                var result = _storeService.Create(store.Record);
                 
                 SetViewData(result.Message);
                 if (result.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = category.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = store.Record.Id });
             }
             else
             {
                 SetViewData();
             }
-            return View(category);
+            return View(store);
         }
 
-        // GET: Categories/Edit/5
+        // GET: Stores/Edit/5
         public IActionResult Edit(int id)
         {
             // Get item to edit service logic:
-            var item = _categoryService.Read(id);
+            var item = _storeService.Read(id);
 
-            SetViewData(_categoryService.Message);
+            SetViewData(_storeService.Message);
             return View(item);
         }
 
-        // POST: Categories/Edit
+        // POST: Stores/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(CategoryModel category)
+        public IActionResult Edit(StoreModel store)
         {
             if (ModelState.IsValid)
             {
                 // Update item service logic:
-                var result = _categoryService.Update(category.Record);
+                var result = _storeService.Update(store.Record);
                 
                 SetViewData(result.Message);
                 if (result.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = category.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = store.Record.Id });
             }
             else
             {
                 SetViewData();
             }
-            return View(category);
+            return View(store);
         }
 
-        // GET: Categories/Delete/5
+        // GET: Stores/Delete/5
         public IActionResult Delete(int id)
         {
             // Get item to delete service logic:
-            var item = _categoryService.Read(id);
+            var item = _storeService.Read(id);
 
-            SetViewData(_categoryService.Message);
+            SetViewData(_storeService.Message);
             return View(item);
         }
 
-        // POST: Categories/Delete
+        // POST: Stores/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
             // Delete item service logic:
-            var result = _categoryService.Delete(id);
+            var result = _storeService.Delete(id);
 
             SetViewData(result.Message);
             return RedirectToAction(nameof(Index), new { pageordersession = true });

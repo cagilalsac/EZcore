@@ -20,7 +20,6 @@ namespace EZcore.Services
         protected virtual string RecordCreated { get; private set; }
         protected virtual string RecordUpdated { get; private set; }
         protected virtual string RecordDeleted { get; private set; }
-        protected virtual string RelationalRecordsDeleted { get; private set; }
         protected virtual string RecordNotSaved { get; private set; }
 
         public override Lang Lang 
@@ -37,16 +36,15 @@ namespace EZcore.Services
                 RecordCreated = base.Lang == Lang.TR ? "Kayıt başarıyla oluşturuldu." : "Record created successfully.";
                 RecordUpdated = base.Lang == Lang.TR ? "Kayıt başarıyla güncellendi." : "Record updated successfully.";
                 RecordDeleted = base.Lang == Lang.TR ? "Kayıt başarıyla silindi." : "Record deleted successfully.";
-                RelationalRecordsDeleted = base.Lang == Lang.TR ? "İlişkili kayıtlar başarıyla silindi." : "Related records deleted successfully.";
                 RecordNotSaved = base.Lang == Lang.TR ? "Kaydedilmedi." : "Not saved.";
                 Thread.CurrentThread.CurrentCulture = Lang == Lang.TR ? new CultureInfo("tr-TR") : new CultureInfo("en-US");
                 Thread.CurrentThread.CurrentUICulture = Lang == Lang.TR ? new CultureInfo("tr-TR") : new CultureInfo("en-US");
             }
         }
 
-        protected virtual IQueryable<TEntity> Records { get; set; }
+        protected virtual IQueryable<TEntity> Records { get; }
 
-        protected readonly IDb _db;
+        private readonly IDb _db;
 
         protected ServiceBase(IDb db)
         {
@@ -129,14 +127,10 @@ namespace EZcore.Services
             return Success(RecordNotSaved);
         }
 
-        protected ResultServiceBase Delete<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
+        protected void Delete<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
         {
             if (typeof(TRelationalEntity).GetProperties().Any(property => property.PropertyType == typeof(TEntity)))
-            {
                 _db.Set<TRelationalEntity>().RemoveRange(relationalRecords);
-                return Success(RelationalRecordsDeleted);
-            }
-            return Error(OperationFailed);
         }
 
         protected virtual int Save() => _db.SaveChanges();
