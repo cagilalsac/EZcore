@@ -20,29 +20,29 @@ namespace MVC.Controllers
         // Service injections:
         private readonly ServiceBase<Store, StoreModel> _storeService;
 
-        /* Can be uncommented and used for many to many relationships. ManyToManyRecord may be replaced with the related entiy name in the controller and views. */
-        //private readonly Service<ManyToManyRecord, ManyToManyRecordModel> _ManyToManyRecordService;
+        /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
+        //private readonly Service<*, *Model> _*Service;
 
         public StoresController(HttpServiceBase httpService
 			, ServiceBase<Store, StoreModel> storeService
 
-            /* Can be uncommented and used for many to many relationships. ManyToManyRecord may be replaced with the related entiy name in the controller and views. */
-            //, Service<ManyToManyRecord, ManyToManyRecordModel> ManyToManyRecordService
+            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
+            //, Service<*, *Model> *Service
         ) : base(httpService)
         {
             _storeService = storeService;
             _storeService.Lang = Lang;
 
-            /* Can be uncommented and used for many to many relationships. ManyToManyRecord may be replaced with the related entiy name in the controller and views. */
-            //_ManyToManyRecordService = ManyToManyRecordService;
+            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
+            //_*Service = *Service;
         }
 
         protected override void SetViewData(string message = null)
         {
             base.SetViewData(message);
             
-            /* Can be uncommented and used for many to many relationships. ManyToManyRecord may be replaced with the related entiy name in the controller and views. */
-            //ViewBag.ManyToManyRecordIds = new MultiSelectList(_ManyToManyRecordService.Read(), "Record.Id", "Name");
+            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
+            //ViewBag.*Ids = new MultiSelectList(_*Service.Read(), "Record.Id", "Name");
         }
 
         // GET: Stores

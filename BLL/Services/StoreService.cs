@@ -4,7 +4,6 @@ using BLL.DAL;
 using BLL.Models;
 using EZcore.DAL;
 using EZcore.Extensions;
-using EZcore.Models;
 using EZcore.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,8 +11,6 @@ namespace BLL.Services
 {
     public class StoreService : ServiceBase<Store, StoreModel>
     {
-        protected override string OperationFailed => Lang == Lang.EN ? "Invalid operation!" : "Geçersiz işlem!";
-
         public StoreService(IDb db) : base(db)
         {
         }
@@ -32,7 +29,7 @@ namespace BLL.Services
         {
             if (Records.Any(s => s.Id != record.Id && EF.Functions.Collate(s.Name, Collation) == EF.Functions.Collate(record.Trim().Name, Collation)))
                 return Error(RecordWithSameNameExists);
-            var store = Records.SingleOrDefault(s => s.Id == record.Id);
+            var store = Find(record.Id);
             store.Name = record.Name;
             store.IsVirtual = record.IsVirtual;
             return base.Update(store, save);
@@ -40,7 +37,7 @@ namespace BLL.Services
 
         public override ResultServiceBase Delete(int id, bool save = true)
         {
-            var store = Records.SingleOrDefault(s => s.Id == id);
+            var store = Find(id);
             Delete(store.ProductStores);
             return base.Delete(id, save);
         }

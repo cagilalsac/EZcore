@@ -6,6 +6,6 @@ namespace EZcore.Models
 {
     public abstract class Model<TEntity> where TEntity : Record, new()
     {
-        public TEntity Record { get; set; }
+        public TEntity Record { get; set; } = new TEntity();
     }
 }

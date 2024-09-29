@@ -271,7 +271,7 @@ namespace MVC.Controllers
 
             TempData["Message"] = "Database seed successful.";
 
-            return RedirectToAction("Index", "Categories");
+            return RedirectToAction("Index", "Products");
         }
     }
 }

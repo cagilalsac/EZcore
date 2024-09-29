@@ -35,7 +35,7 @@ namespace EZcore.Extensions
         public static IOrderedQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> query, PageOrder pageOrder) where TEntity : Record, new()
         {
             if (string.IsNullOrWhiteSpace(pageOrder.OrderExpression))
-                return query.OrderBy(entity => entity.Id);
+                return query as IOrderedQueryable<TEntity>;
             return pageOrder.OrderExpression.EndsWith("DESC") ?
                 query.OrderByDescending(entity => EF.Property<object>(entity, pageOrder.OrderExpression.Remove(pageOrder.OrderExpression.Length - 4))) :
                 query.OrderBy(entity => EF.Property<object>(entity, pageOrder.OrderExpression));

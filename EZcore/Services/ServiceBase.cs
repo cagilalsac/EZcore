@@ -52,6 +52,8 @@ namespace EZcore.Services
             Records = _db.Set<TEntity>();
         }
 
+        protected TEntity Find(int id) => Records.SingleOrDefault(entity => entity.Id == id);
+
         public IQueryable<TModel> Query() => Records.AsNoTracking().Select(entity => new TModel() { Record = entity }); 
 
         public List<TModel> Read(PageOrder pageOrder = null)

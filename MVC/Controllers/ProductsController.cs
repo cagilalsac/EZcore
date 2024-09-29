@@ -1,151 +1,160 @@
 ﻿#nullable disable
+using BLL.DAL;
+using BLL.Models;
+using EZcore.Controllers;
+using EZcore.Models;
+using EZcore.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using EZcore.Controllers;
-using EZcore.Services;
-using EZcore.Models;
-using BLL.Models;
-using BLL.DAL;
 
 // Generated from EZcore Template.
 
 namespace MVC.Controllers
 {
-    public class CategoriesController : MvcController
+    public class ProductsController : MvcController
     {
         // Views may be configured here by overriding the base controller properties starting with "View", "Lang" base property can also be overriden if necessary:
-        protected override string ViewModelName => Lang == Lang.TR ? "Kategori" : "Category";
-        protected override bool ViewPageOrder => false;
+        protected override string ViewModelName => Lang == Lang.TR ? "Ürün" : "Product";
+        protected override bool ViewPageOrder => true;
         
         // Service injections:
+        private readonly ServiceBase<Product, ProductModel> _productService;
         private readonly ServiceBase<Category, CategoryModel> _categoryService;
 
         /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-        //private readonly Service<*, *Model> _*Service;
+        private readonly ServiceBase<Store, StoreModel> _storeService;
 
-        public CategoriesController(HttpServiceBase httpService
-			, ServiceBase<Category, CategoryModel> categoryService
+        public ProductsController(HttpServiceBase httpService
+			, ServiceBase<Product, ProductModel> productService
+            , ServiceBase<Category, CategoryModel> categoryService
 
             /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //, Service<*, *Model> *Service
+            , ServiceBase<Store, StoreModel> storeService
         ) : base(httpService)
         {
+            _productService = productService;
+            _productService.Lang = Lang;
             _categoryService = categoryService;
-            _categoryService.Lang = Lang;
 
             /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //_*Service = *Service;
+            _storeService = storeService;
         }
 
         protected override void SetViewData(string message = null)
         {
             base.SetViewData(message);
             
+            // Related items service logic to set ViewData (Record.Id and Name parameters may need to be changed in the SelectList constructor according to the model):
+            ViewData["CategoryId"] = new SelectList(_categoryService.Read(), "Record.Id", "Name");
+
             /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //ViewBag.*Ids = new MultiSelectList(_*Service.Read(), "Record.Id", "Name");
+            ViewBag.StoreIds = new MultiSelectList(_storeService.Read(), "Record.Id", "Name");
         }
 
-        // GET: Categories
+        // GET: Products
         public IActionResult Index(PageOrder pageOrder = null)
         {
             PageOrder = pageOrder;
 
             // Adding order expressions if needed:
-            PageOrder?.AddOrderExpression("Id", "Id");
+            PageOrder?.AddOrderExpression("Stock Amount", "Stok Miktarı");
+            PageOrder?.AddOrderExpression("Unit Price", "Birim Fiyatı");
+            PageOrder?.AddOrderExpression("Expiration Date", "Son Kullanma Tarihi");
+            PageOrder?.AddOrderExpression("Name", "Adı");
 
             // Get collection service logic:
-            var list = _categoryService.Read(PageOrder);
+            var list = _productService.Read(PageOrder);
 
-            SetViewData(_categoryService.Message);
+            SetViewData(_productService.Message);
             return View(list);
         }
 
-        // GET: Categories/Details/5
+        // GET: Products/Details/5
         public IActionResult Details(int id)
         {
             // Get item service logic:
-            var item = _categoryService.Read(id);
+            var item = _productService.Read(id);
 
-            SetViewData(_categoryService.Message);
+            SetViewData(_productService.Message);
             return View(item);
         }
 
-        // GET: Categories/Create
+        // GET: Products/Create
         public IActionResult Create()
         {
             SetViewData();
             return View();
         }
 
-        // POST: Categories/Create
+        // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CategoryModel category)
+        public IActionResult Create(ProductModel product)
         {
             if (ModelState.IsValid)
             {
                 // Insert item service logic:
-                var result = _categoryService.Create(category.Record);
+                var result = _productService.Create(product.Record);
                 
                 SetViewData(result.Message);
                 if (result.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = category.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = product.Record.Id });
             }
             else
             {
                 SetViewData();
             }
-            return View(category);
+            return View(product);
         }
 
-        // GET: Categories/Edit/5
+        // GET: Products/Edit/5
         public IActionResult Edit(int id)
         {
             // Get item to edit service logic:
-            var item = _categoryService.Read(id);
+            var item = _productService.Read(id);
 
-            SetViewData(_categoryService.Message);
+            SetViewData(_productService.Message);
             return View(item);
         }
 
-        // POST: Categories/Edit
+        // POST: Products/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(CategoryModel category)
+        public IActionResult Edit(ProductModel product)
         {
             if (ModelState.IsValid)
             {
                 // Update item service logic:
-                var result = _categoryService.Update(category.Record);
+                var result = _productService.Update(product.Record);
                 
                 SetViewData(result.Message);
                 if (result.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = category.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = product.Record.Id });
             }
             else
             {
                 SetViewData();
             }
-            return View(category);
+            return View(product);
         }
 
-        // GET: Categories/Delete/5
+        // GET: Products/Delete/5
         public IActionResult Delete(int id)
         {
             // Get item to delete service logic:
-            var item = _categoryService.Read(id);
+            var item = _productService.Read(id);
 
-            SetViewData(_categoryService.Message);
+            SetViewData(_productService.Message);
             return View(item);
         }
 
-        // POST: Categories/Delete
+        // POST: Products/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
             // Delete item service logic:
-            var result = _categoryService.Delete(id);
+            var result = _productService.Delete(id);
 
             SetViewData(result.Message);
             return RedirectToAction(nameof(Index), new { pageordersession = true });

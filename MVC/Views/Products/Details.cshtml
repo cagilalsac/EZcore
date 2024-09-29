@@ -1,6 +1,6 @@
 ﻿@using EZcore.Models
 
-@model CategoryModel
+@model ProductModel
 
 @* Generated from EZcore Template. *@
 @* Model namespace using directive should be added to _ViewImports.cshtml. *@
@@ -33,24 +33,48 @@
     </div>
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.Description)
+            @Html.DisplayNameFor(model => model.UnitPrice)
         </div>
         <div class="col-10">
-            @Html.DisplayFor(model => model.Description)
+            @Html.DisplayFor(model => model.UnitPrice)
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @Html.DisplayNameFor(model => model.StockAmount)
+        </div>
+        <div class="col-10">
+            @Html.Raw(Model.StockAmount)
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @Html.DisplayNameFor(model => model.ExpirationDate)
+        </div>
+        <div class="col-10">
+            @Html.DisplayFor(model => model.ExpirationDate)
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @Html.DisplayNameFor(model => model.Category)
+        </div>
+        <div class="col-10">
+            @Html.DisplayFor(model => model.Category)
         </div>
     </div>
 
 @* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. *@
-    @*
+    
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            <b>@Html.DisplayNameFor(model => model.*s)</b>
+            <b>@Html.DisplayNameFor(model => model.Stores)</b>
         </div>
         <div class="col-10">
-            @Html.Raw(Model.*s)
+            @Html.Raw(Model.Stores)
         </div>
     </div>
-    *@
+   
 
     <hr /> 
     <a asp-action="Edit" asp-route-id="@Model.Record.Id">@edit</a>&nbsp;|&nbsp;

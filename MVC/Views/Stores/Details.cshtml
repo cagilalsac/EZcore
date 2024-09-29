@@ -23,34 +23,8 @@
 {
 <div class="@containerDivClass">
     <partial name="_EZmessage" />
-    <div class="row mb-3">
-        <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.Name)
-        </div>
-        <div class="col-10">
-            @Html.DisplayFor(model => model.Name)
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.IsVirtual)
-        </div>
-        <div class="col-10">
-            @Html.DisplayFor(model => model.IsVirtual)
-        </div>
-    </div>
 
-@* Can be uncommented and used for many to many relationships. ManyToManyRecord may be replaced with the related entiy name in the controller and views. *@
-    
-    <div class="row mb-3">
-        <div class="col-2 fw-bold">
-            <b>@Html.DisplayNameFor(model => model.Products)</b>
-        </div>
-        <div class="col-10">
-            @Html.Raw(Model.Products)
-        </div>
-    </div>
-   
+    <partial name="_Details" model="Model" />
 
     <hr /> 
     <a asp-action="Edit" asp-route-id="@Model.Record.Id">@edit</a>&nbsp;|&nbsp;
