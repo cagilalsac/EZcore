@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services
 {
-    public class ProductService : ServiceBase<Product, ProductModel>
+    public class ProductService : Service<Product, ProductModel>
     {
         protected override string RecordFound => Lang == Lang.EN ? "product found." : "ürün bulundu.";
         protected override string RecordsFound => Lang == Lang.EN ? "products found." : "ürün bulundu.";
@@ -20,7 +20,7 @@ namespace BLL.Services
         protected override string RecordUpdated => Lang == Lang.EN ? "Product updated successfully." : "Ürün başarıyla güncellendi.";
         protected override string RecordDeleted => Lang == Lang.EN ? "Product deleted successfully." : "Ürün başarıyla silindi.";
 
-        public ProductService(IDb db) : base(db)
+        public ProductService(IDb db, HttpServiceBase httpService) : base(db, httpService)
         {
         }
 

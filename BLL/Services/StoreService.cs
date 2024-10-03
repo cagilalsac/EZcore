@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services
 {
-    public class StoreService : ServiceBase<Store, StoreModel>
+    public class StoreService : Service<Store, StoreModel>
     {
-        public StoreService(IDb db) : base(db)
+        public StoreService(IDb db, HttpServiceBase httpService) : base(db, httpService)
         {
         }
 

@@ -18,13 +18,13 @@ namespace MVC.Controllers
         protected override bool ViewPageOrder => false;
         
         // Service injections:
-        private readonly ServiceBase<Store, StoreModel> _storeService;
+        private readonly Service<Store, StoreModel> _storeService;
 
         /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
         //private readonly Service<*, *Model> _*Service;
 
         public StoresController(HttpServiceBase httpService
-			, ServiceBase<Store, StoreModel> storeService
+			, Service<Store, StoreModel> storeService
 
             /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
             //, Service<*, *Model> *Service

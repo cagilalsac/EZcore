@@ -24,8 +24,8 @@ namespace BLL
 
             // Inversion of Control for Services:
             builder.Services.AddScoped(typeof(ServiceBase<Category, CategoryModel>), typeof(CategoryService));
-            builder.Services.AddScoped(typeof(ServiceBase<Store, StoreModel>), typeof(StoreService));
-            builder.Services.AddScoped(typeof(ServiceBase<Product, ProductModel>), typeof(ProductService));
+            builder.Services.AddScoped(typeof(Service<Store, StoreModel>), typeof(StoreService));
+            builder.Services.AddScoped(typeof(Service<Product, ProductModel>), typeof(ProductService));
 
             // EZcore:
             builder.ConfigureEZcore();

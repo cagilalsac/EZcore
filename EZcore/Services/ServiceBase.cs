@@ -4,6 +4,7 @@ using EZcore.DAL;
 using EZcore.Extensions;
 using EZcore.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Globalization;
 
 namespace EZcore.Services
@@ -42,6 +43,8 @@ namespace EZcore.Services
             }
         }
 
+        protected ChangeTracker _changeTracker;
+
         protected virtual IQueryable<TEntity> Records { get; }
 
         private readonly IDb _db;
@@ -50,6 +53,7 @@ namespace EZcore.Services
         {
             _db = db;
             Records = _db.Set<TEntity>();
+            _changeTracker = _db.ChangeTracker;
         }
 
         protected TEntity Find(int id) => Records.SingleOrDefault(entity => entity.Id == id);
