@@ -79,6 +79,9 @@ namespace BLL.Migrations
                     b.Property<int?>("StockAmount")
                         .HasColumnType("int");
 
+                    b.Property<string>("StoreIds")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal?>("UnitPrice")
                         .IsRequired()
                         .HasColumnType("decimal(18,2)");
@@ -150,7 +153,7 @@ namespace BLL.Migrations
                     b.HasOne("BLL.DAL.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Category");
@@ -161,13 +164,13 @@ namespace BLL.Migrations
                     b.HasOne("BLL.DAL.Product", "Product")
                         .WithMany("ProductStores")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("BLL.DAL.Store", "Store")
                         .WithMany("ProductStores")
                         .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Product");

@@ -27,12 +27,5 @@ namespace BLL.Models
         public string Category => Record.Category?.Name;
 
         public string Stores => string.Join("<br>", Record.ProductStores?.OrderBy(ps => ps.Store?.Name).Select(ps => ps.Store?.Name));
-
-        [DisplayName("Stores")]
-        public List<int> StoreIds
-        {
-            get => Record.ProductStores?.Select(ps => ps.StoreId).ToList();
-            set => Record.ProductStores = value.Select(v => new ProductStore() { StoreId = v }).ToList();
-        }
     }
 }

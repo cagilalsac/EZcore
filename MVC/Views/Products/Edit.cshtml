@@ -71,10 +71,10 @@
 @* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. *@
         
         <div class="row mb-3">
-            <label asp-for="StoreIds" class="col-2 col-form-label fw-bold"></label>
+            <label asp-for="Stores" class="col-2 col-form-label fw-bold"></label>
 	        <div class="col-10">
-		        <select multiple asp-for="StoreIds" class="form-select select2" asp-items="ViewBag.StoreIds"></select>
-		        <span asp-validation-for="StoreIds" class="text-danger"></span>
+		        <select multiple asp-for="Record.StoreIds" class="form-select select2" asp-items="ViewBag.StoreIds"></select>
+		        <span asp-validation-for="Record.StoreIds" class="text-danger"></span>
 	        </div>
         </div>
        

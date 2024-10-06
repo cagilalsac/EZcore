@@ -1,7 +1,7 @@
 ﻿using BLL.DAL;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
-using System.Text;
 
 namespace MVC.Controllers
 {
@@ -16,6 +16,14 @@ namespace MVC.Controllers
 
         public IActionResult Seed()
         {
+            if (_db.Stores.Any() || _db.Products.Any() || _db.ProductStores.Any() || _db.Categories.Any())
+            {
+                _db.Database.ExecuteSqlRaw("dbcc CHECKIDENT ('Stores', RESEED, 0)");
+                _db.Database.ExecuteSqlRaw("dbcc CHECKIDENT ('Products', RESEED, 0)");
+                _db.Database.ExecuteSqlRaw("dbcc CHECKIDENT ('Categories', RESEED, 0)");
+                _db.Database.ExecuteSqlRaw("dbcc CHECKIDENT ('ProductStores', RESEED, 0)");
+            }
+
             _db.ProductStores.RemoveRange(_db.ProductStores.ToList());
             _db.Stores.RemoveRange(_db.Stores.ToList());
             _db.Products.RemoveRange(_db.Products.ToList());
@@ -62,12 +70,9 @@ namespace MVC.Controllers
                         Name = "Laptop",
                         UnitPrice = 3000.5m,
                         StockAmount = 10,
-                        ProductStores = new List<ProductStore>()
+                        StoreIds = new List<int>()
                         {
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Hepsiburada").Id
-                            }
+                            _db.Stores.SingleOrDefault(s => s.Name == "Hepsiburada").Id
                         }
                     },
                     new Product()
@@ -75,16 +80,10 @@ namespace MVC.Controllers
                         Name = "Mouse",
                         UnitPrice = 20.5M,
                         StockAmount = null,
-                        ProductStores = new List<ProductStore>()
+                        StoreIds = new List<int>()
                         {
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Hepsiburada").Id
-                            },
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Vatan").Id
-                            }
+                            _db.Stores.SingleOrDefault(s => s.Name == "Hepsiburada").Id,
+                            _db.Stores.SingleOrDefault(s => s.Name == "Vatan").Id
                         }
                     },
                     new Product()
@@ -92,20 +91,11 @@ namespace MVC.Controllers
                         Name = "Keyboard",
                         UnitPrice = 40,
                         StockAmount = 45,
-                        ProductStores = new List<ProductStore>()
+                        StoreIds = new List<int>()
                         {
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Hepsiburada").Id
-                            },
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "İtopya").Id
-                            },
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Sahibinden").Id
-                            }
+                            _db.Stores.SingleOrDefault(s => s.Name == "Hepsiburada").Id,
+                            _db.Stores.SingleOrDefault(s => s.Name == "İtopya").Id,
+                            _db.Stores.SingleOrDefault(s => s.Name == "Sahibinden").Id
                         }
                     },
                     new Product()
@@ -113,16 +103,10 @@ namespace MVC.Controllers
                         Name = "Monitor",
                         UnitPrice = 2500,
                         StockAmount = 20,
-                        ProductStores = new List<ProductStore>()
+                        StoreIds = new List<int>()
                         {
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Teknosa").Id
-                            },
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Vatan").Id
-                            }
+                            _db.Stores.SingleOrDefault(s => s.Name == "Teknosa").Id,
+                            _db.Stores.SingleOrDefault(s => s.Name == "Vatan").Id
                         }
                     }
                 }
@@ -138,12 +122,9 @@ namespace MVC.Controllers
                         Name = "Speaker",
                         UnitPrice = 2500,
                         StockAmount = 70,
-                        ProductStores = new List<ProductStore>()
+                        StoreIds = new List<int>()
                         {
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Teknosa").Id
-                            }
+                            _db.Stores.SingleOrDefault(s => s.Name == "Teknosa").Id
                         }
                     },
                     new Product()
@@ -151,16 +132,10 @@ namespace MVC.Controllers
                         Name = "Receiver",
                         UnitPrice = 5000,
                         StockAmount = 30,
-                        ProductStores = new List<ProductStore>()
+                        StoreIds = new List<int>()
                         {
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Hepsiburada").Id
-                            },
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Sahibinden").Id
-                            }
+                            _db.Stores.SingleOrDefault(s => s.Name == "Hepsiburada").Id,
+                            _db.Stores.SingleOrDefault(s => s.Name == "Sahibinden").Id
                         }
                     },
                     new Product()
@@ -182,24 +157,12 @@ namespace MVC.Controllers
                         Name = "iPhone",
                         UnitPrice = 10000,
                         StockAmount = 20,
-                        ProductStores = new List<ProductStore>()
+                        StoreIds = new List<int>()
                         {
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Teknosa").Id
-                            },
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Vatan").Id
-                            },
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Hepsiburada").Id
-                            },
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Sahibinden").Id
-                            }
+                            _db.Stores.SingleOrDefault(s => s.Name == "Teknosa").Id,
+                            _db.Stores.SingleOrDefault(s => s.Name == "Vatan").Id,
+                            _db.Stores.SingleOrDefault(s => s.Name == "Hepsiburada").Id,
+                            _db.Stores.SingleOrDefault(s => s.Name == "Sahibinden").Id
                         }
                     }
                 }
@@ -215,12 +178,9 @@ namespace MVC.Controllers
                         UnitPrice = 10.5m,
                         StockAmount = 500,
                         ExpirationDate = new DateTime(2024, 12, 31),
-                        ProductStores = new List<ProductStore>()
+                        StoreIds = new List<int>()
                         {
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Migros").Id
-                            }
+                            _db.Stores.SingleOrDefault(s => s.Name == "Migros").Id
                         }
                     },
                     new Product()
@@ -229,12 +189,9 @@ namespace MVC.Controllers
                         UnitPrice = 2.5M,
                         StockAmount = 125,
                         ExpirationDate = DateTime.Parse("09/18/2025", new CultureInfo("en-US")),
-                        ProductStores = new List<ProductStore>()
+                        StoreIds = new List<int>()
                         {
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Migros").Id
-                            }
+                            _db.Stores.SingleOrDefault(s => s.Name == "Migros").Id
                         }
                     }
                 }
@@ -251,12 +208,9 @@ namespace MVC.Controllers
                         UnitPrice = 35,
                         StockAmount = 5,
                         ExpirationDate = DateTime.Parse("19.05.2027", new CultureInfo("tr-TR")),
-                        ProductStores = new List<ProductStore>()
+                        StoreIds = new List<int>()
                         {
-                            new ProductStore()
-                            {
-                                StoreId = _db.Stores.SingleOrDefault(s => s.Name == "Migros").Id
-                            }
+                            _db.Stores.SingleOrDefault(s => s.Name == "Migros").Id
                         }
                     }
                 }

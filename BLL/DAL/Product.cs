@@ -23,7 +23,13 @@ namespace BLL.DAL
 
         public Category Category { get; set; }
 
-        public List<ProductStore> ProductStores { get; set; } = new List<ProductStore>();
+        public List<ProductStore> ProductStores { get; private set; } = new List<ProductStore>();
+
+        public List<int> StoreIds 
+        { 
+            get => ProductStores?.Select(ps => ps.StoreId).ToList(); 
+            set => ProductStores = value?.Select(v => new ProductStore() { StoreId = v }).ToList(); 
+        }
 
         public bool? IsDeleted { get; set; }
         public DateTime? CreateDate { get; set; }

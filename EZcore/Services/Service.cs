@@ -3,7 +3,6 @@
 using EZcore.DAL;
 using EZcore.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Reflection;
 
 namespace EZcore.Services
@@ -22,27 +21,19 @@ namespace EZcore.Services
         private bool _hasModifiedByProperty => _createDateProperty is not null && _createdByProperty is not null &&
             _updateDateProperty is not null && _updatedByProperty is not null;
 
-        protected override IQueryable<TEntity> Records => _hasIsDeletedProperty ?
-            base.Records.Where(entity => (EF.Property<bool?>(entity, _isDeletedProperty.Name) ?? false) == false) : base.Records;
+        protected override IQueryable<TEntity> Records() => _hasIsDeletedProperty ?
+            base.Records().Where(entity => (EF.Property<bool?>(entity, _isDeletedProperty.Name) ?? false) == false) : base.Records();
 
-        private readonly HttpServiceBase _httpService;
+        protected readonly HttpServiceBase _httpService;
 
         protected Service(IDb db, HttpServiceBase httpService) : base(db)
         {
             _httpService = httpService;
         }
 
-        private bool UpdateChangesDetected(EntityEntry<TEntity> entry)
-        {
-            return entry.Properties.Any(p => p.IsModified &&
-                ((p.CurrentValue is null && p.OriginalValue is not null) ||
-                (p.CurrentValue is not null && p.OriginalValue is null) ||
-                (p.CurrentValue is not null && p.OriginalValue is not null && !p.CurrentValue.Equals(p.OriginalValue))));
-        }
-
         protected override int Save()
         {
-            foreach (var entityEntry in _changeTracker.Entries<TEntity>())
+            foreach (var entityEntry in _db.ChangeTracker.Entries<TEntity>())
             {
                 switch (entityEntry.State)
                 {
@@ -62,11 +53,7 @@ namespace EZcore.Services
                         {
                             entityEntry.Property(_guidProperty.Name).IsModified = false;
                         }
-                        if (!UpdateChangesDetected(entityEntry))
-                        {
-                            entityEntry.State = EntityState.Unchanged;
-                        }
-                        else if (_hasModifiedByProperty)
+                        if (_hasModifiedByProperty)
                         {
                             entityEntry.CurrentValues[_updateDateProperty.Name] = DateTime.Now;
                             entityEntry.CurrentValues[_updatedByProperty.Name] = _httpService.UserIdentityName;

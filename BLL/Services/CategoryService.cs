@@ -14,26 +14,25 @@ namespace BLL.Services
         {
         }
 
-        protected override IQueryable<Category> Records => base.Records.OrderBy(c => c.Name);
+        protected override IQueryable<Category> Records() => base.Records().Include(c => c.Products).OrderBy(c => c.Name);
 
         public override ResultServiceBase Create(Category record, bool save = true)
         {
-            if (Records.Any(c => c.Name.ToUpper() == record.Name.ToUpper().Trim()))
+            if (Records().Any(c => c.Name.ToUpper() == record.Name.ToUpper().Trim()))
                 return Error(RecordWithSameNameExists);
             return base.Create(record, save);
         }
 
         public override ResultServiceBase Update(Category record, bool save = true)
         {
-            if (Records.Any(c => c.Id != record.Id && c.Name.ToUpper() == record.Name.ToUpper().Trim()))
+            if (Records().Any(c => c.Id != record.Id && c.Name.ToUpper() == record.Name.ToUpper().Trim()))
                 return Error(RecordWithSameNameExists);
             return base.Update(record, save);
         }
 
         public override ResultServiceBase Delete(int id, bool save = true)
         {
-            var record = Records.Include(c => c.Products).SingleOrDefault(c => c.Id == id);
-            if (record.Products.Any())
+            if (Records(id).Products.Any())
                 return Error(RelationalRecordsFound);
             return base.Delete(id, save);
         }

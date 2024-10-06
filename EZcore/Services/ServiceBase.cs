@@ -4,7 +4,6 @@ using EZcore.DAL;
 using EZcore.Extensions;
 using EZcore.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Globalization;
 
 namespace EZcore.Services
@@ -43,22 +42,18 @@ namespace EZcore.Services
             }
         }
 
-        protected ChangeTracker _changeTracker;
-
-        protected virtual IQueryable<TEntity> Records { get; }
-
-        private readonly IDb _db;
+        protected readonly IDb _db;
 
         protected ServiceBase(IDb db)
         {
             _db = db;
-            Records = _db.Set<TEntity>();
-            _changeTracker = _db.ChangeTracker;
         }
 
-        protected TEntity Find(int id) => Records.SingleOrDefault(entity => entity.Id == id);
+        protected virtual IQueryable<TEntity> Records() => _db.Set<TEntity>();
 
-        public IQueryable<TModel> Query() => Records.AsNoTracking().Select(entity => new TModel() { Record = entity }); 
+        protected TEntity Records(int id) => Records().SingleOrDefault(entity => entity.Id == id);
+
+        public virtual IQueryable<TModel> Query() => Records().AsNoTracking().Select(entity => new TModel() { Record = entity }); 
 
         public List<TModel> Read(PageOrder pageOrder = null)
         {
@@ -73,7 +68,7 @@ namespace EZcore.Services
             else
             {
                 pageOrder.Lang = Lang;
-                list = Records.AsNoTracking().OrderBy(pageOrder).Paginate(pageOrder).Select(entity => new TModel() { Record = entity }).ToList();
+                list = Records().AsNoTracking().OrderBy(pageOrder).Paginate(pageOrder).Select(entity => new TModel() { Record = entity }).ToList();
                 if (pageOrder.TotalRecordsCount > 0)
                     Success($"{pageOrder.TotalRecordsCount} {(pageOrder.TotalRecordsCount == 1 ? RecordFound : RecordsFound)}");
             }

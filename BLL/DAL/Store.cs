@@ -13,6 +13,6 @@ namespace BLL.DAL
 
         public bool IsVirtual { get; set; }
 
-        public List<ProductStore> ProductStores { get; set; } = new List<ProductStore>();
+        public List<ProductStore> ProductStores { get; private set; } = new List<ProductStore>();
     }
 }

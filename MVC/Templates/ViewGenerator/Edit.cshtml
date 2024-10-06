@@ -140,10 +140,10 @@ foreach (PropertyMetadata property in Model.ModelMetadata.Properties)
 @:@@* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. *@@
         @:@@*
         @:<div class="row mb-3">
-            @:<label asp-for="*Ids" class="col-2 col-form-label fw-bold"></label>
+            @:<label asp-for="*s" class="col-2 col-form-label fw-bold"></label>
 	        @:<div class="col-10">
-		        @:<select multiple asp-for="*Ids" class="form-select select2" asp-items="ViewBag.*Ids"></select>
-		        @:<span asp-validation-for="*Ids" class="text-danger"></span>
+		        @:<select multiple asp-for="Record.*Ids" class="form-select select2" asp-items="ViewBag.*Ids"></select>
+		        @:<span asp-validation-for="Record.*Ids" class="text-danger"></span>
 	        @:</div>
         @:</div>
         @:*@@

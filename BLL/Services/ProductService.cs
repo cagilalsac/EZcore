@@ -24,38 +24,34 @@ namespace BLL.Services
         {
         }
 
-        protected override IQueryable<Product> Records => base.Records.Include(p => p.Category).Include(p => p.ProductStores).ThenInclude(ps => ps.Store)
+        protected override IQueryable<Product> Records() => base.Records().Include(p => p.Category).Include(p => p.ProductStores).ThenInclude(ps => ps.Store)
             .OrderBy(p => p.StockAmount).ThenByDescending(p => p.UnitPrice).ThenBy(p => p.Name);
 
         public override ResultServiceBase Create(Product record, bool save = true)
         {
-            if (Records.Any(p => EF.Functions.Collate(p.Name, Collation) == EF.Functions.Collate(record.Trim().Name, Collation)))
+            if (Records().Any(p => EF.Functions.Collate(p.Name, Collation) == EF.Functions.Collate(record.Trim().Name, Collation)))
                 return Error(RecordWithSameNameExists);
             return base.Create(record, save);
         }
 
         public override ResultServiceBase Update(Product record, bool save = true)
         {
-            if (Records.Any(p => p.Id != record.Id && EF.Functions.Collate(p.Name, Collation) == EF.Functions.Collate(record.Trim().Name, Collation)))
+            if (Records().Any(p => p.Id != record.Id && EF.Functions.Collate(p.Name, Collation) == EF.Functions.Collate(record.Trim().Name, Collation)))
                 return Error(RecordWithSameNameExists);
-            var product = Find(record.Id);
-            if (product is null)
-                return Error(RecordNotFound);
+            var product = Records(record.Id);
+            Delete(product.ProductStores);
             product.Name = record.Name;
             product.UnitPrice = record.UnitPrice;
             product.StockAmount = record.StockAmount;
             product.ExpirationDate = record.ExpirationDate;
             product.CategoryId = record.CategoryId;
-            product.ProductStores = record.ProductStores;
+            product.StoreIds = record.StoreIds;
             return base.Update(product, save);
         }
 
         public override ResultServiceBase Delete(int id, bool save = true)
         {
-            var product = Find(id);
-            if (product is null)
-                return Error(RecordNotFound);
-            Delete(product.ProductStores);
+            Delete(Records(id).ProductStores);
             return base.Delete(id, save);
         }
     }
