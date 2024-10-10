@@ -26,7 +26,7 @@ namespace EZcore.Attributes
                     {
                         ErrorMessage = $"Bu alan en çok {MaximumLength} karakter olmalıdır,";
                     }
-                    ErrorMessage += $"{valueAsString.Length} karakter girilmiştir!";
+                    ErrorMessage += $" {valueAsString.Length} karakter girilmiştir!";
                 }
                 else
                 {
@@ -38,7 +38,7 @@ namespace EZcore.Attributes
                     {
                         ErrorMessage = $"This field must have maximum {MaximumLength} characters,";
                     }
-                    ErrorMessage += $"{valueAsString.Length} characters entered!";
+                    ErrorMessage += $" {valueAsString.Length} characters entered!";
                 }
             }
             return valid;
