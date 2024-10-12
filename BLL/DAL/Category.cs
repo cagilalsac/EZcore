@@ -7,8 +7,8 @@ namespace BLL.DAL
 {
     public class Category : Record
     {
-        [EZRequired]
-        [EZLength(100)]
+        [Required]
+        [StringLength(100)]
         public string Name { get; set; }
 
         public string Description { get; set; }

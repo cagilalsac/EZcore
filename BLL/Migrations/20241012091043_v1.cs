@@ -17,7 +17,7 @@ namespace BLL.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Guid = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -32,7 +32,7 @@ namespace BLL.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     IsVirtual = table.Column<bool>(type: "bit", nullable: false),
                     Guid = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -47,7 +47,7 @@ namespace BLL.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     StockAmount = table.Column<int>(type: "int", nullable: true),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: true),

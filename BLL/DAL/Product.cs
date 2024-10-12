@@ -7,18 +7,18 @@ namespace BLL.DAL
 {
     public class Product : Record, ISoftDelete, IModifiedBy
     {
-        [EZRequired]
-        [EZLength(150)]
+        [Required]
+        [StringLength(150)]
         public string Name { get; set; }
 
-        [EZRequired]
+        [Required]
         public decimal? UnitPrice { get; set; }
 
         public int? StockAmount { get; set; }
 
         public DateTime? ExpirationDate { get; set; }
 
-        [EZRequired]
+        [Required]
         public int? CategoryId { get; set; }
 
         public Category Category { get; set; }

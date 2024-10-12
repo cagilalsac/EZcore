@@ -1,12 +1,10 @@
 ﻿#nullable disable
 
-using System.ComponentModel;
-
 namespace EZcore.Attributes
 {
-    public class EZDisplayNameAttribute : DisplayNameAttribute
+    public class DisplayNameAttribute : System.ComponentModel.DisplayNameAttribute
     {
-        public EZDisplayNameAttribute(string displayNameEN, string displayNameTR = "")
+        public DisplayNameAttribute(string displayNameEN, string displayNameTR = "")
         {
             if (Thread.CurrentThread.CurrentCulture.Name == "tr-TR")
             {

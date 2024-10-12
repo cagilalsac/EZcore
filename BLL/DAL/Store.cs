@@ -7,8 +7,8 @@ namespace BLL.DAL
 {
     public class Store : Record
     {
-        [EZRequired]
-        [EZLength(200, 5)]
+        [Required]
+        [StringLength(200, MinimumLength = 5)]
         public string Name { get; set; }
 
         public bool IsVirtual { get; set; }

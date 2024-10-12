@@ -1,10 +1,8 @@
 ﻿#nullable disable
 
-using System.ComponentModel.DataAnnotations;
-
 namespace EZcore.Attributes
 {
-    public class EZRequiredAttribute : RequiredAttribute
+    public class RequiredAttribute : System.ComponentModel.DataAnnotations.RequiredAttribute
     {
         public override bool IsValid(object value)
         {

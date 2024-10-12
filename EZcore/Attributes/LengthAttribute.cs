@@ -1,12 +1,10 @@
 ﻿#nullable disable
 
-using System.ComponentModel.DataAnnotations;
-
 namespace EZcore.Attributes
 {
-    public class EZLengthAttribute : LengthAttribute
+    public class LengthAttribute : System.ComponentModel.DataAnnotations.LengthAttribute
     {
-        public EZLengthAttribute(int maximumLength, int minimumLength = 0) : base(minimumLength, maximumLength)
+        public LengthAttribute(int maximumLength, int minimumLength = 0) : base(minimumLength, maximumLength)
         {
         }
 

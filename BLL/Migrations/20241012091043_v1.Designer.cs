@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BLL.Migrations
 {
     [DbContext(typeof(Db))]
-    [Migration("20241006181738_v1")]
+    [Migration("20241012091043_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -41,7 +41,8 @@ namespace BLL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -77,7 +78,8 @@ namespace BLL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<int?>("StockAmount")
                         .HasColumnType("int");
@@ -144,7 +146,8 @@ namespace BLL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
