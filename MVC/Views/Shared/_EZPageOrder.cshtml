@@ -1,0 +1,49 @@
+﻿@using EZcore.Models
+
+@model PageOrder
+
+@{
+    var recordsPerPageCounts = new SelectList(Model.RecordsPerPageCounts);
+    var pageNumbers = new SelectList(Model.PageNumbers);
+    var orderExpressions = new SelectList(Model.OrderExpressions, "Key", "Value");
+    var count = Model.Lang == Lang.EN ? "Count" : "Sayı";
+    var page = Model.Lang == Lang.EN ? "Page" : "Sayfa";
+    var order = Model.Lang == Lang.EN ? "Order" : "Sıra";
+}
+
+<div class="row mb-3">
+    <div class="col-lg-7">
+        <div class="row">
+            <div class="col-lg-1 pt-1">
+                @count
+            </div>
+            <div class="col-lg-3">
+                <select asp-for="RecordsPerPageCount" class="form-select recordsperpagecount" asp-items="recordsPerPageCounts"></select>
+            </div>
+            <div class="col-lg-1"></div>
+            <div class="col-lg-1 pt-1">
+                @(page)
+            </div>
+            <div class="col-lg-3">
+                <div class="input-group">
+                    <select asp-for="PageNumber" class="form-select pagenumber" asp-items="pageNumbers"></select>
+                    <span class="input-group-text">@(" / " + pageNumbers.Count())</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (orderExpressions.Any())
+    {
+        <div class="col-lg-5">
+            <div class="row">
+                <div class="col-lg-4"></div>
+                <div class="col-lg-1 pt-1">
+                    @order
+                </div>
+                <div class="col-lg-7">
+                    <select asp-for="OrderExpression" class="form-select orderexpression" asp-items="orderExpressions"></select>
+                </div>
+            </div>
+        </div>
+    }
+</div>

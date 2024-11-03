@@ -1,0 +1,87 @@
+﻿@using EZcore.Models
+
+@model ProductModel
+
+@* Generated from EZcore Template. *@
+@* Model namespace using directive should be added to _ViewImports.cshtml. *@
+
+@{
+    // ViewData:
+    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var modelName = ViewData["ViewModelName"];
+    var containerDivClass = "container-fluid"; // "container" can be used for not full width
+    var delete = lang == Lang.EN ? "Delete" : "Sil";
+    var save = lang == Lang.EN ? "Yes" : "Evet";
+    var backToList = lang == Lang.EN ? "No" : "Hayır";
+    var question = lang == Lang.EN ? "Are you sure you want to delete?" : "Kaydı silmek istediğinize emin misiniz?";
+}
+@{
+    ViewData["Title"] = $"{modelName} {delete}";
+}
+@if (Model is not null)
+{
+<div class="@containerDivClass">
+    <partial name="_EZmessage" />
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @Html.DisplayNameFor(model => model.Name)
+        </div>
+        <div class="col-10">
+            @Html.DisplayFor(model => model.Name)
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @Html.DisplayNameFor(model => model.UnitPrice)
+        </div>
+        <div class="col-10">
+            @Html.DisplayFor(model => model.UnitPrice)
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @Html.DisplayNameFor(model => model.StockAmount)
+        </div>
+        <div class="col-10">
+            @Html.Raw(Model.StockAmount)
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @Html.DisplayNameFor(model => model.ExpirationDate)
+        </div>
+        <div class="col-10">
+            @Html.DisplayFor(model => model.ExpirationDate)
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @Html.DisplayNameFor(model => model.Category)
+        </div>
+        <div class="col-10">
+            @Html.DisplayFor(model => model.Category)
+        </div>
+    </div>
+
+@* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. *@
+    
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            <b>@Html.DisplayNameFor(model => model.Stores)</b>
+        </div>
+        <div class="col-10">
+            @Html.Raw(Model.Stores)
+        </div>
+    </div>
+   
+
+    <hr />
+    <h5 class="text-danger">@question</h5>
+    <form asp-action="Delete">
+	    @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Record.Id" />
+        <button type="submit" class="btn btn-danger">@save</button>&nbsp;&nbsp;
+        <a asp-action="Index" asp-route-pageordersession="true" class="btn btn-outline-danger">@backToList</a>
+    </form>
+</div>
+}

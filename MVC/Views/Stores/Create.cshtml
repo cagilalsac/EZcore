@@ -1,0 +1,65 @@
+﻿@using EZcore.Models
+@using EZcore.Extensions
+
+@model StoreModel
+
+@* Generated from EZcore Template. *@
+@* Model namespace using directive should be added to _ViewImports.cshtml. *@
+
+@{
+    // ViewData:
+    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var modelName = ViewData["ViewModelName"];
+    var containerDivClass = "container-fluid"; // "container" can be used for not full width
+    var dateTimePickerClass = "datepicker"; // "datetimepicker" can be used for date with time
+    var create = lang == Lang.EN ? "Create" : "Yeni";
+    var select = lang == Lang.EN ? "-- Select --" : "-- Seçiniz --";
+    var save = lang == Lang.EN ? "Save" : "Kaydet";
+    var clear = lang == Lang.EN ? "Clear" : "Temizle";
+    var backToList = lang == Lang.EN ? "Back to List" : "Listeye Dön";
+}
+@{
+    ViewData["Title"] = $"{create} {modelName}";
+}
+<div class="@containerDivClass">
+    <partial name="_EZMessage" />
+    <form asp-action="Create" autocomplete="off">
+		@Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row mb-3">
+            <label asp-for="StoreName" class="col-2 col-form-label fw-bold"></label>
+			<div class="col-10">
+			    <input asp-for="Record.StoreName" class="form-control" />
+				<span asp-validation-for="Record.StoreName" class="text-danger"></span>
+			</div>
+        </div>
+        <div class="row mb-3">
+			<label asp-for="IsVirtual" class="col-2 col-form-label fw-bold"></label>
+			<div class="col-10 pt-2">
+				<input class="form-check-input" asp-for="Record.IsVirtual" />
+            </div>
+        </div>
+
+@* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. *@
+        @*
+        <div class="row mb-3">
+            <label asp-for="*s" class="col-2 col-form-label fw-bold"></label>
+	        <div class="col-10">
+		        <select multiple asp-for="Record.*Ids" class="form-select select2" asp-items="ViewBag.*Ids"></select>
+		        <span asp-validation-for="Record.*Ids" class="text-danger"></span>
+	        </div>
+        </div>
+        *@
+
+        <hr />  
+        <div class="row mb-3">
+			<div class="offset-2 col-10">
+                <button type="submit" class="btn btn-primary">@save</button>
+				&nbsp;&nbsp;
+                <button type="reset" class="btn btn-outline-primary">@clear</button>
+				&nbsp;&nbsp;
+				<a asp-action="Index" asp-route-pageordersession="true">@backToList</a>
+			</div>
+        </div>
+    </form>
+</div>  

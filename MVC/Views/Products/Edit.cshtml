@@ -1,0 +1,101 @@
+﻿@using EZcore.Models
+@using EZcore.Extensions
+
+@model ProductModel
+
+@* Generated from EZcore Template. *@
+@* Model namespace using directive should be added to _ViewImports.cshtml. *@
+
+@{
+    // ViewData:
+    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var modelName = ViewData["ViewModelName"];
+    var containerDivClass = "container-fluid"; // "container" can be used for not full width
+    var dateTimePickerClass = "datepicker"; // "datetimepicker" can be used for date with time
+    var edit = lang == Lang.EN ? "Edit" : "Düzenle";
+    var delete = lang == Lang.EN ? "Delete" : "Sil";
+    var select = lang == Lang.EN ? "-- Select --" : "-- Seçiniz --";
+    var save = lang == Lang.EN ? "Save" : "Kaydet";
+    var clear = lang == Lang.EN ? "Clear" : "Temizle";
+    var backToList = lang == Lang.EN ? "Back to List" : "Listeye Dön";
+}
+@{
+    ViewData["Title"] = $"{modelName} {edit}";
+}
+@if (Model is not null)
+{
+<div class="@containerDivClass">
+    <partial name="_EZMessage" />
+    <form asp-action="Edit" autocomplete="off">
+	    @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row mb-3">
+            <label asp-for="Name" class="col-2 col-form-label fw-bold"></label>
+	        <div class="col-10">
+	            <input asp-for="Record.Name" class="form-control" />
+		        <span asp-validation-for="Record.Name" class="text-danger"></span>
+	        </div>
+        </div>
+        <div class="row mb-3">
+            <label asp-for="UnitPrice" class="col-2 col-form-label fw-bold"></label>
+	        <div class="col-10">
+	            <input asp-for="Record.UnitPrice" class="form-control" />
+		        <span asp-validation-for="Record.UnitPrice" class="text-danger"></span>
+	        </div>
+        </div>
+        <div class="row mb-3">
+            <label asp-for="StockAmount" class="col-2 col-form-label fw-bold"></label>
+	        <div class="col-10">
+	            <input asp-for="Record.StockAmount" class="form-control" />
+		        <span asp-validation-for="Record.StockAmount" class="text-danger"></span>
+	        </div>
+        </div>
+        <div class="row mb-3">
+            <label asp-for="ExpirationDate" class="col-2 col-form-label fw-bold"></label>
+	        <div class="col-10">
+		        <input asp-for="Record.ExpirationDate" class="form-control @dateTimePickerClass" type="text" />
+		        <span asp-validation-for="Record.ExpirationDate" class="text-danger"></span>
+	        </div>
+        </div>
+        <div class="row mb-3">
+            <label asp-for="Category" class="col-2 col-form-label fw-bold"></label>
+            <div class="col-10">
+	            <select asp-for="Record.CategoryId" class="form-select select2" asp-items="ViewBag.CategoryId">
+		            <option value="">@select</option>
+	            </select>
+	            <span asp-validation-for="Record.CategoryId" class="text-danger"></span>
+            </div>
+        </div>
+        <input type="hidden" asp-for="Record.Id" />
+
+@* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. *@
+        
+        <div class="row mb-3">
+            <label asp-for="Stores" class="col-2 col-form-label fw-bold"></label>
+	        <div class="col-10">
+		        <select multiple asp-for="Record.StoreIds" class="form-select select2" asp-items="ViewBag.StoreIds"></select>
+		        <span asp-validation-for="Record.StoreIds" class="text-danger"></span>
+	        </div>
+        </div>
+       
+
+        <hr />
+        <div class="row mb-3">
+	        <div class="offset-2 col-10">
+                <button type="submit" class="btn btn-primary">@save</button>
+		        &nbsp;&nbsp;
+                <button type="reset" class="btn btn-outline-primary">@clear</button>
+		        &nbsp;&nbsp;
+                <a asp-action="Delete" asp-route-id="@Model.Record.Id">@delete</a>
+                &nbsp;&nbsp;
+		        <a asp-action="Index" asp-route-pageordersession="true">@backToList</a>
+	        </div>
+        </div>
+    </form>
+</div>
+}
+
+@section Scripts {
+    <partial name="_EZDateTimePicker" />
+    <partial name="_EZSelect2" />
+}

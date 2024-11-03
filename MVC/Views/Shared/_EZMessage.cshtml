@@ -1,0 +1,49 @@
+﻿@model object
+
+@{
+	string? model = string.Empty;
+	string? message;
+	string color;
+
+	if (Model is not null)
+	{
+		if (Model.GetType() == typeof(string))
+			model = Convert.ToString(Model);
+	}
+}
+@if (!string.IsNullOrWhiteSpace(model))
+{
+	message = model;
+	color = "success";
+	if (message.EndsWith("!"))
+	{
+		color = "danger";
+	}
+	<p class="text-@color">
+		@Html.Raw(message)
+	</p>
+}
+@if (ViewBag.Message != null)
+{
+	message = ViewBag.Message.ToString();
+	color = "success";
+	if (message.EndsWith("!"))
+	{
+		color = "danger";
+	}
+	<p class="text-@color">
+		@Html.Raw(message)
+	</p>
+}
+@if (TempData["Message"] != null)
+{
+	message = TempData["Message"]?.ToString() ?? "";
+	color = "success";
+	if (message.EndsWith("!"))
+	{
+		color = "danger";
+	}
+	<p class="text-@color">
+		@Html.Raw(message)
+	</p>
+}

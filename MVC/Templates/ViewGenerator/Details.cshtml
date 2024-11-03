@@ -1,0 +1,149 @@
+﻿@inherits Microsoft.VisualStudio.Web.CodeGeneration.Templating.RazorTemplateBase
+@using Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore
+@using System.Collections.Generic
+@using System.Linq
+@{
+@:@@using EZcore.Models
+    var viewModel = "@model " + Model.ViewDataTypeName.Split('.')[Model.ViewDataTypeName.Split('.').Length - 1] + "Model";
+}
+
+@viewModel
+
+@@* Generated from EZcore Template. *@@
+@@* Model namespace using directive should be added to _ViewImports.cshtml. *@@
+
+@{
+@:@@{
+    @:// ViewData:
+    @:var lang = (Lang)(ViewData["Lang"] ?? 0);
+    @:var modelName = ViewData["ViewModelName"];
+    @:var containerDivClass = "container-fluid"; // "container" can be used for not full width
+    @:var details = lang == Lang.EN ? "Details" : "Detayı";
+    @:var edit = lang == Lang.EN ? "Edit" : "Düzenle";
+    @:var delete = lang == Lang.EN ? "Delete" : "Sil";
+    @:var backToList = lang == Lang.EN ? "Back to List" : "Listeye Dön";
+@:}
+    if (Model.IsPartialView)
+    {
+    }
+    else if (Model.IsLayoutPageSelected)
+    {
+@:@@{
+    @:ViewData["Title"] = $"{modelName} {details}";
+        if (!string.IsNullOrEmpty(Model.LayoutPageFile))
+        {
+    @:Layout = "@Model.LayoutPageFile";
+        }
+@:}
+    }
+    else
+    {
+@:@@{
+    @:Layout = null;
+@:}
+@:
+@:<!DOCTYPE html>
+@:
+@:<html>
+@:<head>
+    @:<meta name="viewport" content="width=device-width" />
+    @:<title>>@@($"{modelName} {details}")</title>
+@:</head>
+@:<body>
+    }
+}
+@{
+@:
+@:@@if (Model is not null)
+@:{
+@:<div class="@@containerDivClass">
+    @:<partial name="_EZmessage" />
+Dictionary<string, IPropertyMetadata> propertyLookup = ((IModelMetadata)Model.ModelMetadata).Properties.ToDictionary(x => x.PropertyName, x => x);
+Dictionary<string, INavigationMetadata> navigationLookup = ((IModelMetadata)Model.ModelMetadata).Navigations.ToDictionary(x => x.AssociationPropertyName, x => x);
+
+foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
+{
+    if (item.Name != "Guid" && item.Name != "IsDeleted" && item.Name != "CreateDate" && item.Name != "CreatedBy" && item.Name != "UpdateDate" && item.Name != "UpdatedBy")
+    {
+    if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
+        && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
+    {
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @@Html.DisplayNameFor(model => model.@GetValueExpression(property))
+        </div>
+        <div class="col-10">
+            @@Html.DisplayFor(model => model.@GetValueExpression(property))
+        </div>
+    </div>
+    }
+    else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
+    {
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @@Html.DisplayNameFor(model => model.@GetValueExpression(navigation))
+        </div>
+        <div class="col-10">
+            @@Html.DisplayFor(model => model.@GetValueExpression(navigation))
+        </div>
+    </div>
+    }
+    }
+}
+@:
+@:@@* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. *@@
+    @:@@*
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            <b>@@Html.DisplayNameFor(model => model.*s)</b>
+        </div>
+        <div class="col-10">
+            @@Html.Raw(Model.*s)
+        </div>
+    </div>
+    @:*@@
+@:
+}
+@{
+    @:<hr /> 
+string pkName = GetPrimaryKeyName();
+if (pkName != null)
+{
+    @:<a asp-action="Edit" asp-route-id="@@Model.Record.@pkName">@@edit</a>&nbsp;|&nbsp;
+    @:<a asp-action="Delete" asp-route-id="@@Model.Record.@pkName">@@delete</a>&nbsp;|&nbsp;
+    @:<a asp-action="Index" asp-route-pageordersession="true">@@backToList</a>
+}
+else
+{
+    @:@@Html.ActionLink("Edit", "Edit", new { /* id = Model.Record.PrimaryKey */ })&nbsp;|&nbsp;
+    @:<a asp-action="Index">Back to List</a>
+}
+@:</div>
+@:}
+}
+@{
+    if (!Model.IsPartialView && !Model.IsLayoutPageSelected)
+    {
+@:</body>
+@:</html>
+    }
+}
+@functions
+{
+    string GetPrimaryKeyName()
+    {
+        return (Model.ModelMetadata.PrimaryKeys != null && Model.ModelMetadata.PrimaryKeys.Length == 1)
+        ? Model.ModelMetadata.PrimaryKeys[0].PropertyName
+        : null;
+    }
+
+    string GetValueExpression(IPropertyMetadata property)
+    {
+        return property.PropertyName;
+    }
+
+    string GetValueExpression(INavigationMetadata navigation)
+    {
+        return navigation.AssociationPropertyName;
+    }
+}
