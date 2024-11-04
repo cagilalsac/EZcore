@@ -1,10 +1,11 @@
 ﻿#nullable disable
-using BLL.DAL;
-using BLL.Models;
-using EZcore.Controllers;
-using EZcore.Models;
-using EZcore.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using EZcore.Controllers;
+using EZcore.Services;
+using EZcore.Models;
+using BLL.Models;
+using BLL.DAL;
 
 // Generated from EZcore Template.
 
