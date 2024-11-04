@@ -81,7 +81,7 @@ namespace MVC.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(CategoryModel category)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && _categoryService.Validate(category.Record).IsSuccessful)
             {
                 // Insert item service logic:
                 _categoryService.Create(category.Record);
@@ -90,6 +90,7 @@ namespace MVC.Controllers
                 if (_categoryService.IsSuccessful)
                     return RedirectToAction(nameof(Details), new { id = category.Record.Id });
             }
+            Message = _categoryService.Message;
             SetViewData();
             return View(category);
         }
@@ -110,7 +111,7 @@ namespace MVC.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(CategoryModel category)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && _categoryService.Validate(category.Record).IsSuccessful)
             {
                 // Update item service logic:
                 _categoryService.Update(category.Record);
@@ -119,6 +120,7 @@ namespace MVC.Controllers
                 if (_categoryService.IsSuccessful)
                     return RedirectToAction(nameof(Details), new { id = category.Record.Id });
             }
+            Message = _categoryService.Message;
             SetViewData();
             return View(category);
         }
@@ -143,7 +145,7 @@ namespace MVC.Controllers
             _categoryService.Delete(id);
 
             Message = _categoryService.Message;
-            return RedirectToAction(nameof(Index), new { pageordersession = true });
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Categories/DeleteByAlertify/5
@@ -153,7 +155,7 @@ namespace MVC.Controllers
             _categoryService.Delete(id);
 
             Message = _categoryService.Message;
-            return RedirectToAction(nameof(Index), new { pageordersession = true });
+            return RedirectToAction(nameof(Index));
         }
 	}
 }

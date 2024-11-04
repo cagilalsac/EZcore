@@ -87,7 +87,7 @@ namespace MVC.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(ProductModel product)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && _productService.Validate(product.Record).IsSuccessful)
             {
                 // Insert item service logic:
                 _productService.Create(product.Record);
@@ -96,6 +96,7 @@ namespace MVC.Controllers
                 if (_productService.IsSuccessful)
                     return RedirectToAction(nameof(Details), new { id = product.Record.Id });
             }
+            Message = _productService.Message;
             SetViewData();
             return View(product);
         }
@@ -116,7 +117,7 @@ namespace MVC.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(ProductModel product)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && _productService.Validate(product.Record).IsSuccessful)
             {
                 // Update item service logic:
                 _productService.Update(product.Record);
@@ -125,6 +126,7 @@ namespace MVC.Controllers
                 if (_productService.IsSuccessful)
                     return RedirectToAction(nameof(Details), new { id = product.Record.Id });
             }
+            Message = _productService.Message;
             SetViewData();
             return View(product);
         }

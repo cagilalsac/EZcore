@@ -122,7 +122,7 @@ namespace EZcore.Services
             return item;
         }
 
-        protected virtual ServiceBase Validate(TEntity record)
+        public virtual ServiceBase Validate(TEntity record)
         {
             if (Records().Any(entity => entity.Id != record.Id &&
                 EF.Functions.Collate(entity.Name, Collation) == EF.Functions.Collate(record.Name ?? "", Collation).Trim()))
@@ -227,14 +227,13 @@ namespace EZcore.Services
             }
         }
 
-        protected ServiceBase Validate<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
+        protected bool Validate<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
         {
-            if (typeof(TRelationalEntity).GetProperties().Any(property => property.PropertyType == typeof(TEntity)))
-            {
-                if (relationalRecords.Any())
-                    return Error(RelationalRecordsFound);
-            }
-            return Success();
+            if (typeof(TRelationalEntity).GetProperties().Any(property => property.PropertyType == typeof(TEntity)) && relationalRecords.Any())
+                Error(RelationalRecordsFound);
+            else
+                Success();
+            return IsSuccessful;
         }
 
         protected virtual int Save()

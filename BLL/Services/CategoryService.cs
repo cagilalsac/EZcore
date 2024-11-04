@@ -17,16 +17,8 @@ namespace BLL.Services
 
         protected override IQueryable<Category> Records() => base.Records().Include(c => c.Products).OrderBy(c => c.Name);
 
-        public override void Create(Category record, bool save = true)
-        {
-            if (Validate(record).IsSuccessful)
-                base.Create(record, save);
-        }
-
         public override void Update(Category record, bool save = true)
         {
-            if (!Validate(record).IsSuccessful)
-                return;
             var category = Records(record.Id);
             category.Name = record.Name;
             category.Description = record.Description;
@@ -35,7 +27,7 @@ namespace BLL.Services
 
         public override void Delete(int id, bool save = true)
         {
-            if (Validate(Records(id).Products).IsSuccessful)
+            if (Validate(Records(id).Products))
                 base.Delete(id, save);
         }
     }

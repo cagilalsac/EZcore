@@ -1,11 +1,10 @@
 ﻿#nullable disable
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using EZcore.Controllers;
-using EZcore.Services;
-using EZcore.Models;
-using BLL.Models;
 using BLL.DAL;
+using BLL.Models;
+using EZcore.Controllers;
+using EZcore.Models;
+using EZcore.Services;
+using Microsoft.AspNetCore.Mvc;
 
 // Generated from EZcore Template.
 
@@ -81,7 +80,7 @@ namespace MVC.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(StoreModel store)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && _storeService.Validate(store.Record).IsSuccessful)
             {
                 // Insert item service logic:
                 _storeService.Create(store.Record);
@@ -90,6 +89,7 @@ namespace MVC.Controllers
                 if (_storeService.IsSuccessful)
                     return RedirectToAction(nameof(Details), new { id = store.Record.Id });
             }
+            Message = _storeService.Message;
             SetViewData();
             return View(store);
         }
@@ -110,7 +110,7 @@ namespace MVC.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(StoreModel store)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && _storeService.Validate(store.Record).IsSuccessful)
             {
                 // Update item service logic:
                 _storeService.Update(store.Record);
@@ -119,6 +119,7 @@ namespace MVC.Controllers
                 if (_storeService.IsSuccessful)
                     return RedirectToAction(nameof(Details), new { id = store.Record.Id });
             }
+            Message = _storeService.Message;
             SetViewData();
             return View(store);
         }
@@ -143,7 +144,7 @@ namespace MVC.Controllers
             _storeService.Delete(id);
 
             Message = _storeService.Message;
-            return RedirectToAction(nameof(Index), new { pageordersession = true });
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Stores/DeleteByAlertify/5
@@ -153,7 +154,7 @@ namespace MVC.Controllers
             _storeService.Delete(id);
 
             Message = _storeService.Message;
-            return RedirectToAction(nameof(Index), new { pageordersession = true });
+            return RedirectToAction(nameof(Index));
         }
 	}
 }

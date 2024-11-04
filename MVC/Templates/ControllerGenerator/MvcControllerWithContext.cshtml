@@ -169,7 +169,7 @@ namespace @Model.ControllerNamespace
         [ValidateAntiForgeryToken]
         public IActionResult Create(@modelType @Model.ModelVariable)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@(Model.ModelVariable).Record).IsSuccessful)
             {
 @{
     if (!string.IsNullOrEmpty(primaryKeyType) && IsGuid(primaryKeyType))
@@ -184,6 +184,7 @@ namespace @Model.ControllerNamespace
 }  
                     return RedirectToAction(nameof(Details), new { id = @(Model.ModelVariable).Record.Id });
             }
+            Message = @("_" + serviceAbstractName).Message;
             SetViewData();
             return View(@Model.ModelVariable);
         }
@@ -204,7 +205,7 @@ namespace @Model.ControllerNamespace
         [ValidateAntiForgeryToken]
         public IActionResult Edit(@modelType @Model.ModelVariable)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@(Model.ModelVariable).Record).IsSuccessful)
             {
 @{
                 @:// Update item service logic:
@@ -215,6 +216,7 @@ namespace @Model.ControllerNamespace
 }
                     return RedirectToAction(nameof(Details), new { id = @(Model.ModelVariable).Record.Id });
             }
+            Message = @("_" + serviceAbstractName).Message;
             SetViewData();
             return View(@Model.ModelVariable);
         }

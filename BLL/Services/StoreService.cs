@@ -17,7 +17,7 @@ namespace BLL.Services
         protected override IQueryable<Store> Records() => base.Records().Include(s => s.ProductStores).ThenInclude(ps => ps.Product)
             .OrderByDescending(s => s.IsVirtual).ThenBy(s => s.StoreName);
 
-        protected override ServiceBase Validate(Store record)
+        public override ServiceBase Validate(Store record)
         {
             if (Records().Any(s => s.Id != record.Id &&
                 EF.Functions.Collate(s.StoreName, Collation) == EF.Functions.Collate(record.StoreName, Collation)))
@@ -27,16 +27,8 @@ namespace BLL.Services
             return Success();
         }
 
-        public override void Create(Store record, bool save = true)
-        {
-            if (Validate(record).IsSuccessful)
-                base.Create(record, save);
-        }
-
         public override void Update(Store record, bool save = true)
         {
-            if (!Validate(record).IsSuccessful)
-                return;
             var store = Records(record.Id);
             store.StoreName = record.StoreName;
             store.IsVirtual = record.IsVirtual;

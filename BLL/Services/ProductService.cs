@@ -30,20 +30,11 @@ namespace BLL.Services
             AddPageOrderExpression("Unit Price", "Birim Fiyatı");
             AddPageOrderExpression("Stock Amount", "Stok Miktarı");
             AddPageOrderExpression("Expiration Date", "Son Kullanma Tarihi");
-            return base.Records().Include(p => p.Category).Include(p => p.ProductStores).ThenInclude(ps => ps.Store)
-            .OrderBy(p => p.Name);
-        }
-
-        public override void Create(Product record, bool save = true)
-        {
-            if (Validate(record).IsSuccessful)
-                base.Create(record, save);
+            return base.Records().Include(p => p.Category).Include(p => p.ProductStores).ThenInclude(ps => ps.Store).OrderBy(p => p.Name);
         }
 
         public override void Update(Product record, bool save = true)
         {
-            if (!Validate(record).IsSuccessful)
-                return;
             var product = Records(record.Id);
             Update(product.ProductStores);
             product.Name = record.Name;
