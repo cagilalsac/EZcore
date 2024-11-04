@@ -33,6 +33,15 @@ namespace BLL.Services
             return base.Records().Include(p => p.Category).Include(p => p.ProductStores).ThenInclude(ps => ps.Store).OrderBy(p => p.Name);
         }
 
+        public override ServiceBase Validate(Product record)
+        {
+            if ((record.StockAmount ?? 0) < 0)
+                return Error(Lang == Lang.TR ? "Stok miktarı 0 veya pozitif bir sayı olmalıdır!" : "Stock amount must be 0 or a positive number!");
+            if (record.UnitPrice <= 0 || record.UnitPrice > 100000)
+                return Error(Lang == Lang.TR ? "Birim fiyat 0'dan büyük 100000'den küçük olmalıdır!" : "Unit price must be greater than 0 and less than 100000!");
+            return base.Validate(record);
+        }
+
         public override void Update(Product record, bool save = true)
         {
             var product = Records(record.Id);
