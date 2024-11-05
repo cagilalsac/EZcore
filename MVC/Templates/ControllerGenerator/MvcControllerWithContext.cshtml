@@ -80,7 +80,7 @@ namespace @Model.ControllerNamespace
     public class @Model.ControllerName : MvcController
     {
         // Views may be configured here by overriding the base controller properties starting with "View", "Lang" base property can also be overriden if necessary:
-        protected override string ViewModelName => Lang == Lang.TR ? "Kayıt" : "Record";
+        protected override string ViewModelName => Lang == Lang.TR ? "Kayıt" : "@Model.ModelTypeName";
         protected override bool ViewPageOrder => false;
         
         // Service injections:
@@ -90,8 +90,8 @@ namespace @Model.ControllerNamespace
         @:private readonly Service<@relatedProperty, @(relatedProperty + "Model")> _@(relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service");
 }
 
-        /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-        //private readonly Service<*, *Model> _*Service;
+        /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+        //private readonly Service<{Entity}, {Entity}Model> _{Entity}Service;
 
         public @(Model.ControllerName + "(HttpServiceBase httpService\n\t\t\t, " + serviceAbstractType + " " + serviceAbstractName)
 @foreach (var relatedProperty in relatedProperties.Keys)
@@ -99,8 +99,8 @@ namespace @Model.ControllerNamespace
             @:@(", Service<" + relatedProperty + ", " + relatedProperty + "Model> " + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service")
 }
 
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //, Service<*, *Model> *Service
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            //, Service<{Entity}, {Entity}Model> {Entity}Service
         ) : base(httpService)
         {
             @("_" + serviceAbstractName) = @serviceAbstractName;
@@ -110,8 +110,8 @@ namespace @Model.ControllerNamespace
             @:@("_" + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service = " + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service");
 }
 
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //_*Service = *Service;
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            //_{Entity}Service = {Entity}Service;
         }
 
         protected override void SetViewData()
@@ -129,8 +129,8 @@ namespace @Model.ControllerNamespace
     }
 }           
             
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //ViewBag.*Ids = new MultiSelectList(_*Service.Read(), "Record.Id", "Name");
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            //ViewBag.{Entity}Ids = new MultiSelectList(_{Entity}Service.Read(), "Record.Id", "Name");
         }
 
         // GET: @routePrefix
@@ -177,12 +177,12 @@ namespace @Model.ControllerNamespace
                 @:@(Model.ModelVariable).@primaryKeyName = Guid.NewGuid();
     }
                 @:// Insert item service logic:
-                @:@("_" + serviceAbstractName).Create(@(Model.ModelVariable).Record);
+                @:var model = @("_" + serviceAbstractName).Create(@(Model.ModelVariable).Record);
                 @:
                 @:Message = @("_" + serviceAbstractName).Message;
                 @:if (@("_" + serviceAbstractName).IsSuccessful)
 }  
-                    return RedirectToAction(nameof(Details), new { id = @(Model.ModelVariable).Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
             }
             Message = @("_" + serviceAbstractName).Message;
             SetViewData();
@@ -209,12 +209,12 @@ namespace @Model.ControllerNamespace
             {
 @{
                 @:// Update item service logic:
-                @:@("_" + serviceAbstractName).Update(@(Model.ModelVariable).Record);
+                @:var model = @("_" + serviceAbstractName).Update(@(Model.ModelVariable).Record);
                 @:
                 @:Message = @("_" + serviceAbstractName).Message;
                 @:if (@("_" + serviceAbstractName).IsSuccessful)
 }
-                    return RedirectToAction(nameof(Details), new { id = @(Model.ModelVariable).Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
             }
             Message = @("_" + serviceAbstractName).Message;
             SetViewData();

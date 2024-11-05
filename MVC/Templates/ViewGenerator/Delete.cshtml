@@ -72,7 +72,7 @@ foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
             @@Html.DisplayNameFor(model => model.@GetValueExpression(property))
         </div>
         <div class="col-10">
-            @@Html.DisplayFor(model => model.@GetValueExpression(property))
+            @@Html.Raw(Model.@GetValueExpression(property))
         </div>
     </div>
     }
@@ -83,21 +83,21 @@ foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
             @@Html.DisplayNameFor(model => model.@GetValueExpression(navigation))
         </div>
         <div class="col-10">
-            @@Html.DisplayFor(model => model.@GetValueExpression(navigation))
+            @@Html.Raw(Model.@GetValueExpression(navigation))
         </div>
     </div>
     }
     }
 }
 @:
-@:@@* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. *@@
+@:@@* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. *@@
     @:@@*
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            <b>@@Html.DisplayNameFor(model => model.*s)</b>
+            <b>@@Html.DisplayNameFor(model => model.{Entity}s)</b>
         </div>
         <div class="col-10">
-            @@Html.Raw(Model.*s)
+            @@Html.Raw(Model.{Entity}s)
         </div>
     </div>
     @:*@@

@@ -27,12 +27,12 @@ namespace BLL.Services
             return Success();
         }
 
-        public override void Update(Store record, bool save = true)
+        public override StoreModel Update(Store record, bool save = true)
         {
             var store = Records(record.Id);
             store.StoreName = record.StoreName;
             store.IsVirtual = record.IsVirtual;
-            base.Update(store, save);
+            return base.Update(store, save);
         }
 
         public override void Delete(int id, bool save = true)

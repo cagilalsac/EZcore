@@ -56,13 +56,13 @@
 		        @foreach (var item in Model) {
 				<tr>
 					<td>
-						@Html.DisplayFor(modelItem => item.StoreName)
+						@Html.Raw(item.StoreName)
 					</td>
 					<td>
-						@Html.DisplayFor(modelItem => item.IsVirtual)
+						@Html.Raw(item.IsVirtual)
 					</td>
                     <td>
-						@Html.DisplayFor(modelItem => item.ProductCount)
+						@Html.Raw(item.ProductCount)
 					</td>
 					<td class="text-end w-25">
 						<a asp-action="Details" asp-route-id="@item.Record.Id">@details</a>&nbsp;|&nbsp;

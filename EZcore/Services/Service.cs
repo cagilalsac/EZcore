@@ -132,10 +132,10 @@ namespace EZcore.Services
             return Success();
         }
 
-        public virtual void Create(TEntity record, bool save = true)
+        public virtual TModel Create(TEntity record, bool save = true)
         {
             if (!IsSuccessful)
-                return;
+                return null;
             if (_hasGuidProperty)
             {
                 record.Guid = Guid.NewGuid().ToString();
@@ -150,15 +150,16 @@ namespace EZcore.Services
             {
                 Save();
                 Success(RecordCreated);
-                return;
+                return new TModel() { Record = record };
             }
             Success(RecordNotSaved);
+            return null;
         }
 
-        public virtual void Update(TEntity record, bool save = true)
+        public virtual TModel Update(TEntity record, bool save = true)
         {
             if (!IsSuccessful)
-                return;
+                return null;
             if (_hasModifiedByProperty)
             {
                 (record as IModifiedBy).UpdateDate = DateTime.Now;
@@ -171,15 +172,16 @@ namespace EZcore.Services
                 {
                     Save();
                     Success(RecordUpdated);
-                    return;
+                    return new TModel() { Record = record };
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     Error(RecordNotFound);
-                    return;
+                    return null;
                 }
             }
             Success(RecordNotSaved);
+            return null;
         }
 
         protected void Update<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()

@@ -20,29 +20,29 @@ namespace MVC.Controllers
         // Service injections:
         private readonly Service<Category, CategoryModel> _categoryService;
 
-        /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-        //private readonly Service<*, *Model> _*Service;
+        /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+        //private readonly Service<{Entity}, {Entity}Model> _{Entity}Service;
 
         public CategoriesController(HttpServiceBase httpService
 			, Service<Category, CategoryModel> categoryService
 
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //, Service<*, *Model> *Service
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            //, Service<{Entity}, {Entity}Model> {Entity}Service
         ) : base(httpService)
         {
             _categoryService = categoryService;
             _categoryService.Lang = Lang;
 
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //_*Service = *Service;
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            //_{Entity}Service = {Entity}Service;
         }
 
         protected override void SetViewData()
         {
             base.SetViewData();
             
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //ViewBag.*Ids = new MultiSelectList(_*Service.Read(), "Record.Id", "Name");
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            //ViewBag.{Entity}Ids = new MultiSelectList(_{Entity}Service.Read(), "Record.Id", "Name");
         }
 
         // GET: Categories
@@ -84,11 +84,11 @@ namespace MVC.Controllers
             if (ModelState.IsValid && _categoryService.Validate(category.Record).IsSuccessful)
             {
                 // Insert item service logic:
-                _categoryService.Create(category.Record);
+                var model = _categoryService.Create(category.Record);
                 
                 Message = _categoryService.Message;
                 if (_categoryService.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = category.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
             }
             Message = _categoryService.Message;
             SetViewData();
@@ -114,11 +114,11 @@ namespace MVC.Controllers
             if (ModelState.IsValid && _categoryService.Validate(category.Record).IsSuccessful)
             {
                 // Update item service logic:
-                _categoryService.Update(category.Record);
+                var model = _categoryService.Update(category.Record);
                 
                 Message = _categoryService.Message;
                 if (_categoryService.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = category.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
             }
             Message = _categoryService.Message;
             SetViewData();

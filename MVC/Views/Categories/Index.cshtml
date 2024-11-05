@@ -50,7 +50,7 @@
 		        @foreach (var item in Model) {
 				<tr>
 					<td>
-						@Html.DisplayFor(modelItem => item.Name)
+						@Html.Raw(item.Name)
 					</td>
 					<td class="text-end w-25">
 						<a asp-action="Details" asp-route-id="@item.Record.Id">@details</a>&nbsp;|&nbsp;

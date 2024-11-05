@@ -20,29 +20,29 @@ namespace MVC.Controllers
         // Service injections:
         private readonly Service<Store, StoreModel> _storeService;
 
-        /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-        //private readonly Service<*, *Model> _*Service;
+        /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+        //private readonly Service<{Entity}, {Entity}Model> _{Entity}Service;
 
         public StoresController(HttpServiceBase httpService
 			, Service<Store, StoreModel> storeService
 
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //, Service<*, *Model> *Service
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            //, Service<{Entity}, {Entity}Model> {Entity}Service
         ) : base(httpService)
         {
             _storeService = storeService;
             _storeService.Lang = Lang;
 
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //_*Service = *Service;
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            //_{Entity}Service = {Entity}Service;
         }
 
         protected override void SetViewData()
         {
             base.SetViewData();
             
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            //ViewBag.*Ids = new MultiSelectList(_*Service.Read(), "Record.Id", "Name");
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            //ViewBag.{Entity}Ids = new MultiSelectList(_{Entity}Service.Read(), "Record.Id", "Name");
         }
 
         // GET: Stores
@@ -84,11 +84,11 @@ namespace MVC.Controllers
             if (ModelState.IsValid && _storeService.Validate(store.Record).IsSuccessful)
             {
                 // Insert item service logic:
-                _storeService.Create(store.Record);
+                var model = _storeService.Create(store.Record);
                 
                 Message = _storeService.Message;
                 if (_storeService.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = store.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
             }
             Message = _storeService.Message;
             SetViewData();
@@ -114,11 +114,11 @@ namespace MVC.Controllers
             if (ModelState.IsValid && _storeService.Validate(store.Record).IsSuccessful)
             {
                 // Update item service logic:
-                _storeService.Update(store.Record);
+                var model = _storeService.Update(store.Record);
                 
                 Message = _storeService.Message;
                 if (_storeService.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = store.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
             }
             Message = _storeService.Message;
             SetViewData();

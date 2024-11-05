@@ -21,23 +21,23 @@ namespace MVC.Controllers
         private readonly Service<Product, ProductModel> _productService;
         private readonly Service<Category, CategoryModel> _categoryService;
 
-        /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-        private readonly Service<Store, StoreModel> _storeService;
+        /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+        private readonly Service<Store, StoreModel> _StoreService;
 
         public ProductsController(HttpServiceBase httpService
 			, Service<Product, ProductModel> productService
             , Service<Category, CategoryModel> categoryService
 
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            , Service<Store, StoreModel> storeService
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            , Service<Store, StoreModel> StoreService
         ) : base(httpService)
         {
             _productService = productService;
             _productService.Lang = Lang;
             _categoryService = categoryService;
 
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            _storeService = storeService;
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            _StoreService = StoreService;
         }
 
         protected override void SetViewData()
@@ -47,8 +47,8 @@ namespace MVC.Controllers
             // Related items service logic to set ViewData (Record.Id and Name parameters may need to be changed in the SelectList constructor according to the model):
             ViewData["CategoryId"] = new SelectList(_categoryService.Read(), "Record.Id", "Name");
 
-            /* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. */
-            ViewBag.StoreIds = new MultiSelectList(_storeService.Read(), "Record.Id", "StoreName");
+            /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
+            ViewBag.StoreIds = new MultiSelectList(_StoreService.Read(), "Record.Id", "StoreName");
         }
 
         // GET: Products
@@ -90,11 +90,11 @@ namespace MVC.Controllers
             if (ModelState.IsValid && _productService.Validate(product.Record).IsSuccessful)
             {
                 // Insert item service logic:
-                _productService.Create(product.Record);
+                var model = _productService.Create(product.Record);
                 
                 Message = _productService.Message;
                 if (_productService.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = product.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
             }
             Message = _productService.Message;
             SetViewData();
@@ -120,11 +120,11 @@ namespace MVC.Controllers
             if (ModelState.IsValid && _productService.Validate(product.Record).IsSuccessful)
             {
                 // Update item service logic:
-                _productService.Update(product.Record);
+                var model = _productService.Update(product.Record);
                 
                 Message = _productService.Message;
                 if (_productService.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = product.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
             }
             Message = _productService.Message;
             SetViewData();

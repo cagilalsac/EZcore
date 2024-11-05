@@ -42,7 +42,7 @@ namespace BLL.Services
             return base.Validate(record);
         }
 
-        public override void Update(Product record, bool save = true)
+        public override ProductModel Update(Product record, bool save = true)
         {
             var product = Records(record.Id);
             Update(product.ProductStores);
@@ -52,7 +52,7 @@ namespace BLL.Services
             product.ExpirationDate = record.ExpirationDate;
             product.CategoryId = record.CategoryId;
             product.StoreIds = record.StoreIds;
-            base.Update(product, save);
+            return base.Update(product, save);
         }
 
         public override void Delete(int id, bool save = true)

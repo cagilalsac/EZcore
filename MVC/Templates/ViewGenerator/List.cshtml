@@ -110,13 +110,13 @@
 						&& property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
 					{
 					<td>
-						@@Html.DisplayFor(modelItem => item.@GetValueExpression(property))
+						@@Html.Raw(item.@GetValueExpression(property))
 					</td>
 					}
 					else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
 					{
 					<td>
-						@@Html.DisplayFor(modelItem => item.@GetValueExpression(navigation))
+						@@Html.Raw(item.@GetValueExpression(navigation))
 					</td>
 					}
                     }

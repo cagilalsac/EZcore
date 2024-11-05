@@ -27,7 +27,7 @@
             @Html.DisplayNameFor(model => model.Name)
         </div>
         <div class="col-10">
-            @Html.DisplayFor(model => model.Name)
+            @Html.Raw(Model.Name)
         </div>
     </div>
     <div class="row mb-3">
@@ -35,18 +35,18 @@
             @Html.DisplayNameFor(model => model.Description)
         </div>
         <div class="col-10">
-            @Html.DisplayFor(model => model.Description)
+            @Html.Raw(Model.Description)
         </div>
     </div>
 
-@* Can be uncommented and used for many to many relationships. * must be replaced with the related entiy name in the controller and views. *@
+@* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. *@
     @*
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            <b>@Html.DisplayNameFor(model => model.*s)</b>
+            <b>@Html.DisplayNameFor(model => model.{Entity}s)</b>
         </div>
         <div class="col-10">
-            @Html.Raw(Model.*s)
+            @Html.Raw(Model.{Entity}s)
         </div>
     </div>
     *@
