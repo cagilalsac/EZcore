@@ -24,6 +24,7 @@ namespace EZcore.Services
             _updateDateProperty is not null && _updatedByProperty is not null;
 
         private Dictionary<string, string> _pageOrderExpressions = new Dictionary<string, string>();
+        private string _pageOrderExpression;
 
         protected virtual string Collation => "Turkish_CI_AS";
 
@@ -107,6 +108,8 @@ namespace EZcore.Services
             {
                 pageOrder.Lang = Lang;
                 pageOrder.OrderExpressions = _pageOrderExpressions;
+                if (pageOrder.OrderExpressions.Any() && string.IsNullOrWhiteSpace(pageOrder.OrderExpression))
+                    pageOrder.OrderExpression = pageOrder.OrderExpressions.FirstOrDefault().Key;
                 list = Records().AsNoTracking().OrderBy(pageOrder).Paginate(pageOrder).Select(entity => new TModel() { Record = entity }).ToList();
                 if (pageOrder.TotalRecordsCount > 0)
                     Success($"{pageOrder.TotalRecordsCount} {(pageOrder.TotalRecordsCount == 1 ? RecordFound : RecordsFound)}");

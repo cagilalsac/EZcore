@@ -31,11 +31,11 @@ namespace EZcore.Extensions
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="query"></param>
         /// <param name="pageOrder"></param>
-        /// <returns>IOrderedQueryable</returns>
-        public static IOrderedQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> query, PageOrder pageOrder) where TEntity : Record, new()
+        /// <returns>IQueryable</returns>
+        public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> query, PageOrder pageOrder) where TEntity : Record, new()
         {
             if (string.IsNullOrWhiteSpace(pageOrder.OrderExpression))
-                return query as IOrderedQueryable<TEntity>;
+                return query;
             return pageOrder.OrderExpression.EndsWith("DESC") ?
                 query.OrderByDescending(entity => EF.Property<object>(entity, pageOrder.OrderExpression.Remove(pageOrder.OrderExpression.Length - 4))) :
                 query.OrderBy(entity => EF.Property<object>(entity, pageOrder.OrderExpression));
