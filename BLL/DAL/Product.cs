@@ -3,6 +3,7 @@
 using EZcore.Attributes;
 using EZcore.DAL;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BLL.DAL
 {
@@ -22,9 +23,11 @@ namespace BLL.DAL
         [Required]
         public int? CategoryId { get; set; }
 
+        [JsonIgnore]
         public Category Category { get; set; }
 
-        public List<ProductStore> ProductStores { get; private set; } = new List<ProductStore>();
+		[JsonIgnore]
+		public List<ProductStore> ProductStores { get; private set; } = new List<ProductStore>();
 
         [NotMapped]
         public List<int> StoreIds 

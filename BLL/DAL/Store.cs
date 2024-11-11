@@ -3,6 +3,7 @@
 using EZcore.Attributes;
 using EZcore.DAL;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BLL.DAL
 {
@@ -17,6 +18,7 @@ namespace BLL.DAL
 
         public bool IsVirtual { get; set; }
 
-        public List<ProductStore> ProductStores { get; private set; } = new List<ProductStore>();
+		[JsonIgnore]
+		public List<ProductStore> ProductStores { get; private set; } = new List<ProductStore>();
     }
 }

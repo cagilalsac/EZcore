@@ -1,6 +1,7 @@
 ﻿#nullable disable
 
 using EZcore.DAL;
+using System.Text.Json.Serialization;
 
 namespace BLL.DAL
 {
@@ -10,8 +11,10 @@ namespace BLL.DAL
 
         public int StoreId { get; set; }
 
-        public Product Product { get; set; }
+		[JsonIgnore]
+		public Product Product { get; set; }
 
-        public Store Store { get; set; }
+		[JsonIgnore]
+		public Store Store { get; set; }
     }
 }

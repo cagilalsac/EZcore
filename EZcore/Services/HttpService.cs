@@ -2,12 +2,11 @@
 
 using EZcore.DAL;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using System.Text;
+using System.Text.Json;
 
 namespace EZcore.Services
 {
-    public abstract class HttpServiceBase
+	public abstract class HttpServiceBase
     {
         public virtual string UserName => _httpContextAccessor.HttpContext?.User.Identity?.Name;
         public virtual int UserId => Convert.ToInt32(_httpContextAccessor.HttpContext?.User.Claims?.SingleOrDefault(claim => claim.Type == nameof(Record.Id)).Value);
@@ -29,14 +28,12 @@ namespace EZcore.Services
             var serializedBytes = _httpContextAccessor.HttpContext.Session.Get(key);
             if (serializedBytes is null)
                 return null;
-            var serializedInstance = Encoding.UTF8.GetString(serializedBytes);
-            return JsonConvert.DeserializeObject<T>(serializedInstance);
+            return JsonSerializer.Deserialize<T>(new ReadOnlySpan<byte>(serializedBytes));
         }
 
         public void SetSession<T>(string key, T instance) where T : class
         {
-            var serializedInstance = JsonConvert.SerializeObject(instance);
-            var serializedBytes = Encoding.UTF8.GetBytes(serializedInstance);
+            var serializedBytes = JsonSerializer.SerializeToUtf8Bytes(instance);
             _httpContextAccessor.HttpContext.Session.Set(key, serializedBytes);
         }
     }

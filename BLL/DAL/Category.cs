@@ -2,6 +2,7 @@
 
 using EZcore.Attributes;
 using EZcore.DAL;
+using System.Text.Json.Serialization;
 
 namespace BLL.DAL
 {
@@ -13,6 +14,7 @@ namespace BLL.DAL
 
         public string Description { get; set; }
 
+        [JsonIgnore]
         public List<Product> Products { get; set; } = new List<Product>();
     }
 }
