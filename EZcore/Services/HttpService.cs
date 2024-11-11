@@ -1,5 +1,6 @@
 ﻿#nullable disable
 
+using EZcore.DAL;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.Text;
@@ -8,7 +9,8 @@ namespace EZcore.Services
 {
     public abstract class HttpServiceBase
     {
-        public virtual string UserIdentityName => _httpContextAccessor.HttpContext?.User.Identity?.Name;
+        public virtual string UserName => _httpContextAccessor.HttpContext?.User.Identity?.Name;
+        public virtual int UserId => Convert.ToInt32(_httpContextAccessor.HttpContext?.User.Claims?.SingleOrDefault(claim => claim.Type == nameof(Record.Id)).Value);
 
         private readonly IHttpContextAccessor _httpContextAccessor;
 

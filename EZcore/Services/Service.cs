@@ -146,7 +146,7 @@ namespace EZcore.Services
             if (_hasModifiedByProperty)
             {
                 (record as IModifiedBy).CreateDate = DateTime.Now;
-                (record as IModifiedBy).CreatedBy = _httpService.UserIdentityName;
+                (record as IModifiedBy).CreatedBy = _httpService.UserName;
             }
             _db.Set<TEntity>().Add(record.Trim());
             if (save)
@@ -166,7 +166,7 @@ namespace EZcore.Services
             if (_hasModifiedByProperty)
             {
                 (record as IModifiedBy).UpdateDate = DateTime.Now;
-                (record as IModifiedBy).UpdatedBy = _httpService.UserIdentityName;
+                (record as IModifiedBy).UpdatedBy = _httpService.UserName;
             }
             _db.Set<TEntity>().Update(record.Trim());
             if (save)
@@ -206,7 +206,7 @@ namespace EZcore.Services
                 if (_hasModifiedByProperty)
                 {
                     (record as IModifiedBy).UpdateDate = DateTime.Now;
-                    (record as IModifiedBy).UpdatedBy = _httpService.UserIdentityName;
+                    (record as IModifiedBy).UpdatedBy = _httpService.UserName;
                 }
                 _db.Set<TEntity>().Update(record);
             }
