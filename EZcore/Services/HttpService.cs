@@ -25,6 +25,8 @@ namespace EZcore.Services
         public T GetSession<T>(string key) where T : class
         {
             var serializedBytes = _httpContextAccessor.HttpContext.Session.Get(key);
+            if (serializedBytes is null)
+                return null;
             var serializedInstance = Encoding.UTF8.GetString(serializedBytes);
             return JsonConvert.DeserializeObject<T>(serializedInstance);
         }
