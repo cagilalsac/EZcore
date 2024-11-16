@@ -1,6 +1,7 @@
 ﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 using EZcore.Controllers;
 using EZcore.Services;
 using EZcore.Models;
@@ -11,6 +12,7 @@ using BLL.DAL;
 
 namespace MVC.Controllers
 {
+    [Authorize]
     public class ProductsController : MvcController
     {
         // Views may be configured here by overriding the base controller properties starting with "View", "Lang" base property can also be overriden if necessary:
@@ -48,10 +50,11 @@ namespace MVC.Controllers
             ViewData["CategoryId"] = new SelectList(_categoryService.Read(), "Record.Id", "Name");
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
-            ViewBag.StoreIds = new MultiSelectList(_StoreService.Read(), "Record.Id", "StoreName");
+            ViewBag.Stores = new MultiSelectList(_StoreService.Read(), "Record.Id", "Name");
         }
 
         // GET: Products
+        [AllowAnonymous]
         public IActionResult Index(PageOrder pageOrder = null)
         {
             PageOrder = pageOrder;
@@ -83,18 +86,17 @@ namespace MVC.Controllers
         }
 
         // POST: Products/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(ProductModel product)
         {
-            if (ModelState.IsValid && _productService.Validate(product.Record).IsSuccessful)
+            if (ModelState.IsValid && _productService.Validate(product).IsSuccessful)
             {
                 // Insert item service logic:
-                var model = _productService.Create(product.Record);
+                _productService.Create(product);
                 
                 Message = _productService.Message;
                 if (_productService.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = product.Record.Id });
             }
             Message = _productService.Message;
             SetViewData();
@@ -113,18 +115,17 @@ namespace MVC.Controllers
         }
 
         // POST: Products/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Edit(ProductModel product)
         {
-            if (ModelState.IsValid && _productService.Validate(product.Record).IsSuccessful)
+            if (ModelState.IsValid && _productService.Validate(product).IsSuccessful)
             {
                 // Update item service logic:
-                var model = _productService.Update(product.Record);
+                _productService.Update(product);
                 
                 Message = _productService.Message;
                 if (_productService.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = product.Record.Id });
             }
             Message = _productService.Message;
             SetViewData();
@@ -143,8 +144,7 @@ namespace MVC.Controllers
         }
 
         // POST: Products/Delete
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
         {
             // Delete item service logic:
@@ -162,6 +162,16 @@ namespace MVC.Controllers
 
             Message = _productService.Message;
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Products/DeleteFile/5
+        public IActionResult DeleteFile(int id)
+        {
+            // Delete file logic:
+            _productService.DeleteFile(id);
+
+            Message = _productService.Message;
+            return RedirectToAction(nameof(Details), new { id = id });
         }
 	}
 }

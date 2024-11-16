@@ -5,14 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.DAL
 {
-    public class Db : DbContext, IDb
+    public class Db : DbContext, IDb, IUserDb
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Store> Stores { get; set; }
         public DbSet<ProductStore> ProductStores { get; set; }
 
-        public Db(DbContextOptions<Db> options) : base(options)
+		public DbSet<User> Users { get; set; }
+		public DbSet<Role> Roles { get; set; }
+		public DbSet<UserRole> UserRoles { get; set; }
+
+		public Db(DbContextOptions<Db> options) : base(options)
         {
         }
 

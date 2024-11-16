@@ -9,12 +9,10 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 	options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
-// BLL:
 builder.ConfigureBLL();
 
 var app = builder.Build();
 
-// BLL:
 app.ConfigureBLL();
 
 // Configure the HTTP request pipeline.

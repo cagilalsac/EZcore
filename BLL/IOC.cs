@@ -23,9 +23,9 @@ namespace BLL
             builder.Services.AddDbContext<IDb, Db>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Db")));
 
             // Inversion of Control for Services:
-            builder.Services.AddScoped(typeof(Service<Category, CategoryModel>), typeof(CategoryService));
-            builder.Services.AddScoped(typeof(Service<Store, StoreModel>), typeof(StoreService));
-            builder.Services.AddScoped(typeof(Service<Product, ProductModel>), typeof(ProductService));
+            builder.Services.AddScoped<Service<Category, CategoryModel>, CategoryService>();
+            builder.Services.AddScoped<Service<Store, StoreModel>, StoreService>();
+            builder.Services.AddScoped<Service<Product, ProductModel>, ProductService>();
 
             // EZcore:
             builder.ConfigureEZcore();

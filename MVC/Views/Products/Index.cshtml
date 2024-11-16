@@ -30,7 +30,10 @@
                 <partial name="_EZMessage" />
             </div>
             <div class="col-2 text-end">
+            @if (User.Identity.IsAuthenticated)
+            {
                 <a asp-action="Create">@create</a>
+            }
             </div>
         </div>
         @if (pageOrder is not null)
@@ -55,6 +58,9 @@
                     <th>
                         @Html.DisplayNameFor(model => model.Category)
                     </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.MainFormFilePath)
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -76,10 +82,23 @@
 					<td>
 						@Html.Raw(item.Category)
 					</td>
+                    <td style="width:10%;">
+                        @if (string.IsNullOrWhiteSpace(item.Record.MainFilePath))
+                        {
+                            <span><i class="bx bx-image" style="font-size:x-large;"></i></span>
+                        }
+                        else
+                        {
+                            <img src="@item.Record.MainFilePath" class="img-thumbnail" />
+                        }
+                    </td>   
 					<td class="text-end w-25">
-						<a asp-action="Details" asp-route-id="@item.Record.Id">@details</a>&nbsp;|&nbsp;
-						<a asp-action="Edit" asp-route-id="@item.Record.Id">@edit</a>&nbsp;|&nbsp;
+                    @if (User.Identity.IsAuthenticated)
+                    {
+						<a asp-action="Details" asp-route-id="@item.Record.Id">@details</a>@:&nbsp;|&nbsp;
+						<a asp-action="Edit" asp-route-id="@item.Record.Id">@edit</a>@:&nbsp;|&nbsp;
                         <a href="#" onclick="deleteRecord(@item.Record.Id);">@delete</a>
+                    }
 					</td>
 				</tr>
 		        }

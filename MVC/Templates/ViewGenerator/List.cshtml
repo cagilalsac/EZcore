@@ -64,7 +64,10 @@
                 @:<partial name="_EZMessage" />
             @:</div>
             @:<div class="col-2 text-end">
+            @:@@if (User.Identity.IsAuthenticated)
+            @:{
                 @:<a asp-action="Create">@@create</a>
+            @:}
             @:</div>
         @:</div>
         @:@@if (pageOrder is not null)
@@ -84,9 +87,18 @@
                     if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
                         && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
                     {
+                    if (item.Name == "MainFilePath")
+                    {
+                    <th>
+                        @@Html.DisplayNameFor(model => model.MainFormFilePath)
+                    </th>
+                    }
+                    else
+                    {
                     <th>
                         @@Html.DisplayNameFor(model => model.@GetValueExpression(property))
                     </th>
+                    }
                     }
                     else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
                     {
@@ -109,10 +121,28 @@
 					if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
 						&& property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
 					{
+                    if (item.Name == "MainFilePath")
+                    {
+                    <td style="width:10%;">
+                    @{
+                        @:@@if (string.IsNullOrWhiteSpace(item.Record.MainFilePath))
+                        @:{
+                            @:<span><i class="bx bx-image" style="font-size:x-large;"></i></span>
+                        @:}
+                        @:else
+                        @:{
+                            @:<img src="@@item.Record.MainFilePath" class="img-thumbnail" />
+                        @:}
+                    }
+                    </td>   
+                    }
+                    else
+                    {
 					<td>
 						@@Html.Raw(item.@GetValueExpression(property))
 					</td>
 					}
+                    }
 					else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
 					{
 					<td>
@@ -125,9 +155,12 @@
 				if (pkName != null)
 				{
 					@:<td class="text-end w-25">
-						@:<a asp-action="Details" asp-route-id="@@item.Record.@pkName">@@details</a>&nbsp;|&nbsp;
-						@:<a asp-action="Edit" asp-route-id="@@item.Record.@pkName">@@edit</a>&nbsp;|&nbsp;
+                    @:@@if (User.Identity.IsAuthenticated)
+                    @:{
+						@:<a asp-action="Details" asp-route-id="@@item.Record.@pkName">@@details</a>@@:&nbsp;|&nbsp;
+						@:<a asp-action="Edit" asp-route-id="@@item.Record.@pkName">@@edit</a>@@:&nbsp;|&nbsp;
                         @:<a href="#" onclick="deleteRecord(@@item.Record.@pkName);">@@delete</a>
+                    @:}
 					@:</td>
 				}
 				else

@@ -9,7 +9,7 @@ namespace BLL.Models
     public class StoreModel : Model<Store>
     {
         [DisplayName("Name", "Adı")]
-        public string StoreName => Record.StoreName;
+        public string Name => Record.Name;
 
         [DisplayName("Virtual", "Sanal")]
         public string IsVirtual => Record.IsVirtual ? "Yes" : "No";

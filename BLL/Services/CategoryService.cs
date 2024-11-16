@@ -17,12 +17,13 @@ namespace BLL.Services
 
         protected override IQueryable<Category> Records() => base.Records().Include(c => c.Products).OrderBy(c => c.Name);
 
-        public override CategoryModel Update(Category record, bool save = true)
+        public override void Update(CategoryModel model, bool save = true)
         {
-            var category = Records(record.Id);
-            category.Name = record.Name;
-            category.Description = record.Description;
-            return base.Update(category, save);
+            var category = Records(model.Record.Id);
+            category.Name = model.Record.Name;
+            category.Description = model.Record.Description;
+            model.Record = category;
+            base.Update(model, save);
         }
 
         public override void Delete(int id, bool save = true)

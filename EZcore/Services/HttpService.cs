@@ -1,15 +1,19 @@
 ﻿#nullable disable
 
 using EZcore.DAL;
+using EZcore.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace EZcore.Services
 {
-	public abstract class HttpServiceBase
+    public abstract class HttpServiceBase : ServiceBase
     {
-        public virtual string UserName => _httpContextAccessor.HttpContext?.User.Identity?.Name;
-        public virtual int UserId => Convert.ToInt32(_httpContextAccessor.HttpContext?.User.Claims?.SingleOrDefault(claim => claim.Type == nameof(Record.Id)).Value);
+        public string UserName => _httpContextAccessor.HttpContext?.User.Identity?.Name;
+        public int UserId => Convert.ToInt32(_httpContextAccessor.HttpContext?.User.Claims?.SingleOrDefault(claim => claim.Type == nameof(Record.Id)).Value);
 
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -36,6 +40,18 @@ namespace EZcore.Services
             var serializedBytes = JsonSerializer.SerializeToUtf8Bytes(instance);
             _httpContextAccessor.HttpContext.Session.Set(key, serializedBytes);
         }
+
+        public async Task SignInAsync(UserModel user)
+        {
+            var identity = new ClaimsIdentity(user.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+            await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        }
+
+        public async Task SignOutAsync()
+        {
+            await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+		}
     }
 
     public class HttpService : HttpServiceBase

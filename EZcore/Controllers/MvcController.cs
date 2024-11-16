@@ -23,7 +23,7 @@ namespace EZcore.Controllers
 
         protected MvcController(HttpServiceBase httpService)
         {
-            Lang = Lang.EN;
+            Lang = Lang.TR;
             _httpService = httpService;
             ViewModelName = Lang == Lang.EN ? "Record" : "Kayıt";
         }

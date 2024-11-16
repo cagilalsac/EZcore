@@ -63,6 +63,21 @@
             @Html.Raw(Model.Category)
         </div>
     </div>
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @Html.DisplayNameFor(model => model.MainFormFilePath)
+        </div>
+        <div class="col-4">
+        @if (string.IsNullOrWhiteSpace(Model.Record.MainFilePath))
+        {
+            <span><i class="bx bx-image" style="font-size:xx-large;"></i></span>
+        }
+        else
+        {
+            <img src="@Model.Record.MainFilePath" class="img-fluid" />
+        }
+        </div>
+    </div>
 
 @* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. *@
     
@@ -77,8 +92,11 @@
    
 
     <hr /> 
-    <a asp-action="Edit" asp-route-id="@Model.Record.Id">@edit</a>&nbsp;|&nbsp;
-    <a asp-action="Delete" asp-route-id="@Model.Record.Id">@delete</a>&nbsp;|&nbsp;
+@if (User.Identity.IsAuthenticated)
+{
+    <a asp-action="Edit" asp-route-id="@Model.Record.Id">@edit</a>@:&nbsp;|&nbsp;
+    <a asp-action="Delete" asp-route-id="@Model.Record.Id">@delete</a>@:&nbsp;|&nbsp;
+}
     <a asp-action="Index" asp-route-pageordersession="true">@backToList</a>
 </div>
 }

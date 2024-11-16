@@ -27,10 +27,10 @@
 		@Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row mb-3">
-            <label asp-for="StoreName" class="col-2 col-form-label fw-bold"></label>
+            <label asp-for="Name" class="col-2 col-form-label fw-bold"></label>
 			<div class="col-10">
-			    <input asp-for="Record.StoreName" class="form-control" />
-				<span asp-validation-for="Record.StoreName" class="text-danger"></span>
+			    <input asp-for="Record.Name" class="form-control" />
+				<span asp-validation-for="Record.Name" class="text-danger"></span>
 			</div>
         </div>
         <div class="row mb-3">
@@ -45,8 +45,8 @@
         <div class="row mb-3">
             <label asp-for="{Entity}s" class="col-2 col-form-label fw-bold"></label>
 	        <div class="col-10">
-		        <select multiple asp-for="Record.{Entity}Ids" class="form-select select2" asp-items="ViewBag.{Entity}Ids"></select>
-		        <span asp-validation-for="Record.{Entity}Ids" class="text-danger"></span>
+		        <select multiple asp-for="Record.{Entity}s" class="form-select select2" asp-items="ViewBag.{Entity}s"></select>
+		        <span asp-validation-for="Record.{Entity}s" class="text-danger"></span>
 	        </div>
         </div>
         *@

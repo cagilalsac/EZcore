@@ -44,15 +44,15 @@ namespace EZcore.Services
             set
             {
                 base.Lang = value;
-                RecordNotFound = base.Lang == Lang.TR ? "Kayıt bulunamadı!" : "Record not found!";
-                RecordWithSameNameExists = $"{OperationFailed} {(base.Lang == Lang.TR ? "Aynı ada sahip kayıt bulunmaktadır!" : "Record with the same name exists!")}";
-                RelationalRecordsFound = $"{OperationFailed} {(base.Lang == Lang.TR ? "İlişkili kayıtlar bulunmaktadır!" : "Related records found!")}";
-                RecordFound = base.Lang == Lang.TR ? "kayıt bulundu." : "record found.";
-                RecordsFound = base.Lang == Lang.TR ? "kayıt bulundu." : "records found.";
-                RecordCreated = base.Lang == Lang.TR ? "Kayıt başarıyla oluşturuldu." : "Record created successfully.";
-                RecordUpdated = base.Lang == Lang.TR ? "Kayıt başarıyla güncellendi." : "Record updated successfully.";
-                RecordDeleted = base.Lang == Lang.TR ? "Kayıt başarıyla silindi." : "Record deleted successfully.";
-                RecordNotSaved = base.Lang == Lang.TR ? "Kaydedilmedi." : "Not saved.";
+                RecordNotFound = Lang == Lang.TR ? "Kayıt bulunamadı!" : "Record not found!";
+                RecordWithSameNameExists = Lang == Lang.TR ? "Aynı ada sahip kayıt bulunmaktadır!" : "Record with the same name exists!";
+                RelationalRecordsFound = Lang == Lang.TR ? "İlişkili kayıtlar bulunmaktadır!" : "Related records found!";
+                RecordFound = Lang == Lang.TR ? "kayıt bulundu." : "record found.";
+                RecordsFound = Lang == Lang.TR ? "kayıt bulundu." : "records found.";
+                RecordCreated = Lang == Lang.TR ? "Kayıt başarıyla oluşturuldu." : "Record created successfully.";
+                RecordUpdated = Lang == Lang.TR ? "Kayıt başarıyla güncellendi." : "Record updated successfully.";
+                RecordDeleted = Lang == Lang.TR ? "Kayıt başarıyla silindi." : "Record deleted successfully.";
+                RecordNotSaved = Lang == Lang.TR ? "Kaydedilmedi." : "Not saved.";
                 Thread.CurrentThread.CurrentCulture = Lang == Lang.TR ? new CultureInfo("tr-TR") : new CultureInfo("en-US");
                 Thread.CurrentThread.CurrentUICulture = Lang == Lang.TR ? new CultureInfo("tr-TR") : new CultureInfo("en-US");
             }
@@ -60,6 +60,7 @@ namespace EZcore.Services
 
         protected readonly IDb _db;
         protected readonly HttpServiceBase _httpService;
+
         protected Service(IDb db, HttpServiceBase httpService)
         {
             _db = db;
@@ -75,13 +76,13 @@ namespace EZcore.Services
 
         protected TEntity Records(int id) => Records().SingleOrDefault(entity => entity.Id == id);
 
-        /// <summary>
-        /// Must be added by related entity property names, seperated by a space character for multiple words if any, and the relevant Turkish expressions. 
-        /// Turkish characters will be replaced with corresponding English characters. 
-        /// </summary>
-        /// <param name="entityPropertyName"></param>
-        /// <param name="expressionTR"></param>
-        protected void AddPageOrderExpression(string entityPropertyName, string expressionTR = "")
+		/// <summary>
+		/// Must be added by related entity property names, seperated by a space character for multiple words if any, and the relevant Turkish expressions. 
+		/// Turkish characters will be replaced with corresponding English characters. 
+		/// </summary>
+		/// <param name="entityPropertyName"></param>
+		/// <param name="expressionTR"></param>
+		protected void AddPageOrderExpression(string entityPropertyName, string expressionTR = "")
         {
             var descKey = "DESC";
             var descValue = Lang == Lang.TR ? "Azalan" : "Descending";
@@ -119,72 +120,97 @@ namespace EZcore.Services
 
         public virtual TModel Read(int id)
         {
-            var item = Records().AsNoTracking().Select(entity => new TModel() { Record = entity }).SingleOrDefault(model => model.Record.Id == id);
+            var item = Records().Select(entity => new TModel() { Record = entity }).SingleOrDefault(model => model.Record.Id == id);
             if (item is null)
                 Error(RecordNotFound);
             return item;
         }
 
-        public virtual ServiceBase Validate(TEntity record)
+        public virtual ServiceBase Validate(TModel model)
         {
-            if (Records().Any(entity => entity.Id != record.Id &&
-                EF.Functions.Collate(entity.Name, Collation) == EF.Functions.Collate(record.Name ?? "", Collation).Trim()))
+            if (Records().Any(entity => entity.Id != model.Record.Id &&
+                EF.Functions.Collate(entity.Name, Collation) == EF.Functions.Collate(model.Record.Name ?? "", Collation).Trim()))
             {
                 return Error(RecordWithSameNameExists);
             }
             return Success();
         }
 
-        public virtual TModel Create(TEntity record, bool save = true)
+        public virtual void Create(TModel model, bool save = true)
         {
             if (!IsSuccessful)
-                return null;
+                return;
+            if (model is IFileModel)
+            {
+                var fileService = new FileService(Lang);
+                var filePath = fileService.Create((model as IFileModel).MainFormFilePath);
+                if (!fileService.IsSuccessful)
+                {
+                    Error(fileService.Message);
+                    return;
+                }
+                (model.Record as IFile).MainFilePath = filePath;
+            }
             if (_hasGuidProperty)
             {
-                record.Guid = Guid.NewGuid().ToString();
+                model.Record.Guid = Guid.NewGuid().ToString();
             }
             if (_hasModifiedByProperty)
             {
-                (record as IModifiedBy).CreateDate = DateTime.Now;
-                (record as IModifiedBy).CreatedBy = _httpService.UserName;
+                (model.Record as IModifiedBy).CreateDate = DateTime.Now;
+                (model.Record as IModifiedBy).CreatedBy = _httpService.UserName;
             }
-            _db.Set<TEntity>().Add(record.Trim());
+            _db.Set<TEntity>().Add(model.Record.Trim());
             if (save)
             {
                 Save();
                 Success(RecordCreated);
-                return new TModel() { Record = record };
+                return;
             }
             Success(RecordNotSaved);
-            return null;
         }
 
-        public virtual TModel Update(TEntity record, bool save = true)
+        public virtual void Update(TModel model, bool save = true)
         {
             if (!IsSuccessful)
-                return null;
+                return;
+            if (model is IFileModel)
+            {
+                var record = _db.Set<TEntity>().Find(model.Record.Id);
+                if (record is null)
+                {
+                    Error(RecordNotFound);
+                    return;
+                }
+                var fileService = new FileService(Lang);
+                var filePath = fileService.Update((model as IFileModel).MainFormFilePath, (record as IFile).MainFilePath);
+                if (!fileService.IsSuccessful)
+                {
+                    Error(fileService.Message);
+                    return;
+                }
+                (record as IFile).MainFilePath = filePath;
+            }
             if (_hasModifiedByProperty)
             {
-                (record as IModifiedBy).UpdateDate = DateTime.Now;
-                (record as IModifiedBy).UpdatedBy = _httpService.UserName;
+                (model.Record as IModifiedBy).UpdateDate = DateTime.Now;
+                (model.Record as IModifiedBy).UpdatedBy = _httpService.UserName;
             }
-            _db.Set<TEntity>().Update(record.Trim());
+            _db.Set<TEntity>().Update(model.Record.Trim());
             if (save)
             {
                 try
                 {
                     Save();
                     Success(RecordUpdated);
-                    return new TModel() { Record = record };
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     Error(RecordNotFound);
-                    return null;
                 }
+                return;
             }
             Success(RecordNotSaved);
-            return null;
         }
 
         protected void Update<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
@@ -212,6 +238,7 @@ namespace EZcore.Services
             }
             else
             {
+                DeleteFile(record);
                 _db.Set<TEntity>().Remove(record);
             }
             if (save)
@@ -262,6 +289,30 @@ namespace EZcore.Services
                 }
             }
             return _db.SaveChanges();
+        }
+
+        public void DeleteFile(TEntity record)
+        {
+            if (record is IFile)
+            {
+                var fileService = new FileService(Lang);
+                fileService.Delete((record as IFile).MainFilePath);
+                (record as IFile).MainFilePath = null;
+                _db.Set<TEntity>().Update(record);
+                _db.SaveChanges();
+                Success(fileService.FileDeleted);
+            }
+        }
+
+        public void DeleteFile(int id)
+        {
+            var record = _db.Set<TEntity>().Find(id);
+            if (record is null)
+            {
+                Error(RecordNotFound);
+                return;
+            }
+            DeleteFile(record);
         }
 
         public void Dispose()

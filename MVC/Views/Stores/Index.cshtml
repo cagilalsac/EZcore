@@ -41,7 +41,7 @@
             <thead class="table-secondary">
                 <tr>
                     <th>
-                        @Html.DisplayNameFor(model => model.StoreName)
+                        @Html.DisplayNameFor(model => model.Name)
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.IsVirtual)
@@ -56,7 +56,7 @@
 		        @foreach (var item in Model) {
 				<tr>
 					<td>
-						@Html.Raw(item.StoreName)
+						@Html.Raw(item.Name)
 					</td>
 					<td>
 						@Html.Raw(item.IsVirtual)

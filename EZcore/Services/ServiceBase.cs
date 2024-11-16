@@ -31,10 +31,10 @@ namespace EZcore.Services
             return this;
         }
 
-        public ServiceBase Error(string message = "")
+        public ServiceBase Error(string message = "", bool operationFailed = true)
         {
             IsSuccessful = false;
-            Message = message;
+            Message = operationFailed ? $"{OperationFailed} {message}" : message;
             return this;
         }
     }

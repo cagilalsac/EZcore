@@ -12,14 +12,6 @@ namespace BLL.Services
 {
     public class ProductService : Service<Product, ProductModel>
     {
-        protected override string RecordFound => Lang == Lang.EN ? "product found." : "ürün bulundu.";
-        protected override string RecordsFound => Lang == Lang.EN ? "products found." : "ürün bulundu.";
-        protected override string RecordWithSameNameExists => OperationFailed + (Lang == Lang.EN ? " Product with the same name exists!" : " Aynı ada sahip ürün bulunmaktadır!");
-        protected override string RecordCreated => Lang == Lang.EN ? "Product created successfully." : "Ürün başarıyla oluşturuldu.";
-        protected override string RecordNotFound => Lang == Lang.EN ? "Product not found!" : "Ürün bulunamadı!";
-        protected override string RecordUpdated => Lang == Lang.EN ? "Product updated successfully." : "Ürün başarıyla güncellendi.";
-        protected override string RecordDeleted => Lang == Lang.EN ? "Product deleted successfully." : "Ürün başarıyla silindi.";
-
         public ProductService(IDb db, HttpServiceBase httpService) : base(db, httpService)
         {
         }
@@ -33,26 +25,27 @@ namespace BLL.Services
             return base.Records().Include(p => p.Category).Include(p => p.ProductStores).ThenInclude(ps => ps.Store).OrderBy(p => p.Name);
         }
 
-        public override ServiceBase Validate(Product record)
+        public override ServiceBase Validate(ProductModel model)
         {
-            if ((record.StockAmount ?? 0) < 0)
+            if ((model.Record.StockAmount ?? 0) < 0)
                 return Error(Lang == Lang.TR ? "Stok miktarı 0 veya pozitif bir sayı olmalıdır!" : "Stock amount must be 0 or a positive number!");
-            if (record.UnitPrice <= 0 || record.UnitPrice > 100000)
+            if (model.Record.UnitPrice <= 0 || model.Record.UnitPrice > 100000)
                 return Error(Lang == Lang.TR ? "Birim fiyat 0'dan büyük 100000'den küçük olmalıdır!" : "Unit price must be greater than 0 and less than 100000!");
-            return base.Validate(record);
+            return base.Validate(model);
         }
 
-        public override ProductModel Update(Product record, bool save = true)
+        public override void Update(ProductModel model, bool save = true)
         {
-            var product = Records(record.Id);
+            var product = Records(model.Record.Id);
             Update(product.ProductStores);
-            product.Name = record.Name;
-            product.UnitPrice = record.UnitPrice;
-            product.StockAmount = record.StockAmount;
-            product.ExpirationDate = record.ExpirationDate;
-            product.CategoryId = record.CategoryId;
-            product.StoreIds = record.StoreIds;
-            return base.Update(product, save);
+            product.Name = model.Record.Name;
+            product.UnitPrice = model.Record.UnitPrice;
+            product.StockAmount = model.Record.StockAmount;
+            product.ExpirationDate = model.Record.ExpirationDate;
+            product.CategoryId = model.Record.CategoryId;
+            product.Stores = model.Record.Stores;
+            model.Record = product;
+            base.Update(model, save);
         }
 
         public override void Delete(int id, bool save = true)

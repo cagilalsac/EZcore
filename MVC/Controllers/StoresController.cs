@@ -6,11 +6,13 @@ using EZcore.Services;
 using EZcore.Models;
 using BLL.Models;
 using BLL.DAL;
+using Microsoft.AspNetCore.Authorization;
 
 // Generated from EZcore Template.
 
 namespace MVC.Controllers
 {
+    [Authorize(Roles = "EZcodeAdmin")]
     public class StoresController : MvcController
     {
         // Views may be configured here by overriding the base controller properties starting with "View", "Lang" base property can also be overriden if necessary:
@@ -42,7 +44,7 @@ namespace MVC.Controllers
             base.SetViewData();
             
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
-            //ViewBag.{Entity}Ids = new MultiSelectList(_{Entity}Service.Read(), "Record.Id", "Name");
+            //ViewBag.{Entity}s = new MultiSelectList(_{Entity}Service.Read(), "Record.Id", "Name");
         }
 
         // GET: Stores
@@ -81,14 +83,14 @@ namespace MVC.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(StoreModel store)
         {
-            if (ModelState.IsValid && _storeService.Validate(store.Record).IsSuccessful)
+            if (ModelState.IsValid && _storeService.Validate(store).IsSuccessful)
             {
                 // Insert item service logic:
-                var model = _storeService.Create(store.Record);
+                _storeService.Create(store);
                 
                 Message = _storeService.Message;
                 if (_storeService.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = store.Record.Id });
             }
             Message = _storeService.Message;
             SetViewData();
@@ -111,14 +113,14 @@ namespace MVC.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(StoreModel store)
         {
-            if (ModelState.IsValid && _storeService.Validate(store.Record).IsSuccessful)
+            if (ModelState.IsValid && _storeService.Validate(store).IsSuccessful)
             {
                 // Update item service logic:
-                var model = _storeService.Update(store.Record);
+                _storeService.Update(store);
                 
                 Message = _storeService.Message;
                 if (_storeService.IsSuccessful)
-                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = store.Record.Id });
             }
             Message = _storeService.Message;
             SetViewData();

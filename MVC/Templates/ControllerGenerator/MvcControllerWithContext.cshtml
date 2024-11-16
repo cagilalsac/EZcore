@@ -10,6 +10,7 @@ if (@Model.NullableEnabled)
 @using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 using EZcore.Controllers;
 using EZcore.Services;
 using EZcore.Models;
@@ -77,6 +78,7 @@ namespace @Model.ControllerNamespace
     var serviceAbstractType = "Service<" + Model.ModelTypeName + ", " + modelType + ">";
     var serviceAbstractName = Model.ModelVariable + "Service";
 }
+    [Authorize]
     public class @Model.ControllerName : MvcController
     {
         // Views may be configured here by overriding the base controller properties starting with "View", "Lang" base property can also be overriden if necessary:
@@ -130,10 +132,11 @@ namespace @Model.ControllerNamespace
 }           
             
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
-            //ViewBag.{Entity}Ids = new MultiSelectList(_{Entity}Service.Read(), "Record.Id", "Name");
+            //ViewBag.{Entity}s = new MultiSelectList(_{Entity}Service.Read(), "Record.Id", "Name");
         }
 
         // GET: @routePrefix
+        [AllowAnonymous]
         public IActionResult Index(PageOrder pageOrder = null)
         {
             PageOrder = pageOrder;
@@ -165,11 +168,10 @@ namespace @Model.ControllerNamespace
         }
 
         // POST: @routePrefix/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(@modelType @Model.ModelVariable)
         {
-            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@(Model.ModelVariable).Record).IsSuccessful)
+            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@Model.ModelVariable).IsSuccessful)
             {
 @{
     if (!string.IsNullOrEmpty(primaryKeyType) && IsGuid(primaryKeyType))
@@ -177,12 +179,12 @@ namespace @Model.ControllerNamespace
                 @:@(Model.ModelVariable).@primaryKeyName = Guid.NewGuid();
     }
                 @:// Insert item service logic:
-                @:var model = @("_" + serviceAbstractName).Create(@(Model.ModelVariable).Record);
+                @:@("_" + serviceAbstractName).Create(@Model.ModelVariable);
                 @:
                 @:Message = @("_" + serviceAbstractName).Message;
                 @:if (@("_" + serviceAbstractName).IsSuccessful)
 }  
-                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = @(Model.ModelVariable).Record.Id });
             }
             Message = @("_" + serviceAbstractName).Message;
             SetViewData();
@@ -201,20 +203,19 @@ namespace @Model.ControllerNamespace
         }
 
         // POST: @routePrefix/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Edit(@modelType @Model.ModelVariable)
         {
-            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@(Model.ModelVariable).Record).IsSuccessful)
+            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@Model.ModelVariable).IsSuccessful)
             {
 @{
                 @:// Update item service logic:
-                @:var model = @("_" + serviceAbstractName).Update(@(Model.ModelVariable).Record);
+                @:@("_" + serviceAbstractName).Update(@Model.ModelVariable);
                 @:
                 @:Message = @("_" + serviceAbstractName).Message;
                 @:if (@("_" + serviceAbstractName).IsSuccessful)
 }
-                    return RedirectToAction(nameof(Details), new { id = model.Record.Id });
+                    return RedirectToAction(nameof(Details), new { id = @(Model.ModelVariable).Record.Id });
             }
             Message = @("_" + serviceAbstractName).Message;
             SetViewData();
@@ -233,8 +234,7 @@ namespace @Model.ControllerNamespace
         }
 
         // POST: @routePrefix/Delete
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, ActionName("Delete")]
         public IActionResult DeleteConfirmed(@primaryKeyShortTypeName id)
         {
             // Delete item service logic:
@@ -252,6 +252,16 @@ namespace @Model.ControllerNamespace
 
             Message = @("_" + serviceAbstractName).Message;
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: @routePrefix/DeleteFile/5
+        public IActionResult DeleteFile(@primaryKeyShortTypeName id)
+        {
+            // Delete file logic:
+            @("_" + serviceAbstractName).DeleteFile(id);
+
+            Message = @("_" + serviceAbstractName).Message;
+            return RedirectToAction(nameof(Details), new { id = id });
         }
 	}
 }

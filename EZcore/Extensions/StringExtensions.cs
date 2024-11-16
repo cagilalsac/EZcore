@@ -1,4 +1,6 @@
-﻿namespace EZcore.Extensions
+﻿#nullable disable
+
+namespace EZcore.Extensions
 {
     public static class StringExtensions
     {
@@ -31,6 +33,22 @@
                 }
             }
             return valueEN;
+        }
+
+        public static T Trim<T>(this T instance) where T : class, new()
+        {
+            var properties = instance.GetType().GetProperties().Where(property => property.PropertyType == typeof(string)).ToList();
+            object value;
+            if (properties is not null)
+            {
+                foreach (var property in properties)
+                {
+                    value = property.GetValue(instance);
+                    if (value is not null)
+                        property.SetValue(instance, ((string)value).Trim());
+                }
+            }
+            return instance;
         }
     }
 }

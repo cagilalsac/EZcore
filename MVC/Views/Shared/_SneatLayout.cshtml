@@ -69,35 +69,32 @@
                         <span class="menu-header-text">MENU</span>
                     </li>
                     <li class="menu-item">
-                        <a asp-area="" asp-action="Seed" asp-controller="Db" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-data"></i>
-                            <div class="text-truncate" data-i18n="Seed Database">Seed Database</div>
-                        </a>
-                    </li>
-                    <li class="menu-item">
                         <a asp-area="" asp-action="Index" asp-controller="Products" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-spreadsheet"></i>
                             <div class="text-truncate" data-i18n="Products">Products</div>
                         </a>
                     </li>
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon tf-icons bx bx-menu"></i>
-                            <div class="text-truncate" data-i18n="Admin">Admin</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a asp-area="" asp-action="Index" asp-controller="Categories" class="menu-link">
-                                    <div class="text-truncate" data-i18n="Categories">Categories</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a asp-area="" asp-action="Index" asp-controller="Stores" class="menu-link">
-                                    <div class="text-truncate" data-i18n="Stores">Stores</div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if (User.IsInRole("EZcodeAdmin"))
+                    {
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-menu"></i>
+                                <div class="text-truncate" data-i18n="Admin">Admin</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a asp-area="" asp-action="Index" asp-controller="Categories" class="menu-link">
+                                        <div class="text-truncate" data-i18n="Categories">Categories</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a asp-area="" asp-action="Index" asp-controller="Stores" class="menu-link">
+                                        <div class="text-truncate" data-i18n="Stores">Stores</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
                 </ul>
             </aside>
             <!-- / Menu -->
@@ -125,12 +122,12 @@
                             @if (User.Identity.IsAuthenticated)
                             {
                                 <li class="nav-item">
-                                    <a asp-area="" asp-action="Index" asp-controller="Home" class="nav-link">
+                                    <a href="#" class="nav-link">
                                         <i class="bx bx-user bx-md me-1"></i><span>@User.Identity.Name</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a asp-area="" asp-action="Index" asp-controller="Home" class="nav-link ps-3">
+                                    <a asp-area="" asp-action="Logout" asp-controller="Users" class="nav-link ps-3">
                                         <i class="bx bx-log-out bx-md me-1"></i><span>Logout</span>
                                     </a>
                                 </li>
@@ -138,12 +135,12 @@
                             else
                             {
                                 <li class="nav-item">
-                                    <a asp-area="" asp-action="Index" asp-controller="Home" class="nav-link">
+                                    <a asp-area="" asp-action="Register" asp-controller="Users" class="nav-link">
                                         <i class="bx bx-user-plus bx-md me-1"></i><span>Register</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a asp-area="" asp-action="Index" asp-controller="Home" class="nav-link ps-3">
+                                    <a asp-area="" asp-action="Login" asp-controller="Users" class="nav-link ps-3">
                                         <i class="bx bx-log-in bx-md me-1"></i><span>Login</span>
                                     </a>
                                 </li>

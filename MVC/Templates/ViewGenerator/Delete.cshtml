@@ -67,6 +67,28 @@ foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
     if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
         && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
     {
+    if (item.Name == "MainFilePath")
+    {
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
+            @@Html.DisplayNameFor(model => model.MainFormFilePath)
+        </div>
+        <div class="col-4">
+        @{
+        @:@@if (string.IsNullOrWhiteSpace(Model.Record.MainFilePath))
+        @:{
+            @:<span><i class="bx bx-image" style="font-size:xx-large;"></i></span>
+        @:}
+        @:else
+        @:{
+            @:<img src="@@Model.Record.MainFilePath" class="img-fluid" />
+        @:}
+        }
+        </div>
+    </div>
+    }
+    else
+    {
     <div class="row mb-3">
         <div class="col-2 fw-bold">
             @@Html.DisplayNameFor(model => model.@GetValueExpression(property))
@@ -75,6 +97,7 @@ foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
             @@Html.Raw(Model.@GetValueExpression(property))
         </div>
     </div>
+    }
     }
     else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
     {

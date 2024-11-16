@@ -57,7 +57,7 @@
     }
 @:<div class="@@containerDivClass">
     @:<partial name="_EZMessage" />
-    @:<form asp-action="@Model.ViewName" autocomplete="off">
+    @:<form asp-action="@Model.ViewName" autocomplete="off" enctype="multipart/form-data">
 		@:@@Html.AntiForgeryToken()
         @:<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 foreach (var property in Model.ModelMetadata.Properties)
@@ -111,6 +111,15 @@ foreach (var property in Model.ModelMetadata.Properties)
 			@:</div>
         @:</div>
         }
+        else if (property.PropertyName == "MainFilePath")
+        {
+        @:<div class="row mb-3">
+            @:<label asp-for="MainFormFilePath" class="col-2 col-form-label fw-bold"></label>
+	        @:<div class="col-10">
+	            @:<input asp-for="MainFormFilePath" class="form-control" type="file" />
+	        @:</div>
+        @:</div>
+        }
         else
         {
         @:<div class="row mb-3">
@@ -130,8 +139,8 @@ foreach (var property in Model.ModelMetadata.Properties)
         @:<div class="row mb-3">
             @:<label asp-for="{Entity}s" class="col-2 col-form-label fw-bold"></label>
 	        @:<div class="col-10">
-		        @:<select multiple asp-for="Record.{Entity}Ids" class="form-select select2" asp-items="ViewBag.{Entity}Ids"></select>
-		        @:<span asp-validation-for="Record.{Entity}Ids" class="text-danger"></span>
+		        @:<select multiple asp-for="Record.{Entity}s" class="form-select select2" asp-items="ViewBag.{Entity}s"></select>
+		        @:<span asp-validation-for="Record.{Entity}s" class="text-danger"></span>
 	        @:</div>
         @:</div>
         @:*@@
