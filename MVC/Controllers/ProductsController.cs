@@ -47,10 +47,10 @@ namespace MVC.Controllers
             base.SetViewData();
             
             // Related items service logic to set ViewData (Record.Id and Name parameters may need to be changed in the SelectList constructor according to the model):
-            ViewData["CategoryId"] = new SelectList(_categoryService.Read(), "Record.Id", "Name");
+            ViewData["CategoryId"] = new SelectList(_categoryService.Get(), "Record.Id", "Name");
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
-            ViewBag.Stores = new MultiSelectList(_StoreService.Read(), "Record.Id", "Name");
+            ViewBag.Stores = new MultiSelectList(_StoreService.Get(), "Record.Id", "Name");
         }
 
         // GET: Products
@@ -60,7 +60,7 @@ namespace MVC.Controllers
             PageOrder = pageOrder;
 
             // Get collection service logic:
-            var list = _productService.Read(PageOrder);
+            var list = _productService.Get(PageOrder);
             
             Message = _productService.Message;
             SetViewData();
@@ -71,7 +71,7 @@ namespace MVC.Controllers
         public IActionResult Details(int id)
         {
             // Get item service logic:
-            var item = _productService.Read(id);
+            var item = _productService.Get(id);
 
             Message = _productService.Message;
             SetViewData();
@@ -107,7 +107,7 @@ namespace MVC.Controllers
         public IActionResult Edit(int id)
         {
             // Get item to edit service logic:
-            var item = _productService.Read(id);
+            var item = _productService.Get(id);
 
             Message = _productService.Message;
             SetViewData();
@@ -136,7 +136,7 @@ namespace MVC.Controllers
         public IActionResult Delete(int id)
         {
             // Get item to delete service logic:
-            var item = _productService.Read(id);
+            var item = _productService.Get(id);
 
             Message = _productService.Message;
             SetViewData();
@@ -172,6 +172,11 @@ namespace MVC.Controllers
 
             Message = _productService.Message;
             return RedirectToAction(nameof(Details), new { id = id });
+        }
+
+        public void Export()
+        {
+            _productService.GetExcel(3, 6, 7, 10);
         }
 	}
 }

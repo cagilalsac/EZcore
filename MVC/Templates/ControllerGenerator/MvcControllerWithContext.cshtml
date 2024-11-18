@@ -126,13 +126,13 @@ namespace @Model.ControllerNamespace
             @:// Related items service logic to set ViewData (Record.Id and Name parameters may need to be changed in the SelectList constructor according to the model):
         foreach (var property in relatedProperties.Values)
         {
-            @:ViewData["@(property.ForeignKeyPropertyNames[0])"] = new SelectList(_@(relatedProperties.FirstOrDefault(rp => rp.Value == property).Key.Substring(0, 1).ToLower() + relatedProperties.FirstOrDefault(rp => rp.Value == property).Key.Substring(1))Service.Read(), "Record.Id", "Name");
+            @:ViewData["@(property.ForeignKeyPropertyNames[0])"] = new SelectList(_@(relatedProperties.FirstOrDefault(rp => rp.Value == property).Key.Substring(0, 1).ToLower() + relatedProperties.FirstOrDefault(rp => rp.Value == property).Key.Substring(1))Service.Get(), "Record.Id", "Name");
         }
     }
 }           
             
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
-            //ViewBag.{Entity}s = new MultiSelectList(_{Entity}Service.Read(), "Record.Id", "Name");
+            //ViewBag.{Entity}s = new MultiSelectList(_{Entity}Service.Get(), "Record.Id", "Name");
         }
 
         // GET: @routePrefix
@@ -142,7 +142,7 @@ namespace @Model.ControllerNamespace
             PageOrder = pageOrder;
 
             // Get collection service logic:
-            var list = @("_" + serviceAbstractName).Read(PageOrder);
+            var list = @("_" + serviceAbstractName).Get(PageOrder);
             
             Message = @("_" + serviceAbstractName).Message;
             SetViewData();
@@ -153,7 +153,7 @@ namespace @Model.ControllerNamespace
         public IActionResult Details(@primaryKeyShortTypeName id)
         {
             // Get item service logic:
-            var item = @("_" + serviceAbstractName).Read(id);
+            var item = @("_" + serviceAbstractName).Get(id);
 
             Message = @("_" + serviceAbstractName).Message;
             SetViewData();
@@ -195,7 +195,7 @@ namespace @Model.ControllerNamespace
         public IActionResult Edit(@primaryKeyShortTypeName id)
         {
             // Get item to edit service logic:
-            var item = @("_" + serviceAbstractName).Read(id);
+            var item = @("_" + serviceAbstractName).Get(id);
 
             Message = @("_" + serviceAbstractName).Message;
             SetViewData();
@@ -226,7 +226,7 @@ namespace @Model.ControllerNamespace
         public IActionResult Delete(@primaryKeyShortTypeName id)
         {
             // Get item to delete service logic:
-            var item = @("_" + serviceAbstractName).Read(id);
+            var item = @("_" + serviceAbstractName).Get(id);
 
             Message = @("_" + serviceAbstractName).Message;
             SetViewData();
@@ -262,6 +262,12 @@ namespace @Model.ControllerNamespace
 
             Message = @("_" + serviceAbstractName).Message;
             return RedirectToAction(nameof(Details), new { id = id });
+        }
+
+        // GET: @routePrefix/Export
+        public void Export()
+        {
+            @("_" + serviceAbstractName).GetExcel();
         }
 	}
 }

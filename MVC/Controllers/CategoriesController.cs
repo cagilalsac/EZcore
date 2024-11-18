@@ -53,7 +53,7 @@ namespace MVC.Controllers
             PageOrder = pageOrder;
 
             // Get collection service logic:
-            var list = _categoryService.Read(PageOrder);
+            var list = _categoryService.Get(PageOrder);
             
             Message = _categoryService.Message;
             SetViewData();
@@ -64,7 +64,7 @@ namespace MVC.Controllers
         public IActionResult Details(int id)
         {
             // Get item service logic:
-            var item = _categoryService.Read(id);
+            var item = _categoryService.Get(id);
 
             Message = _categoryService.Message;
             SetViewData();
@@ -101,7 +101,7 @@ namespace MVC.Controllers
         public IActionResult Edit(int id)
         {
             // Get item to edit service logic:
-            var item = _categoryService.Read(id);
+            var item = _categoryService.Get(id);
 
             Message = _categoryService.Message;
             SetViewData();
@@ -131,7 +131,7 @@ namespace MVC.Controllers
         public IActionResult Delete(int id)
         {
             // Get item to delete service logic:
-            var item = _categoryService.Read(id);
+            var item = _categoryService.Get(id);
 
             Message = _categoryService.Message;
             SetViewData();

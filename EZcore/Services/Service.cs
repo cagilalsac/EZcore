@@ -26,6 +26,8 @@ namespace EZcore.Services
         private Dictionary<string, string> _pageOrderExpressions = new Dictionary<string, string>();
         private string _pageOrderExpression;
 
+        protected FileServiceBase _fileService;
+
         protected virtual string Collation => "Turkish_CI_AS";
 
         protected virtual string RecordNotFound { get; private set; }
@@ -95,7 +97,7 @@ namespace EZcore.Services
             }
         }
 
-        public virtual List<TModel> Read(PageOrder pageOrder = null)
+        public virtual List<TModel> Get(PageOrder pageOrder = null)
         {
             List<TModel> list;
             Error(RecordNotFound);
@@ -118,7 +120,7 @@ namespace EZcore.Services
             return list;
         }
 
-        public virtual TModel Read(int id)
+        public virtual TModel Get(int id)
         {
             var item = Records().Select(entity => new TModel() { Record = entity }).SingleOrDefault(model => model.Record.Id == id);
             if (item is null)
@@ -140,17 +142,8 @@ namespace EZcore.Services
         {
             if (!IsSuccessful)
                 return;
-            if (model is IFileModel)
-            {
-                var fileService = new FileService(Lang);
-                var filePath = fileService.Create((model as IFileModel).MainFormFilePath);
-                if (!fileService.IsSuccessful)
-                {
-                    Error(fileService.Message);
-                    return;
-                }
-                (model.Record as IFile).MainFilePath = filePath;
-            }
+            if (!CreateFile(model))
+                return;
             if (_hasGuidProperty)
             {
                 model.Record.Guid = Guid.NewGuid().ToString();
@@ -161,42 +154,27 @@ namespace EZcore.Services
                 (model.Record as IModifiedBy).CreatedBy = _httpService.UserName;
             }
             _db.Set<TEntity>().Add(model.Record.Trim());
+            Success(RecordNotSaved);
             if (save)
             {
                 Save();
                 Success(RecordCreated);
-                return;
             }
-            Success(RecordNotSaved);
         }
 
         public virtual void Update(TModel model, bool save = true)
         {
             if (!IsSuccessful)
                 return;
-            if (model is IFileModel)
-            {
-                var record = _db.Set<TEntity>().Find(model.Record.Id);
-                if (record is null)
-                {
-                    Error(RecordNotFound);
-                    return;
-                }
-                var fileService = new FileService(Lang);
-                var filePath = fileService.Update((model as IFileModel).MainFormFilePath, (record as IFile).MainFilePath);
-                if (!fileService.IsSuccessful)
-                {
-                    Error(fileService.Message);
-                    return;
-                }
-                (record as IFile).MainFilePath = filePath;
-            }
+            if (!UpdateFile(model))
+                return;
             if (_hasModifiedByProperty)
             {
                 (model.Record as IModifiedBy).UpdateDate = DateTime.Now;
                 (model.Record as IModifiedBy).UpdatedBy = _httpService.UserName;
             }
             _db.Set<TEntity>().Update(model.Record.Trim());
+            Success(RecordNotSaved);
             if (save)
             {
                 try
@@ -208,9 +186,7 @@ namespace EZcore.Services
                 {
                     Error(RecordNotFound);
                 }
-                return;
             }
-            Success(RecordNotSaved);
         }
 
         protected void Update<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
@@ -223,9 +199,10 @@ namespace EZcore.Services
         {
             var record = _db.Set<TEntity>().Find(id);
             if (record is null)
+            {
                 Error(RecordNotFound);
-            if (!IsSuccessful)
                 return;
+            }
             if (_hasIsDeletedProperty)
             {
                 (record as ISoftDelete).IsDeleted = true;
@@ -241,13 +218,12 @@ namespace EZcore.Services
                 DeleteFile(record);
                 _db.Set<TEntity>().Remove(record);
             }
+            Success(RecordNotSaved);
             if (save)
             {
                 Save();
                 Success(RecordDeleted);
-                return;
             }
-            Success(RecordNotSaved);
         }
 
         protected void Delete<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
@@ -291,28 +267,68 @@ namespace EZcore.Services
             return _db.SaveChanges();
         }
 
-        public void DeleteFile(TEntity record)
+        public virtual bool CreateFile(TModel model)
+        {
+            if (model is IFileModel)
+            {
+                _fileService = new FileService(Lang, _httpService);
+                var filePath = _fileService.Create((model as IFileModel).MainFormFilePath);
+                if (_fileService.IsSuccessful)
+                    (model.Record as IFile).MainFilePath = filePath;
+                else
+                    Error(_fileService.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public virtual bool UpdateFile(TModel model)
+        {
+            if (model is IFileModel)
+            {
+                var record = _db.Set<TEntity>().Find(model.Record.Id);
+                if (record is null)
+                {
+                    Error(RecordNotFound);
+                }
+                else
+                {
+                    _fileService = new FileService(Lang, _httpService);
+                    var filePath = _fileService.Update((model as IFileModel).MainFormFilePath, (record as IFile).MainFilePath);
+                    if (_fileService.IsSuccessful)
+                        (record as IFile).MainFilePath = filePath;
+                    else
+                        Error(_fileService.Message);
+                }
+            }
+            return IsSuccessful;
+        }
+
+        protected void DeleteFile(TEntity record)
         {
             if (record is IFile)
             {
-                var fileService = new FileService(Lang);
-                fileService.Delete((record as IFile).MainFilePath);
+                _fileService = new FileService(Lang, _httpService);
+                _fileService.Delete((record as IFile).MainFilePath);
                 (record as IFile).MainFilePath = null;
                 _db.Set<TEntity>().Update(record);
                 _db.SaveChanges();
-                Success(fileService.FileDeleted);
+                Success(_fileService.FileDeleted);
             }
         }
 
-        public void DeleteFile(int id)
+        public virtual void DeleteFile(int id)
         {
             var record = _db.Set<TEntity>().Find(id);
             if (record is null)
-            {
                 Error(RecordNotFound);
-                return;
-            }
-            DeleteFile(record);
+            else
+                DeleteFile(record);
+        }
+
+        public virtual void GetExcel(params int[] columnsToDeleteIndices)
+        {
+            _fileService = new FileService(Lang, _httpService);
+            _fileService.GetExcel(Get(), Lang == Lang.EN ? "Report" : "Rapor", columnsToDeleteIndices);
         }
 
         public void Dispose()

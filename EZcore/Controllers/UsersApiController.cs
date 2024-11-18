@@ -24,7 +24,7 @@ namespace EZcore.Controllers
             if (ModelState.IsValid)
             {
                 var userService = _userService as UserService;
-                var token = userService.ReadJwt(user);
+                var token = userService.GetJwt(user);
                 if (userService.IsSuccessful)
                     return Ok(token);
                 ModelState.AddModelError("Error", userService.Message);

@@ -1,7 +1,9 @@
 ﻿#nullable disable
 
+using EZcore.DAL;
 using EZcore.Models;
 using Microsoft.AspNetCore.Http;
+using OfficeOpenXml;
 
 namespace EZcore.Services
 {
@@ -17,7 +19,11 @@ namespace EZcore.Services
         public string FileUpdated { get; set; }
         public string FileDeleted { get; set; }
 
-        protected FileServiceBase(Lang lang)
+        public bool IsExcelLicenseCommercial { get; set; }
+
+        protected readonly HttpServiceBase _httpService;
+
+        protected FileServiceBase(Lang lang, HttpServiceBase httpService)
         {
             Lang = lang;
             SizeNotValid = Lang == Lang.EN ? $"Invalid file size, valid maxiumum file size: {MaximumSizeInMb} MB!" :
@@ -27,9 +33,10 @@ namespace EZcore.Services
             FileCreated = Lang == Lang.EN ? "File created successfully." : "Dosya başarıyla oluşturuldu.";
             FileUpdated = Lang == Lang.EN ? "File updated successfully." : "Dosya başarıyla güncellendi.";
             FileDeleted = Lang == Lang.EN ? "File deleted successfully." : "Dosya başarıyla silindi.";
+            _httpService = httpService;
         }
 
-        public string Create(IFormFile formFile)
+        public virtual string Create(IFormFile formFile)
         {
             string filePath = null;
             string fileName;
@@ -49,7 +56,7 @@ namespace EZcore.Services
             return filePath?.Substring(7).Replace(@"\", "/");
         }
 
-        public string Update(IFormFile formFile, string currentFilePath)
+        public virtual string Update(IFormFile formFile, string currentFilePath)
         {
             string filePath = string.IsNullOrWhiteSpace(currentFilePath) ? null : "wwwroot" + currentFilePath;
             string fileName;
@@ -70,7 +77,7 @@ namespace EZcore.Services
             return filePath?.Substring(7).Replace(@"\", "/");
         }
 
-        public void Delete(string currentFilePath)
+        public virtual void Delete(string currentFilePath)
         {
             if (!string.IsNullOrWhiteSpace(currentFilePath))
             {
@@ -83,7 +90,7 @@ namespace EZcore.Services
             }
         }
 
-        public ServiceBase Validate(IFormFile formFile)
+        public virtual ServiceBase Validate(IFormFile formFile)
         {
             if (formFile.Length > MaximumSizeInMb * Math.Pow(1024, 2))
                 return Error(SizeNotValid);
@@ -91,11 +98,31 @@ namespace EZcore.Services
                 return Error(ExtensionNotValid);
             return Success();
         }
+
+        public virtual void GetExcel<T>(List<T> list, string fileNameWithoutExtension, params int[] columnNumbersToDelete) 
+        {
+            if (list is not null && list.Any())
+            {
+                ExcelPackage.LicenseContext = IsExcelLicenseCommercial ? LicenseContext.Commercial : LicenseContext.NonCommercial;
+                var excelPackage = new ExcelPackage();
+                var excelWorksheet = excelPackage.Workbook.Worksheets.Add(Lang == Lang.EN ? "Sheet1" : "Sayfa1");
+                excelWorksheet.Cells["A1"].LoadFromCollection(list, true);
+                excelWorksheet.Cells["A1:AZ1"].Style.Font.Bold = true;
+                excelWorksheet.Cells["A1:AZ1"].AutoFilter = true;
+                excelWorksheet.Cells["A:AZ"].AutoFitColumns();
+                columnNumbersToDelete = columnNumbersToDelete.OrderByDescending(columnNumber => columnNumber).ToArray();
+                foreach (var columnNumberToDelete in columnNumbersToDelete)
+                {
+                    excelWorksheet.DeleteColumn(columnNumberToDelete);
+                }
+                _httpService.GetResponse(excelPackage.GetAsByteArray(), fileNameWithoutExtension + ".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            }
+        }
     }
 
     public class FileService : FileServiceBase
     {
-        public FileService(Lang lang) : base(lang)
+        public FileService(Lang lang, HttpServiceBase httpService) : base(lang, httpService)
         {
         }
     }

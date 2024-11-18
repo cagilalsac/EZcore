@@ -25,6 +25,7 @@
     @:var edit = lang == Lang.EN ? "Edit" : "Düzenle";
     @:var delete = lang == Lang.EN ? "Delete" : "Sil";
     @:var pageOrder = ViewData["PageOrder"] is null ? null : ViewData["PageOrder"] as PageOrder;
+    @:var export = lang == Lang.EN ? "Export to Excel" : "Excel'e Aktar";
 @:}
     if (Model.IsPartialView)
     {
@@ -66,6 +67,8 @@
             @:<div class="col-2 text-end">
             @:@@if (User.Identity.IsAuthenticated)
             @:{
+                @:<a asp-action="Export">@@export</a>
+                @:@@:&nbsp;|&nbsp;
                 @:<a asp-action="Create">@@create</a>
             @:}
             @:</div>

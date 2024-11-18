@@ -69,7 +69,7 @@ namespace EZcore.Services
             base.Delete(id, save);
         }
 
-        public UserModel Read(string userName, string password)
+        public UserModel Get(string userName, string password)
         {
             return Records().AsNoTracking().Where(u => u.IsActive && u.UserName == userName && u.Password == password)
                 .Select(u => new UserModel() { Record = u }).SingleOrDefault();
@@ -77,7 +77,7 @@ namespace EZcore.Services
 
         public async Task SignInAsync(UserModel model)
         {
-            var user = Read(model.Record.UserName, model.Record.Password);
+            var user = Get(model.Record.UserName, model.Record.Password);
             if (user is null)
             {
                 Error(UserNotValid);
@@ -98,9 +98,9 @@ namespace EZcore.Services
             base.Create(model);
         }
 
-        public JwtModel ReadJwt(UserModel model)
+        public JwtModel GetJwt(UserModel model)
         {
-            var user = Read(model.Record.UserName, model.Record.Password);
+            var user = Get(model.Record.UserName, model.Record.Password);
             if (user is null)
             {
                 Error(UserNotValid);

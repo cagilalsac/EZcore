@@ -34,5 +34,11 @@ namespace BLL.Models
 
         [DisplayName("File", "Dosya")]
         public IFormFile MainFormFilePath { get; set; }
+
+        [DisplayName("Stock Amount", "Stok Miktarı")]
+        public string StockAmountExcel => Record.StockAmount.HasValue ? Record.StockAmount.Value.ToString() : "";
+
+        [DisplayName("Stores", "Mağazalar")]
+        public string StoresExcel => string.Join(", ", Record.ProductStores?.OrderBy(ps => ps.Store?.Name).Select(ps => ps.Store?.Name));
     }
 }

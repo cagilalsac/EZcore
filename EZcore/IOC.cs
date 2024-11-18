@@ -59,7 +59,7 @@ namespace EZcore
             builder.Services.AddHttpContextAccessor();
 
             // Inversion of Control for Services:
-            builder.Services.AddSingleton<HttpServiceBase, HttpService>();
+            builder.Services.AddScoped<HttpServiceBase, HttpService>();
             builder.Services.AddScoped<Service<User, UserModel>, UserService>();
         }
 
