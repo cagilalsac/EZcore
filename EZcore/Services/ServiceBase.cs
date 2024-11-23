@@ -1,6 +1,7 @@
 ﻿#nullable disable
 
 using EZcore.Models;
+using System.Globalization;
 
 namespace EZcore.Services
 {
@@ -19,9 +20,26 @@ namespace EZcore.Services
             set
             {
                 _lang = value;
-                OperationFailed = _lang == Lang.TR ? "İşlem gerçekleştirilemedi!" : "Operation failed!";
-                OperationSuccessful = _lang == Lang.TR ? "İşlem başarıyla gerçekleştirildi." : "Operation successful.";
+                Thread.CurrentThread.CurrentCulture = Lang == Lang.TR ? new CultureInfo("tr-TR") : new CultureInfo("en-US");
+                Thread.CurrentThread.CurrentUICulture = Lang == Lang.TR ? new CultureInfo("tr-TR") : new CultureInfo("en-US");
+                OperationFailed = Lang == Lang.TR ? "İşlem gerçekleştirilemedi!" : "Operation failed!";
+                OperationSuccessful = Lang == Lang.TR ? "İşlem başarıyla gerçekleştirildi." : "Operation successful.";
             }
+        }
+
+        public bool Api { get; set; }
+        public string ViewModelName { get; set; }
+
+        protected readonly HttpServiceBase _httpService;
+
+        protected ServiceBase(HttpServiceBase httpService)
+        {
+            _httpService = httpService;
+            if (Api)
+                Lang = Lang.TR;
+            else
+                Lang = (Lang)int.Parse(_httpService.GetCookie(nameof(Lang)) ?? "0");
+            ViewModelName = Lang == Lang.EN ? "Record" : "Kayıt";
         }
 
         public ServiceBase Success(string message = "")

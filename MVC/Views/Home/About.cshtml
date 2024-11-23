@@ -1,10 +1,18 @@
 ﻿@{
-    ViewData["Title"] = "About";
+    // ViewData:
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
+}
+
+@{
+    ViewData["Title"] = lang == Lang.EN ? "About" : "Hakkında";
 }
 
 <div class="text-center">
     <h3>
-        &copy; @DateTime.Now.Year | Developed by <a href="https://need4code.com/cagilalsac" target="_blank">Cagil Alsac</a>
+        &copy; @DateTime.Now.Year | @(lang == Lang.EN ? "Developed by:" : "Geliştiren:") 
+        <a href="https://need4code.com/cagilalsac" target="_blank">
+            @(lang == Lang.EN ? "Cagil Alsac" : "Çağıl Alsaç")
+        </a>
         &nbsp;|&nbsp;
         <a href="https://github.com/cagilalsac/EZcore" target="_blank"><i class="bi bi-github"></i> EZcore GitHub</a>
     </h3>

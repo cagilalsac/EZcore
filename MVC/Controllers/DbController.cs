@@ -1,13 +1,14 @@
 ﻿using BLL.DAL;
-using EZcore.DAL;
+using BLL.Models;
+using EZcore.Controllers;
+using EZcore.DAL.Users;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MVC.Models;
 using System.Globalization;
 
 namespace MVC.Controllers
 {
-    public class DbController : Controller
+    public class DbController : MvcController
     {
         const int PIN = 0905;
 
@@ -275,11 +276,11 @@ namespace MVC.Controllers
                     System.IO.File.Delete(file);
                 }
 
-                TempData["Message"] = "Database seed successful.";
+                Message = "Database seed successful.";
             }
             else
             {
-                TempData["Message"] = "Invalid pin!";
+                Message = "Invalid pin!";
             }
 
             return RedirectToAction("Index", "Products");

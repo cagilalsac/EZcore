@@ -34,9 +34,7 @@ namespace EZcore.Models
         public string OrderExpression { get; set; }
         public Dictionary<string, string> OrderExpressions { get; set; }
 
-        public bool PageOrderSession { get; set; }
-
-        public Lang Lang { get; set; }
+        public bool Session { get; set; }
 
         public PageOrder()
         {

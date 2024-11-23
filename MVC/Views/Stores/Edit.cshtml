@@ -1,5 +1,4 @@
-﻿@using EZcore.Models
-@using EZcore.Extensions
+﻿@using EZcore.Extensions
 
 @model StoreModel
 
@@ -8,7 +7,7 @@
 
 @{
     // ViewData:
-    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     var modelName = ViewData["ViewModelName"];
     var containerDivClass = "container-fluid"; // "container" can be used for not full width
     var dateTimePickerClass = "datepicker"; // "datetimepicker" can be used for date with time
@@ -18,6 +17,7 @@
     var save = lang == Lang.EN ? "Save" : "Kaydet";
     var clear = lang == Lang.EN ? "Clear" : "Temizle";
     var backToList = lang == Lang.EN ? "Back to List" : "Listeye Dön";
+    var deleteFile = lang == Lang.EN ? "Delete File" : "Dosya Sil";
 }
 @{
     ViewData["Title"] = $"{modelName} {edit}";
@@ -26,18 +26,18 @@
 {
 <div class="@containerDivClass">
     <partial name="_EZMessage" />
-    <form asp-action="Edit" autocomplete="off">
+    <form asp-action="Edit" autocomplete="off" enctype="multipart/form-data">
 	    @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row mb-3">
-            <label asp-for="Name" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="Name" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 	        <div class="col-10">
 	            <input asp-for="Record.Name" class="form-control" />
-		        <span asp-validation-for="Record.Name" class="text-danger"></span>
+		        <validation asp-for="Record.Name" asp-lang="@lang" class="text-danger"></validation>
 	        </div>
         </div>
         <div class="row mb-3">
-		    <label asp-for="IsVirtual" class="col-2 col-form-label fw-bold"></label>
+		    <displayname asp-for="IsVirtual" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 		    <div class="col-10 pt-2">
 			    <input class="form-check-input" asp-for="Record.IsVirtual" />
             </div>
@@ -47,10 +47,10 @@
 @* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. *@
         @*
         <div class="row mb-3">
-            <label asp-for="{Entity}s" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="{Entity}s" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 	        <div class="col-10">
 		        <select multiple asp-for="Record.{Entity}s" class="form-select select2" asp-items="ViewBag.{Entity}s"></select>
-		        <span asp-validation-for="Record.{Entity}s" class="text-danger"></span>
+                <validation asp-for="Record.{Entity}s" asp-lang="@lang" class="text-danger"></validation>
 	        </div>
         </div>
         *@
@@ -61,10 +61,13 @@
                 <button type="submit" class="btn btn-primary">@save</button>
 		        &nbsp;&nbsp;
                 <button type="reset" class="btn btn-outline-primary">@clear</button>
-		        &nbsp;&nbsp;
+            @if (User.Identity.IsAuthenticated)
+            {
+		        @:&nbsp;&nbsp;
                 <a asp-action="Delete" asp-route-id="@Model.Record.Id">@delete</a>
+            }
                 &nbsp;&nbsp;
-		        <a asp-action="Index" asp-route-pageordersession="true">@backToList</a>
+		        <a asp-action="Index" asp-route-session="true">@backToList</a>
 	        </div>
         </div>
     </form>

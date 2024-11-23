@@ -1,9 +1,14 @@
 ﻿@{
-    ViewData["Title"] = "Home";
+    // ViewData:
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
+}
+
+@{
+    ViewData["Title"] = lang == Lang.EN ? "Home" : "Ana Sayfa";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome to @AppSettings.Title</h1>
+    <h1 class="display-4">@AppSettings.Title</h1>
     <hr />
-    <h3>@AppSettings.Description</h3>
+    <h3>@(lang == Lang.EN ? AppSettings.DescriptionEN : AppSettings.DescriptionTR)</h3>
 </div>

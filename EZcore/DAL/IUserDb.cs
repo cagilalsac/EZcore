@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EZcore.DAL.Users;
+using Microsoft.EntityFrameworkCore;
 
 namespace EZcore.DAL
 {

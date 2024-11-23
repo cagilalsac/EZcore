@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
-using EZcore.Controllers;
 using EZcore.Services;
 using EZcore.Models;
+using EZcore.Controllers;
 using BLL.Models;
 using BLL.DAL;
 
@@ -15,10 +15,6 @@ namespace MVC.Controllers
     [Authorize]
     public class ProductsController : MvcController
     {
-        // Views may be configured here by overriding the base controller properties starting with "View", "Lang" base property can also be overriden if necessary:
-        protected override string ViewModelName => Lang == Lang.TR ? "Ürün" : "Product";
-        protected override bool ViewPageOrder => true;
-        
         // Service injections:
         private readonly Service<Product, ProductModel> _productService;
         private readonly Service<Category, CategoryModel> _categoryService;
@@ -26,25 +22,26 @@ namespace MVC.Controllers
         /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
         private readonly Service<Store, StoreModel> _StoreService;
 
-        public ProductsController(HttpServiceBase httpService
-			, Service<Product, ProductModel> productService
+        public ProductsController(Service<Product, ProductModel> productService
             , Service<Category, CategoryModel> categoryService
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
             , Service<Store, StoreModel> StoreService
-        ) : base(httpService)
+        )
         {
             _productService = productService;
-            _productService.Lang = Lang;
+            _productService.ViewModelName = _productService.Lang == Lang.EN ? "Product" : "Ürün";
+            _productService.UsePageOrder = false;
+            _productService.ExcelFileNameWithoutExtension = _productService.Lang == Lang.EN ? "Report" : "Rapor";
             _categoryService = categoryService;
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
             _StoreService = StoreService;
         }
 
-        protected override void SetViewData()
+        private void SetViewData(Lang lang = Lang.TR, PageOrder pageOrder = null)
         {
-            base.SetViewData();
+            base.SetViewData(lang, _productService.ViewModelName, pageOrder);
             
             // Related items service logic to set ViewData (Record.Id and Name parameters may need to be changed in the SelectList constructor according to the model):
             ViewData["CategoryId"] = new SelectList(_categoryService.Get(), "Record.Id", "Name");
@@ -55,15 +52,13 @@ namespace MVC.Controllers
 
         // GET: Products
         [AllowAnonymous]
-        public IActionResult Index(PageOrder pageOrder = null)
+        public IActionResult Index(PageOrder pageOrder)
         {
-            PageOrder = pageOrder;
-
             // Get collection service logic:
-            var list = _productService.Get(PageOrder);
+            var list = _productService.Get(pageOrder);
             
             Message = _productService.Message;
-            SetViewData();
+            SetViewData(_productService.Lang, pageOrder);
             return View(list);
         }
 
@@ -74,14 +69,14 @@ namespace MVC.Controllers
             var item = _productService.Get(id);
 
             Message = _productService.Message;
-            SetViewData();
+            SetViewData(_productService.Lang);
             return View(item);
         }
 
         // GET: Products/Create
         public IActionResult Create()
         {
-            SetViewData();
+            SetViewData(_productService.Lang);
             return View();
         }
 
@@ -99,7 +94,7 @@ namespace MVC.Controllers
                     return RedirectToAction(nameof(Details), new { id = product.Record.Id });
             }
             Message = _productService.Message;
-            SetViewData();
+            SetViewData(_productService.Lang);
             return View(product);
         }
 
@@ -110,7 +105,7 @@ namespace MVC.Controllers
             var item = _productService.Get(id);
 
             Message = _productService.Message;
-            SetViewData();
+            SetViewData(_productService.Lang);
             return View(item);
         }
 
@@ -128,7 +123,7 @@ namespace MVC.Controllers
                     return RedirectToAction(nameof(Details), new { id = product.Record.Id });
             }
             Message = _productService.Message;
-            SetViewData();
+            SetViewData(_productService.Lang);
             return View(product);
         }
 
@@ -139,7 +134,7 @@ namespace MVC.Controllers
             var item = _productService.Get(id);
 
             Message = _productService.Message;
-            SetViewData();
+            SetViewData(_productService.Lang);
             return View(item);
         }
 
@@ -171,12 +166,13 @@ namespace MVC.Controllers
             _productService.DeleteFile(id);
 
             Message = _productService.Message;
-            return RedirectToAction(nameof(Details), new { id = id });
+            return RedirectToAction(nameof(Details), new { id });
         }
 
+        // GET: Products/Export
         public void Export()
         {
-            _productService.GetExcel(3, 6, 7, 10);
+            _productService.GetExcel();
         }
 	}
 }

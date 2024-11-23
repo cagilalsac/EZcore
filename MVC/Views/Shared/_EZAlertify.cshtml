@@ -1,6 +1,4 @@
-﻿@using EZcore.Models
-
-@* https://alertifyjs.com/ *@
+﻿@* https://alertifyjs.com/ *@
 
 <link href="~/lib/AlertifyJS/css/alertify.min.css" rel="stylesheet" />
 <link href="~/lib/AlertifyJS/css/themes/default.min.css" rel="stylesheet" />
@@ -8,7 +6,7 @@
 
 @{
     // ViewData:
-    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     var title = lang == Lang.TR ? "Uyarı!" : "Warning!";
     var message = lang == Lang.TR ? "Bu kaydı silmek istediğinize emin misiniz?" : "Are you sure you want to delete this record?";
     var yes = lang == Lang.TR ? "Evet" : "Yes";
@@ -32,11 +30,11 @@
             function () { // Cancel
     @if (ViewContext.RouteData.Values["Area"] is not null)
     {
-        @:window.location.href = '/@ViewContext.RouteData.Values["Area"]/@ViewContext.RouteData.Values["Controller"].ToString()/Index?pageordersession=true';
+        @:window.location.href = '/@ViewContext.RouteData.Values["Area"]/@ViewContext.RouteData.Values["Controller"].ToString()/Index?session=true';
     }
     else
     {
-        @:window.location.href = '/@ViewContext.RouteData.Values["Controller"].ToString()/Index?pageordersession=true';
+        @:window.location.href = '/@ViewContext.RouteData.Values["Controller"].ToString()/Index?session=true';
     }
             }
         ).set('labels', { ok: '@yes', cancel: '@no' });

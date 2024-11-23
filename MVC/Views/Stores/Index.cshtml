@@ -1,4 +1,4 @@
-﻿@using EZcore.Models
+﻿@using EZcore.Extensions
 
 @model IEnumerable<StoreModel>
 
@@ -7,15 +7,16 @@
 
 @{
     // ViewData:
-    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     var modelName = ViewData["ViewModelName"];
+    var pageOrder = ViewData[nameof(PageOrder)] is null ? null : ViewData[nameof(PageOrder)] as PageOrder;
     var containerDivClass = "container-fluid"; // "container" can be used for not full width
     var list = lang == Lang.EN ? "List" : "Listesi";
     var details = lang == Lang.EN ? "Details" : "Detay";
     var create = lang == Lang.EN ? "Create" : "Yeni";
     var edit = lang == Lang.EN ? "Edit" : "Düzenle";
     var delete = lang == Lang.EN ? "Delete" : "Sil";
-    var pageOrder = ViewData["PageOrder"] is null ? null : ViewData["PageOrder"] as PageOrder;
+    var export = lang == Lang.EN ? "Export to Excel" : "Excel'e Aktar";
 }
 @{
     ViewData["Title"] = $"{modelName} {list}";
@@ -30,9 +31,14 @@
                 <partial name="_EZMessage" />
             </div>
             <div class="col-2 text-end">
+            @if (User.Identity.IsAuthenticated)
+            {
                 <a asp-action="Create">@create</a>
+            }
             </div>
         </div>
+        @if (Model.Any())
+        {
         @if (pageOrder is not null)
         {
         <partial name="_EZPageOrder" model="pageOrder" />  
@@ -41,13 +47,13 @@
             <thead class="table-secondary">
                 <tr>
                     <th>
-                        @Html.DisplayNameFor(model => model.Name)
+                        @Html.DisplayNameFor(model => model.First().Name, lang)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.IsVirtual)
+                        @Html.DisplayNameFor(model => model.First().IsVirtual, lang)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.ProductCount)
+                        @Html.DisplayNameFor(model => model.First().ProductCount, lang)
                     </th>
                     <th></th>
                 </tr>
@@ -65,14 +71,18 @@
 						@Html.Raw(item.ProductCount)
 					</td>
 					<td class="text-end w-25">
-						<a asp-action="Details" asp-route-id="@item.Record.Id">@details</a>&nbsp;|&nbsp;
-						<a asp-action="Edit" asp-route-id="@item.Record.Id">@edit</a>&nbsp;|&nbsp;
+                    @if (User.Identity.IsAuthenticated)
+                    {
+						<a asp-action="Details" asp-route-id="@item.Record.Id">@details</a>@:&nbsp;|&nbsp;
+						<a asp-action="Edit" asp-route-id="@item.Record.Id">@edit</a>@:&nbsp;|&nbsp;
                         <a href="#" onclick="deleteRecord(@item.Record.Id);">@delete</a>
+                    }
 					</td>
 				</tr>
 		        }
             </tbody>
         </table>
+        }
     </div>
 </form>
 }

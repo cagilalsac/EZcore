@@ -1,14 +1,11 @@
-﻿@using EZcore.Models
-@using EZcore.Extensions
-
-@model ProductModel
+﻿@model ProductModel
 
 @* Generated from EZcore Template. *@
 @* Model namespace using directive should be added to _ViewImports.cshtml. *@
 
 @{
     // ViewData:
-    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     var modelName = ViewData["ViewModelName"];
     var containerDivClass = "container-fluid"; // "container" can be used for not full width
     var dateTimePickerClass = "datepicker"; // "datetimepicker" can be used for date with time
@@ -27,44 +24,44 @@
 		@Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row mb-3">
-            <label asp-for="Name" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="Name" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 			<div class="col-10">
 			    <input asp-for="Record.Name" class="form-control" />
-				<span asp-validation-for="Record.Name" class="text-danger"></span>
+                <validation asp-for="Record.Name" asp-lang="@lang" class="text-danger"></validation>
 			</div>
         </div>
         <div class="row mb-3">
-            <label asp-for="UnitPrice" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="UnitPrice" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 			<div class="col-10">
 			    <input asp-for="Record.UnitPrice" class="form-control" />
-				<span asp-validation-for="Record.UnitPrice" class="text-danger"></span>
+                <validation asp-for="Record.UnitPrice" asp-lang="@lang" class="text-danger"></validation>
 			</div>
         </div>
         <div class="row mb-3">
-            <label asp-for="StockAmount" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="StockAmount" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 			<div class="col-10">
 			    <input asp-for="Record.StockAmount" class="form-control" />
-				<span asp-validation-for="Record.StockAmount" class="text-danger"></span>
+                <validation asp-for="Record.StockAmount" asp-lang="@lang" class="text-danger"></validation>
 			</div>
         </div>
         <div class="row mb-3">
-            <label asp-for="ExpirationDate" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="ExpirationDate" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 			<div class="col-10">
 				<input asp-for="Record.ExpirationDate" class="form-control @dateTimePickerClass" type="text" />
-				<span asp-validation-for="Record.ExpirationDate" class="text-danger"></span>
+                <validation asp-for="Record.ExpirationDate" asp-lang="@lang" class="text-danger"></validation>
 			</div>
         </div>
         <div class="row mb-3">
-            <label asp-for="Category" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="Category" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 			<div class="col-10">
 				<select asp-for="Record.CategoryId" class="form-select select2" asp-items="ViewBag.CategoryId">
 					<option value="">@select</option>
 				</select>
-				<span asp-validation-for="Record.CategoryId" class="text-danger"></span>
+                <validation asp-for="Record.CategoryId" asp-lang="@lang" class="text-danger"></validation>
 			</div>
         </div>
         <div class="row mb-3">
-            <label asp-for="MainFormFilePath" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="MainFormFilePath" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 	        <div class="col-10">
 	            <input asp-for="MainFormFilePath" class="form-control" type="file" />
 	        </div>
@@ -73,10 +70,10 @@
 @* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. *@
         
         <div class="row mb-3">
-            <label asp-for="Stores" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="Stores" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 	        <div class="col-10">
 		        <select multiple asp-for="Record.Stores" class="form-select select2" asp-items="ViewBag.Stores"></select>
-		        <span asp-validation-for="Record.Stores" class="text-danger"></span>
+                <validation asp-for="Record.Stores" asp-lang="@lang" class="text-danger"></validation>
 	        </div>
         </div>
        
@@ -88,7 +85,7 @@
 				&nbsp;&nbsp;
                 <button type="reset" class="btn btn-outline-primary">@clear</button>
 				&nbsp;&nbsp;
-				<a asp-action="Index" asp-route-pageordersession="true">@backToList</a>
+				<a asp-action="Index" asp-route-session="true">@backToList</a>
 			</div>
         </div>
     </form>

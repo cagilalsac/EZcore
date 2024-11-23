@@ -1,7 +1,7 @@
 ﻿#nullable disable
 
 using EZcore.DAL;
-using EZcore.Models;
+using EZcore.Models.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace EZcore.Services
 {
-    public abstract class HttpServiceBase : ServiceBase
+    public abstract class HttpServiceBase
     {
         public string UserName => _httpContextAccessor.HttpContext?.User.Identity?.Name;
         public int UserId => Convert.ToInt32(_httpContextAccessor.HttpContext?.User.Claims?.SingleOrDefault(claim => claim.Type == nameof(Record.Id)).Value);
@@ -66,6 +66,37 @@ namespace EZcore.Services
                 _httpContextAccessor.HttpContext.Response.Body.WriteAsync(data, 0, data.Length);
                 _httpContextAccessor.HttpContext.Response.Body.Flush();
             }
+        }
+
+        public virtual void SetCookie(string key, string value, CookieOptions cookieOptions)
+        {
+            _httpContextAccessor.HttpContext.Response.Cookies.Append(key, value, cookieOptions);
+        }
+
+        public virtual void SetCookie(string key, string value, bool isHttpOnly = true, int? expirationInDays = null)
+        {
+            var cookieOptions = new CookieOptions()
+            {
+                Expires = expirationInDays.HasValue ? 
+                    DateTime.SpecifyKind(DateTime.Now.AddDays(expirationInDays.Value), DateTimeKind.Utc) : DateTimeOffset.MaxValue,
+                HttpOnly = isHttpOnly
+            };
+            SetCookie(key, value, cookieOptions);
+        }
+
+        public virtual string GetCookie(string key)
+        {
+            return _httpContextAccessor.HttpContext.Request.Cookies[key];
+        }
+
+        public virtual void DeleteCookie(string key, bool isHttpOnly = true)
+        {
+            var cookieOptions = new CookieOptions()
+            {
+                Expires = DateTime.SpecifyKind(DateTime.Now.AddDays(-1), DateTimeKind.Utc),
+                HttpOnly = isHttpOnly
+            };
+            SetCookie(key, string.Empty, cookieOptions);
         }
     }
 

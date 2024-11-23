@@ -1,0 +1,14 @@
+﻿@using EZcore.Services
+@using EZcore.Extensions
+
+@inject HttpServiceBase httpService
+
+@{
+    var lang = httpService.GetCookie(nameof(Lang));
+    var langDictionary = new Lang().ToDictionary();
+    var langSelectList = new SelectList(langDictionary, "Key", "Value", lang);
+}
+
+<form asp-area="" asp-action="Set" asp-controller="Lang">
+    <select name="lang" class="form-select" onchange="this.form.submit();" asp-items="langSelectList"></select>
+</form>

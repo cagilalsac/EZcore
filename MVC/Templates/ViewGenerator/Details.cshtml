@@ -3,8 +3,9 @@
 @using System.Collections.Generic
 @using System.Linq
 @{
-@:@@using EZcore.Models
-    var viewModel = "@model " + Model.ViewDataTypeName.Split('.')[Model.ViewDataTypeName.Split('.').Length - 1] + "Model";
+@:@@using EZcore.Extensions
+    var entity = Model.ViewDataTypeName.Split('.')[Model.ViewDataTypeName.Split('.').Length - 1];
+    var viewModel = "@model " + entity + "Model";
 }
 
 @viewModel
@@ -15,7 +16,7 @@
 @{
 @:@@{
     @:// ViewData:
-    @:var lang = (Lang)(ViewData["Lang"] ?? 0);
+    @:var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     @:var modelName = ViewData["ViewModelName"];
     @:var containerDivClass = "container-fluid"; // "container" can be used for not full width
     @:var details = lang == Lang.EN ? "Details" : "Detayı";
@@ -72,7 +73,7 @@ foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
     {
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @@Html.DisplayNameFor(model => model.MainFormFilePath)
+            @@Html.DisplayNameFor(model => model.MainFormFilePath, lang)
         </div>
         <div class="col-4">
         @{
@@ -92,7 +93,7 @@ foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
     {
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @@Html.DisplayNameFor(model => model.@GetValueExpression(property))
+            @@Html.DisplayNameFor(model => model.@GetValueExpression(property), lang)
         </div>
         <div class="col-10">
             @@Html.Raw(Model.@GetValueExpression(property))
@@ -104,7 +105,7 @@ foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
     {
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @@Html.DisplayNameFor(model => model.@GetValueExpression(navigation))
+            @@Html.DisplayNameFor(model => model.@GetValueExpression(navigation), lang)
         </div>
         <div class="col-10">
             @@Html.Raw(Model.@GetValueExpression(navigation))
@@ -118,7 +119,7 @@ foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
     @:@@*
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            <b>@@Html.DisplayNameFor(model => model.{Entity}s)</b>
+            <b>@@Html.DisplayNameFor(model => model.{Entity}s, lang)</b>
         </div>
         <div class="col-10">
             @@Html.Raw(Model.{Entity}s)
@@ -137,7 +138,7 @@ if (pkName != null)
     @:<a asp-action="Edit" asp-route-id="@@Model.Record.@pkName">@@edit</a>@@:&nbsp;|&nbsp;
     @:<a asp-action="Delete" asp-route-id="@@Model.Record.@pkName">@@delete</a>@@:&nbsp;|&nbsp;
 @:}
-    @:<a asp-action="Index" asp-route-pageordersession="true">@@backToList</a>
+    @:<a asp-action="Index" asp-route-session="true">@@backToList</a>
 }
 else
 {

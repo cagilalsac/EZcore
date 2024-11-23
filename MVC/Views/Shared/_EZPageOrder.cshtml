@@ -1,14 +1,13 @@
-﻿@using EZcore.Models
-
-@model PageOrder
+﻿@model PageOrder
 
 @{
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
+    var count = lang == Lang.EN ? "Count" : "Sayı";
+    var page = lang == Lang.EN ? "Page" : "Sayfa";
+    var order = lang == Lang.EN ? "Order" : "Sıra";
     var recordsPerPageCounts = new SelectList(Model.RecordsPerPageCounts);
     var pageNumbers = new SelectList(Model.PageNumbers);
     var orderExpressions = new SelectList(Model.OrderExpressions, "Key", "Value");
-    var count = Model.Lang == Lang.EN ? "Count" : "Sayı";
-    var page = Model.Lang == Lang.EN ? "Page" : "Sayfa";
-    var order = Model.Lang == Lang.EN ? "Order" : "Sıra";
 }
 
 <div class="row mb-3">

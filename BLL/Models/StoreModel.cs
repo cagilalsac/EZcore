@@ -8,16 +8,17 @@ namespace BLL.Models
 {
     public class StoreModel : Model<Store>
     {
-        [DisplayName("Name", "Adı")]
+        [DisplayName("Adı", "Name")]
         public string Name => Record.Name;
 
-        [DisplayName("Virtual", "Sanal")]
-        public string IsVirtual => Record.IsVirtual ? "Yes" : "No";
+        [DisplayName("Sanal", "Virtual")]
+        public string IsVirtual => Record.IsVirtual ? "Evet" : "Hayır";
 
-        [DisplayName("Product Count", "Ürün Sayısı")]
-        public string ProductCount => Record.ProductStores?.Count.ToString();
+        [DisplayName("Ürün Sayısı", "Product Count")]
+        public string ProductCount => Record.ProductStores?.Count(ps => (ps.Product?.IsDeleted ?? false) == false).ToString();
 
-        [DisplayName("Products", "Ürünler")]
-        public string Products => string.Join("<br>", Record.ProductStores?.Select(ps => ps.Product?.Name));
+        [DisplayName("Ürünler", "Products")]
+        public string Products => string.Join("<br>", Record.ProductStores?.Where(ps => (ps.Product?.IsDeleted ?? false) == false)
+            .Select(ps => ps.Product?.Name));
     }
 }

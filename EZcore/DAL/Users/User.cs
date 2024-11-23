@@ -4,9 +4,9 @@ using EZcore.Attributes;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace EZcore.DAL
+namespace EZcore.DAL.Users
 {
-	public class User : Record, ISoftDelete, IModifiedBy
+    public class User : Record, ISoftDelete, IModifiedBy
     {
         [NotMapped, Obsolete]
         public override string Name { get => base.Name; set => base.Name = value; }
@@ -24,8 +24,8 @@ namespace EZcore.DAL
 
         public bool IsActive { get; set; } = true;
 
-		[JsonIgnore]
-		public List<UserRole> UserRoles { get; private set; } = new List<UserRole>();
+        [JsonIgnore]
+        public List<UserRole> UserRoles { get; private set; } = new List<UserRole>();
 
         [NotMapped]
         public List<int> Roles

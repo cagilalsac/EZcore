@@ -4,7 +4,6 @@ using EZcore.DAL;
 using EZcore.Extensions;
 using EZcore.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
 using System.Reflection;
 
 namespace EZcore.Services
@@ -55,18 +54,17 @@ namespace EZcore.Services
                 RecordUpdated = Lang == Lang.TR ? "Kayıt başarıyla güncellendi." : "Record updated successfully.";
                 RecordDeleted = Lang == Lang.TR ? "Kayıt başarıyla silindi." : "Record deleted successfully.";
                 RecordNotSaved = Lang == Lang.TR ? "Kaydedilmedi." : "Not saved.";
-                Thread.CurrentThread.CurrentCulture = Lang == Lang.TR ? new CultureInfo("tr-TR") : new CultureInfo("en-US");
-                Thread.CurrentThread.CurrentUICulture = Lang == Lang.TR ? new CultureInfo("tr-TR") : new CultureInfo("en-US");
             }
         }
 
-        protected readonly IDb _db;
-        protected readonly HttpServiceBase _httpService;
+        public bool UsePageOrder { get; set; }
+        public string ExcelFileNameWithoutExtension { get; set; }
 
-        protected Service(IDb db, HttpServiceBase httpService)
+        protected readonly IDb _db;
+
+        protected Service(IDb db, HttpServiceBase httpService) : base(httpService)
         {
             _db = db;
-            _httpService = httpService;
         }
 
         protected virtual IQueryable<TEntity> Records()
@@ -101,21 +99,34 @@ namespace EZcore.Services
         {
             List<TModel> list;
             Error(RecordNotFound);
-            if (pageOrder is null)
+            if (UsePageOrder && pageOrder is not null)
             {
-                list = Records().AsNoTracking().Select(entity => new TModel() { Record = entity }).ToList();
-                if (list.Any())
-                    Success($"{list.Count} {(list.Count == 1 ? RecordFound : RecordsFound)}");
-            }
-            else
-            {
-                pageOrder.Lang = Lang;
+                if (!Api && pageOrder.Session)
+                {
+                    var pageOrderFromSession = _httpService.GetSession<PageOrder>(nameof(PageOrder));
+                    if (pageOrderFromSession is not null)
+                    {
+                        pageOrder.PageNumber = pageOrderFromSession.PageNumber;
+                        pageOrder.RecordsPerPageCount = pageOrderFromSession.RecordsPerPageCount;
+                        pageOrder.OrderExpression = pageOrderFromSession.OrderExpression;
+                    }
+                }
                 pageOrder.OrderExpressions = _pageOrderExpressions;
                 if (pageOrder.OrderExpressions.Any() && string.IsNullOrWhiteSpace(pageOrder.OrderExpression))
                     pageOrder.OrderExpression = pageOrder.OrderExpressions.FirstOrDefault().Key;
                 list = Records().AsNoTracking().OrderBy(pageOrder).Paginate(pageOrder).Select(entity => new TModel() { Record = entity }).ToList();
                 if (pageOrder.TotalRecordsCount > 0)
                     Success($"{pageOrder.TotalRecordsCount} {(pageOrder.TotalRecordsCount == 1 ? RecordFound : RecordsFound)}");
+                if (!Api)
+                    _httpService.SetSession(nameof(PageOrder), pageOrder);
+            }
+            else
+            {
+                if (pageOrder is not null)
+                    pageOrder.PageNumber = 0;
+                list = Records().AsNoTracking().Select(entity => new TModel() { Record = entity }).ToList();
+                if (list.Any())
+                    Success($"{list.Count} {(list.Count == 1 ? RecordFound : RecordsFound)}");
             }
             return list;
         }
@@ -271,7 +282,7 @@ namespace EZcore.Services
         {
             if (model is IFileModel)
             {
-                _fileService = new FileService(Lang, _httpService);
+                _fileService = new FileService(_httpService);
                 var filePath = _fileService.Create((model as IFileModel).MainFormFilePath);
                 if (_fileService.IsSuccessful)
                     (model.Record as IFile).MainFilePath = filePath;
@@ -292,7 +303,7 @@ namespace EZcore.Services
                 }
                 else
                 {
-                    _fileService = new FileService(Lang, _httpService);
+                    _fileService = new FileService(_httpService);
                     var filePath = _fileService.Update((model as IFileModel).MainFormFilePath, (record as IFile).MainFilePath);
                     if (_fileService.IsSuccessful)
                         (record as IFile).MainFilePath = filePath;
@@ -307,11 +318,10 @@ namespace EZcore.Services
         {
             if (record is IFile)
             {
-                _fileService = new FileService(Lang, _httpService);
+                _fileService = new FileService(_httpService);
                 _fileService.Delete((record as IFile).MainFilePath);
                 (record as IFile).MainFilePath = null;
                 _db.Set<TEntity>().Update(record);
-                _db.SaveChanges();
                 Success(_fileService.FileDeleted);
             }
         }
@@ -320,21 +330,33 @@ namespace EZcore.Services
         {
             var record = _db.Set<TEntity>().Find(id);
             if (record is null)
+            {
                 Error(RecordNotFound);
+            }
             else
+            {
                 DeleteFile(record);
+                _db.SaveChanges();
+            }
         }
 
-        public virtual void GetExcel(params int[] columnsToDeleteIndices)
+        public virtual void GetExcel()
         {
-            _fileService = new FileService(Lang, _httpService);
-            _fileService.GetExcel(Get(), Lang == Lang.EN ? "Report" : "Rapor", columnsToDeleteIndices);
+            _fileService = new FileService(_httpService);
+            _fileService.GetExcel(Get(), ExcelFileNameWithoutExtension);
         }
 
         public void Dispose()
         {
             _db?.Dispose();
             GC.SuppressFinalize(this);
+        }
+    }
+
+    public class Service : ServiceBase
+    {
+        public Service(HttpServiceBase httpService) : base(httpService)
+        {
         }
     }
 }

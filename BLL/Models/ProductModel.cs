@@ -4,18 +4,20 @@ using BLL.DAL;
 using EZcore.Models;
 using Microsoft.AspNetCore.Http;
 using EZcore.Attributes;
+using System.Globalization;
 
 namespace BLL.Models
 {
     public class ProductModel : Model<Product>, IFileModel
     {
-        [DisplayName("Name", "Adı")]
+        [DisplayName("Adı", "Name")]
         public string Name => Record.Name;
 
-        [DisplayName("Unit Price", "Birim Fiyatı")]
-        public string UnitPrice => (Record.UnitPrice ?? 0).ToString("C2");
+        [DisplayName("Birim Fiyatı", "Unit Price")]
+        public string UnitPrice => (Record.UnitPrice ?? 0).ToString("C2", new CultureInfo("tr-TR"));
 
-        [DisplayName("Stock Amount", "Stok Miktarı")]
+        [DisplayName("Stok Miktarı", "Stock Amount")]
+        [Ignore]
         public string StockAmount => Record.StockAmount.HasValue ?
             ("<span class=" +
                 (Record.StockAmount.Value < 10 ? "\"badge bg-danger\">"
@@ -23,22 +25,24 @@ namespace BLL.Models
                 : "\"badge bg-success\">") + Record.StockAmount.Value + "</span>")
             : string.Empty;
 
-        [DisplayName("Expiration Date", "Son Kullanma Tarihi")]
+        [DisplayName("Son Kullanma Tarihi", "Expiration Date")]
         public string ExpirationDate => Record.ExpirationDate.HasValue ? Record.ExpirationDate.Value.ToShortDateString() : "";
 
-        [DisplayName("Category", "Kategori")]
+        [DisplayName("Kategori", "Category")]
         public string Category => Record.Category?.Name;
 
-        [DisplayName("Stores", "Mağazalar")]
+        [DisplayName("Mağazalar", "Stores")]
+        [Ignore]
         public string Stores => string.Join("<br>", Record.ProductStores?.OrderBy(ps => ps.Store?.Name).Select(ps => ps.Store?.Name));
 
-        [DisplayName("File", "Dosya")]
+        [DisplayName("Dosya", "File")]
+        [Ignore]
         public IFormFile MainFormFilePath { get; set; }
 
-        [DisplayName("Stock Amount", "Stok Miktarı")]
+        [DisplayName("Stok Miktarı", "Stock Amount")]
         public string StockAmountExcel => Record.StockAmount.HasValue ? Record.StockAmount.Value.ToString() : "";
 
-        [DisplayName("Stores", "Mağazalar")]
+        [DisplayName("Mağazalar", "Stores")]
         public string StoresExcel => string.Join(", ", Record.ProductStores?.OrderBy(ps => ps.Store?.Name).Select(ps => ps.Store?.Name));
     }
 }

@@ -4,19 +4,12 @@ namespace EZcore.Attributes
 {
     public class DisplayNameAttribute : System.ComponentModel.DisplayNameAttribute
     {
-        public DisplayNameAttribute(string displayNameEN, string displayNameTR = "")
+        public DisplayNameAttribute(string displayNameTR, string displayNameEN = "")
         {
-            if (Thread.CurrentThread.CurrentCulture.Name == "tr-TR")
-            {
-                if (string.IsNullOrWhiteSpace(displayNameTR))
-                    DisplayNameValue = displayNameEN;
-                else
-                    DisplayNameValue = displayNameTR;
-            }
+            if (string.IsNullOrWhiteSpace(displayNameEN))
+                DisplayNameValue = displayNameTR;
             else
-            {
-                DisplayNameValue = displayNameEN;
-            }
+                DisplayNameValue = "{" + displayNameTR + ";" + displayNameEN + "}";
         }
     }
 }

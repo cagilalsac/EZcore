@@ -4,40 +4,41 @@ namespace EZcore.Attributes
 {
     public class StringLengthAttribute : System.ComponentModel.DataAnnotations.StringLengthAttribute
     {
-        public StringLengthAttribute(int maximumLength) : base(maximumLength)
+        private string _errorMessageTR, _errorMessageEN;
+
+        public StringLengthAttribute(int maximumLength, string errorMessageTR = "", string errorMessageEN = "") : base(maximumLength)
         {
+            _errorMessageTR = errorMessageTR;
+            _errorMessageEN = errorMessageEN;
         }
 
         public override bool IsValid(object value)
         {
             var valid = base.IsValid(value);
-            if (!valid && string.IsNullOrWhiteSpace(ErrorMessage))
+            if (!valid)
             {
                 string valueAsString = Convert.ToString(value) ?? "0";
-                if (Thread.CurrentThread.CurrentCulture.Name == "tr-TR")
+                string emptyErrorMessageTR, emptyErrorMessageEN;
+                if (MinimumLength > 0)
                 {
-                    if (MinimumLength > 0)
-                    {
-                        ErrorMessage = $"Bu alan en az {MinimumLength} en çok {MaximumLength} karakter olmalıdır,";
-                    }
-                    else
-                    {
-                        ErrorMessage = $"Bu alan en çok {MaximumLength} karakter olmalıdır,";
-                    }
-                    ErrorMessage += $" {valueAsString.Length} karakter girilmiştir!";
+                    emptyErrorMessageTR = $"Bu alan en az {MinimumLength} en çok {MaximumLength} karakter olmalıdır,";
+                    emptyErrorMessageEN = $"This field must have minimum {MinimumLength} maximum {MaximumLength} characters,";
                 }
                 else
                 {
-                    if (MinimumLength > 0)
-                    {
-                        ErrorMessage = $"This field must have minimum {MinimumLength} maximum {MaximumLength} characters,";
-                    }
-                    else
-                    {
-                        ErrorMessage = $"This field must have maximum {MaximumLength} characters,";
-                    }
-                    ErrorMessage += $" {valueAsString.Length} characters entered!";
+                    emptyErrorMessageTR = $"Bu alan en çok {MaximumLength} karakter olmalıdır,";
+                    emptyErrorMessageEN = $"This field must have maximum {MaximumLength} characters,";
                 }
+                emptyErrorMessageTR += $" {valueAsString.Length} karakter girilmiştir!";
+                emptyErrorMessageEN += $" {valueAsString.Length} characters entered!";
+                if (string.IsNullOrWhiteSpace(_errorMessageTR) && string.IsNullOrWhiteSpace(_errorMessageEN))
+                    ErrorMessage = $"{emptyErrorMessageTR};{emptyErrorMessageEN}";
+                else if (!string.IsNullOrWhiteSpace(_errorMessageTR) && string.IsNullOrWhiteSpace(_errorMessageEN))
+                    ErrorMessage = _errorMessageTR;
+                else if (string.IsNullOrWhiteSpace(_errorMessageTR) && !string.IsNullOrWhiteSpace(_errorMessageEN))
+                    ErrorMessage = _errorMessageEN;
+                else
+                    ErrorMessage = $"{_errorMessageTR};{_errorMessageEN}";
             }
             return valid;
         }

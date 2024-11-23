@@ -1,21 +1,22 @@
 ﻿#nullable disable
 
-using EZcore.DAL;
-using EZcore.Models;
+using EZcore.DAL.Users;
+using EZcore.Models.Users;
 using EZcore.Services;
+using EZcore.Services.Users;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EZcore.Controllers
+namespace EZcore.Controllers.Users
 {
-    [Route("[controller]")]
-    public class UsersApiController : ApiController
+    [ApiController, Route("[controller]")]
+    public class UsersApiController : ControllerBase
     {
         private readonly Service<User, UserModel> _userService;
 
         public UsersApiController(Service<User, UserModel> userService)
         {
             _userService = userService;
-            _userService.Lang = Lang;
+            _userService.Api = true;
         }
 
         [HttpPost("[action]")]

@@ -3,9 +3,9 @@
 @using System.Collections.Generic
 @using System.Linq
 @{
-@:@@using EZcore.Models
-    var viewEnumerable = GetEnumerableTypeExpression(Model.ViewDataTypeName);
-    var viewModel = "@model " + viewEnumerable;
+@:@@using EZcore.Extensions
+    var entity = Model.ViewDataTypeName.Split('.')[Model.ViewDataTypeName.Split('.').Length - 1];
+    var viewModel = "@model IEnumerable<" + entity + "Model>";
 }
 
 @viewModel
@@ -16,15 +16,15 @@
 @{
 @:@@{
     @:// ViewData:
-    @:var lang = (Lang)(ViewData["Lang"] ?? 0);
+    @:var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     @:var modelName = ViewData["ViewModelName"];
+    @:var pageOrder = ViewData[nameof(PageOrder)] is null ? null : ViewData[nameof(PageOrder)] as PageOrder;
     @:var containerDivClass = "container-fluid"; // "container" can be used for not full width
     @:var list = lang == Lang.EN ? "List" : "Listesi";
     @:var details = lang == Lang.EN ? "Details" : "Detay";
     @:var create = lang == Lang.EN ? "Create" : "Yeni";
     @:var edit = lang == Lang.EN ? "Edit" : "Düzenle";
     @:var delete = lang == Lang.EN ? "Delete" : "Sil";
-    @:var pageOrder = ViewData["PageOrder"] is null ? null : ViewData["PageOrder"] as PageOrder;
     @:var export = lang == Lang.EN ? "Export to Excel" : "Excel'e Aktar";
 @:}
     if (Model.IsPartialView)
@@ -73,6 +73,8 @@
             @:}
             @:</div>
         @:</div>
+        @:@@if (Model.Any())
+        @:{
         @:@@if (pageOrder is not null)
         @:{
         @:<partial name="_EZPageOrder" model="pageOrder" />  
@@ -93,20 +95,20 @@
                     if (item.Name == "MainFilePath")
                     {
                     <th>
-                        @@Html.DisplayNameFor(model => model.MainFormFilePath)
+                        @@Html.DisplayNameFor(model => model.First().MainFormFilePath, lang)
                     </th>
                     }
                     else
                     {
                     <th>
-                        @@Html.DisplayNameFor(model => model.@GetValueExpression(property))
+                        @@Html.DisplayNameFor(model => model.First().@GetValueExpression(property), lang)
                     </th>
                     }
                     }
                     else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
                     {
                     <th>
-                        @@Html.DisplayNameFor(model => model.@GetValueExpression(navigation))
+                        @@Html.DisplayNameFor(model => model.First().@GetValueExpression(navigation), lang)
                     </th>
                     }
                     }
@@ -178,6 +180,7 @@
 		        @:}
             @:</tbody>
         @:</table>
+        @:}
     @:</div>
 @:</form>
 @:}
@@ -212,10 +215,5 @@
     string GetValueExpression(INavigationMetadata navigation)
     {
         return navigation.AssociationPropertyName;
-    }
-
-    string GetEnumerableTypeExpression(string typeName)
-    {
-        return "IEnumerable<" + typeName.Split('.')[typeName.Split('.').Length - 1] + "Model>";
     }
 }

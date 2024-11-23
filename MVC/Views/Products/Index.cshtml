@@ -1,4 +1,4 @@
-﻿@using EZcore.Models
+﻿@using EZcore.Extensions
 
 @model IEnumerable<ProductModel>
 
@@ -7,15 +7,15 @@
 
 @{
     // ViewData:
-    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     var modelName = ViewData["ViewModelName"];
+    var pageOrder = ViewData[nameof(PageOrder)] is null ? null : ViewData[nameof(PageOrder)] as PageOrder;
     var containerDivClass = "container-fluid"; // "container" can be used for not full width
     var list = lang == Lang.EN ? "List" : "Listesi";
     var details = lang == Lang.EN ? "Details" : "Detay";
     var create = lang == Lang.EN ? "Create" : "Yeni";
     var edit = lang == Lang.EN ? "Edit" : "Düzenle";
     var delete = lang == Lang.EN ? "Delete" : "Sil";
-    var pageOrder = ViewData["PageOrder"] is null ? null : ViewData["PageOrder"] as PageOrder;
     var export = lang == Lang.EN ? "Export to Excel" : "Excel'e Aktar";
 }
 @{
@@ -39,6 +39,8 @@
             }
             </div>
         </div>
+        @if (Model.Any())
+        {
         @if (pageOrder is not null)
         {
         <partial name="_EZPageOrder" model="pageOrder" />  
@@ -47,22 +49,22 @@
             <thead class="table-secondary">
                 <tr>
                     <th>
-                        @Html.DisplayNameFor(model => model.Name)
+                        @Html.DisplayNameFor(model => model.First().Name, lang)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.UnitPrice)
+                        @Html.DisplayNameFor(model => model.First().UnitPrice, lang)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.StockAmount)
+                        @Html.DisplayNameFor(model => model.First().StockAmount, lang)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.ExpirationDate)
+                        @Html.DisplayNameFor(model => model.First().ExpirationDate, lang)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Category)
+                        @Html.DisplayNameFor(model => model.First().Category, lang)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.MainFormFilePath)
+                        @Html.DisplayNameFor(model => model.First().MainFormFilePath, lang)
                     </th>
                     <th></th>
                 </tr>
@@ -107,6 +109,7 @@
 		        }
             </tbody>
         </table>
+        }
     </div>
 </form>
 }

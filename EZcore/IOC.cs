@@ -1,6 +1,8 @@
-﻿using EZcore.DAL;
-using EZcore.Models;
+﻿using EZcore.DAL.Users;
+using EZcore.Models.JsonWebToken;
+using EZcore.Models.Users;
 using EZcore.Services;
+using EZcore.Services.Users;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -60,6 +62,7 @@ namespace EZcore
 
             // Inversion of Control for Services:
             builder.Services.AddScoped<HttpServiceBase, HttpService>();
+            builder.Services.AddScoped<ServiceBase, Service>();
             builder.Services.AddScoped<Service<User, UserModel>, UserService>();
         }
 

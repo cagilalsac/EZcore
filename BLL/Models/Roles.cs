@@ -1,4 +1,4 @@
-﻿namespace MVC.Models
+﻿namespace BLL.Models
 {
     public enum Roles
     {

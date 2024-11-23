@@ -1,4 +1,4 @@
-﻿@using EZcore.Models
+﻿@using EZcore.Models.Users
 @using EZcore.Extensions
 
 @model UserModel
@@ -8,9 +8,9 @@
 
 @{
     // ViewData:
-    var lang = (Lang)(ViewData["Lang"] ?? 0);
-    var modelName = ViewData["ViewModelName"];
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     var containerDivClass = "container-fluid"; // "container" can be used for not full width
+    var modelName = lang == Lang.TR ? "Kullanıcı" : "User";
     var login = lang == Lang.TR ? "Giriş" : "Login";
 }
 @{
@@ -22,17 +22,17 @@
 		@Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row mb-3">
-            <label asp-for="UserName" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="UserName" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 			<div class="col-10">
 			    <input asp-for="Record.UserName" class="form-control" />
-				<span asp-validation-for="Record.UserName" class="text-danger"></span>
+				<validation asp-for="Record.UserName" asp-lang="@lang" class="text-danger"></validation>
 			</div>
         </div>
         <div class="row mb-3">
-            <label asp-for="Password" class="col-2 col-form-label fw-bold"></label>
+            <displayname asp-for="Password" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 			<div class="col-10">
 			    <input asp-for="Record.Password" class="form-control" type="password" />
-				<span asp-validation-for="Record.Password" class="text-danger"></span>
+                <validation asp-for="Record.Password" asp-lang="@lang" class="text-danger"></validation>
 			</div>
         </div>
         <hr />  

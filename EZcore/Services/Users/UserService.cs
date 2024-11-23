@@ -1,14 +1,17 @@
 ﻿#nullable disable
 
 using EZcore.DAL;
+using EZcore.DAL.Users;
 using EZcore.Models;
+using EZcore.Models.JsonWebToken;
+using EZcore.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace EZcore.Services
+namespace EZcore.Services.Users
 {
     public class UserService : Service<User, UserModel>
     {
@@ -19,17 +22,19 @@ namespace EZcore.Services
         protected override string RecordNotFound => Lang == Lang.EN ? "User not found!" : "Kullanıcı bulunamadı!";
         protected override string RecordUpdated => Lang == Lang.EN ? "User updated successfully." : "Kullanıcı başarıyla güncellendi.";
         protected override string RecordDeleted => Lang == Lang.EN ? "User deleted successfully." : "Kullanıcı başarıyla silindi.";
-        
+
         public string EMailNotValid { get; set; }
         public string UserNotValid { get; set; }
         public string PasswordNotValid { get; set; }
         public string EMailRegex { get; set; } = "^[a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
+        public string NoAccess { get; set; }
 
         public UserService(IDb db, HttpServiceBase httpService) : base(db, httpService)
         {
             EMailNotValid = Lang == Lang.EN ? "Invalid e-mail address!" : "Geçersiz e-posta adresi!";
             UserNotValid = Lang == Lang.EN ? "Invalid user name or password!" : "Geçersiz kullanıcı adı veya şifre!";
             PasswordNotValid = Lang == Lang.EN ? "Password and confirm password must be the same!" : "Şifre ve şifre onay aynı olmalıdır!";
+            NoAccess = Lang == Lang.EN ? "You have no access to this operation!" : "Bu işleme yetkiniz bulunmamaktadır!";
         }
 
         protected override IQueryable<User> Records()
@@ -98,7 +103,7 @@ namespace EZcore.Services
             base.Create(model);
         }
 
-        public JwtModel GetJwt(UserModel model)
+        public Jwt GetJwt(UserModel model)
         {
             var user = Get(model.Record.UserName, model.Record.Password);
             if (user is null)
@@ -112,7 +117,7 @@ namespace EZcore.Services
             var jwtSecurityToken = new JwtSecurityToken(JwtSettings.Issuer, JwtSettings.Audience, user.Claims, DateTime.Now, expiration, signingCredentials);
             var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
             var token = jwtSecurityTokenHandler.WriteToken(jwtSecurityToken);
-            return new JwtModel()
+            return new Jwt()
             {
                 Token = "Bearer " + token,
                 Expiration = expiration

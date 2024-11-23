@@ -3,9 +3,9 @@
 @using System.Collections.Generic
 @using System.Linq
 @{
-@:@@using EZcore.Models
 @:@@using EZcore.Extensions
-    var viewModel = "@model " + Model.ViewDataTypeName.Split('.')[Model.ViewDataTypeName.Split('.').Length - 1] + "Model";
+    var entity = Model.ViewDataTypeName.Split('.')[Model.ViewDataTypeName.Split('.').Length - 1];
+    var viewModel = "@model " + entity + "Model";
     bool dateTimePickerFound = false;
 }
 
@@ -17,7 +17,7 @@
 @{
 @:@@{
     @:// ViewData:
-    @:var lang = (Lang)(ViewData["Lang"] ?? 0);
+    @:var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     @:var modelName = ViewData["ViewModelName"];
     @:var containerDivClass = "container-fluid"; // "container" can be used for not full width
     @:var dateTimePickerClass = "datepicker"; // "datetimepicker" can be used for date with time
@@ -82,12 +82,12 @@ foreach (PropertyMetadata property in Model.ModelMetadata.Properties)
         if (property.IsForeignKey)
         {
         @:<div class="row mb-3">
-            @:<label asp-for="@(property.PropertyName.Remove(property.PropertyName.Length - 2))" class="col-2 col-form-label fw-bold"></label>
+            @:<displayname asp-for="@(property.PropertyName.Remove(property.PropertyName.Length - 2))" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
             @:<div class="col-10">
 	            @:<select asp-for="Record.@property.PropertyName" class="form-select select2" asp-items="ViewBag.@property.PropertyName">
 		            @:<option value="">@@select</option>
 	            @:</select>
-	            @:<span asp-validation-for="Record.@property.PropertyName" class="text-danger"></span>
+	            @:<validation asp-for="Record.@property.PropertyName" asp-lang="@@lang" class="text-danger"></validation>
             @:</div>
         @:</div>
             continue;
@@ -95,7 +95,7 @@ foreach (PropertyMetadata property in Model.ModelMetadata.Properties)
         if (property.TypeName.Equals(typeof(bool).FullName) || property.TypeName.Equals(typeof(bool?).FullName))
         {
         @:<div class="row mb-3">
-		    @:<label asp-for="@property.PropertyName" class="col-2 col-form-label fw-bold"></label>
+		    @:<displayname asp-for="@property.PropertyName" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
 		    @:<div class="col-10 pt-2">
 			    @:<input class="form-check-input" asp-for="Record.@property.PropertyName" />
             @:</div>
@@ -107,7 +107,7 @@ foreach (PropertyMetadata property in Model.ModelMetadata.Properties)
             @:var selectList@(property.PropertyName) = new SelectList(new @(property.PropertyName)().ToDictionary().Select(i => new SelectListItem(i.Value, i.Key.ToString())), "Value", "Text");
         @:}
         @:<div class="row mb-3">
-            @:<label asp-for="@property.PropertyName" class="col-2 col-form-label fw-bold"></label>
+            @:<displayname asp-for="@property.PropertyName" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
             @:<div class="col-10">
                 @:<select asp-for="Record.@property.PropertyName" class="form-select" asp-items="selectList@(property.PropertyName)"></select>
             @:</div>
@@ -117,17 +117,17 @@ foreach (PropertyMetadata property in Model.ModelMetadata.Properties)
         {
             dateTimePickerFound = true;
         @:<div class="row mb-3">
-            @:<label asp-for="@property.PropertyName" class="col-2 col-form-label fw-bold"></label>
+            @:<displayname asp-for="@property.PropertyName" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
 	        @:<div class="col-10">
 		        @:<input asp-for="Record.@property.PropertyName" class="form-control @@dateTimePickerClass" type="text" />
-		        @:<span asp-validation-for="Record.@property.PropertyName" class="text-danger"></span>
+		        @:<validation asp-for="Record.@property.PropertyName" asp-lang="@@lang" class="text-danger"></validation>
 	        @:</div>
         @:</div>
         }
         else if (property.PropertyName == "MainFilePath")
         {
         @:<div class="row mb-3">
-            @:<label asp-for="MainFormFilePath" class="col-2 col-form-label fw-bold"></label>
+            @:<displayname asp-for="MainFormFilePath" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
             @:<div class="col-9">
                 @:<input asp-for="MainFormFilePath" class="form-control" type="file" />
             @:</div>
@@ -142,10 +142,10 @@ foreach (PropertyMetadata property in Model.ModelMetadata.Properties)
         else
         {
         @:<div class="row mb-3">
-            @:<label asp-for="@property.PropertyName" class="col-2 col-form-label fw-bold"></label>
+            @:<displayname asp-for="@property.PropertyName" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
 	        @:<div class="col-10">
 	            @:<input asp-for="Record.@property.PropertyName" class="form-control" />
-		        @:<span asp-validation-for="Record.@property.PropertyName" class="text-danger"></span>
+		        @:<validation asp-for="Record.@property.PropertyName" asp-lang="@@lang" class="text-danger"></validation>
 	        @:</div>
         @:</div>
         }
@@ -156,10 +156,10 @@ foreach (PropertyMetadata property in Model.ModelMetadata.Properties)
 @:@@* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. *@@
         @:@@*
         @:<div class="row mb-3">
-            @:<label asp-for="{Entity}s" class="col-2 col-form-label fw-bold"></label>
+            @:<displayname asp-for="{Entity}s" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
 	        @:<div class="col-10">
 		        @:<select multiple asp-for="Record.{Entity}s" class="form-select select2" asp-items="ViewBag.{Entity}s"></select>
-		        @:<span asp-validation-for="Record.{Entity}s" class="text-danger"></span>
+                @:<validation asp-for="Record.{Entity}s" asp-lang="@@lang" class="text-danger"></validation>
 	        @:</div>
         @:</div>
         @:*@@
@@ -176,7 +176,7 @@ foreach (PropertyMetadata property in Model.ModelMetadata.Properties)
                 @:<a asp-action="Delete" asp-route-id="@@Model.Record.Id">@@delete</a>
             @:}
                 @:&nbsp;&nbsp;
-		        @:<a asp-action="Index" asp-route-pageordersession="true">@@backToList</a>
+		        @:<a asp-action="Index" asp-route-session="true">@@backToList</a>
 	        @:</div>
         @:</div>
     @:</form>

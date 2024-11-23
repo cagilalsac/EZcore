@@ -3,9 +3,9 @@
 using BLL.DAL;
 using BLL.Models;
 using EZcore.DAL;
+using EZcore.Extensions;
 using EZcore.Services;
 using Microsoft.EntityFrameworkCore;
-using EZcore.Extensions;
 
 namespace BLL.Services
 {

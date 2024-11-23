@@ -1,6 +1,4 @@
-﻿@using EZcore.Models
-
-@* https://xdsoft.net/jqplugins/datetimepicker *@
+﻿@* https://xdsoft.net/jqplugins/datetimepicker *@
 <link rel="stylesheet" href="~/lib/jquery-datetimepicker/jquery.datetimepicker.min.css" />
 <script src="~/lib/jquery-datetimepicker/jquery.datetimepicker.full.min.js"></script>
 
@@ -12,7 +10,7 @@
 
 <script>
 	$(function () {
-		@if ((Lang)(ViewData["Lang"] ?? 0) == Lang.TR)
+		@if ((Lang)(ViewData[nameof(Lang)] ?? 0) == Lang.TR)
 		{
 			@:$.datetimepicker.setLocale("tr");
 			@:$('.datetimepicker').datetimepicker({

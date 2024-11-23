@@ -1,6 +1,7 @@
 ﻿#nullable disable
 
 using EZcore.DAL;
+using EZcore.DAL.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace BLL.DAL

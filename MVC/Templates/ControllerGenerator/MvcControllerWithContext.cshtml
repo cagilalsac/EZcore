@@ -11,9 +11,9 @@ if (@Model.NullableEnabled)
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
-using EZcore.Controllers;
 using EZcore.Services;
 using EZcore.Models;
+using EZcore.Controllers;
 @{
     foreach (var namespaceName in Model.RequiredNamespaces)
     {
@@ -81,10 +81,6 @@ namespace @Model.ControllerNamespace
     [Authorize]
     public class @Model.ControllerName : MvcController
     {
-        // Views may be configured here by overriding the base controller properties starting with "View", "Lang" base property can also be overriden if necessary:
-        protected override string ViewModelName => Lang == Lang.TR ? "Kayıt" : "@Model.ModelTypeName";
-        protected override bool ViewPageOrder => false;
-        
         // Service injections:
         private readonly @serviceAbstractType @("_" + serviceAbstractName);
 @foreach (var relatedProperty in relatedProperties.Keys)
@@ -95,7 +91,7 @@ namespace @Model.ControllerNamespace
         /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
         //private readonly Service<{Entity}, {Entity}Model> _{Entity}Service;
 
-        public @(Model.ControllerName + "(HttpServiceBase httpService\n\t\t\t, " + serviceAbstractType + " " + serviceAbstractName)
+        public @(Model.ControllerName + "(" + serviceAbstractType + " " + serviceAbstractName)
 @foreach (var relatedProperty in relatedProperties.Keys)
 {
             @:@(", Service<" + relatedProperty + ", " + relatedProperty + "Model> " + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service")
@@ -103,10 +99,12 @@ namespace @Model.ControllerNamespace
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
             //, Service<{Entity}, {Entity}Model> {Entity}Service
-        ) : base(httpService)
+        )
         {
             @("_" + serviceAbstractName) = @serviceAbstractName;
-            @("_" + serviceAbstractName).Lang = Lang;
+            @("_" + serviceAbstractName).ViewModelName = @("_" + serviceAbstractName).Lang == Lang.EN ? "@Model.ModelTypeName" : "Kayıt";
+            @("_" + serviceAbstractName).UsePageOrder = false;
+            @("_" + serviceAbstractName).ExcelFileNameWithoutExtension = @("_" + serviceAbstractName).Lang == Lang.EN ? "Report" : "Rapor";
 @foreach (var relatedProperty in relatedProperties.Keys)
 {
             @:@("_" + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service = " + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service");
@@ -116,9 +114,9 @@ namespace @Model.ControllerNamespace
             //_{Entity}Service = {Entity}Service;
         }
 
-        protected override void SetViewData()
+        private void SetViewData(Lang lang = Lang.TR, PageOrder pageOrder = null)
         {
-            base.SetViewData();
+            base.SetViewData(lang, @("_" + serviceAbstractName).ViewModelName, pageOrder);
 @{
     if (relatedProperties.Values.Any())
     {
@@ -136,16 +134,14 @@ namespace @Model.ControllerNamespace
         }
 
         // GET: @routePrefix
-        [AllowAnonymous]
-        public IActionResult Index(PageOrder pageOrder = null)
+        //[AllowAnonymous]
+        public IActionResult Index(PageOrder pageOrder)
         {
-            PageOrder = pageOrder;
-
             // Get collection service logic:
-            var list = @("_" + serviceAbstractName).Get(PageOrder);
+            var list = @("_" + serviceAbstractName).Get(pageOrder);
             
             Message = @("_" + serviceAbstractName).Message;
-            SetViewData();
+            SetViewData(@("_" + serviceAbstractName).Lang, pageOrder);
             return View(list);
         }
 
@@ -156,14 +152,14 @@ namespace @Model.ControllerNamespace
             var item = @("_" + serviceAbstractName).Get(id);
 
             Message = @("_" + serviceAbstractName).Message;
-            SetViewData();
+            SetViewData(@("_" + serviceAbstractName).Lang);
             return View(item);
         }
 
         // GET: @routePrefix/Create
         public IActionResult Create()
         {
-            SetViewData();
+            SetViewData(@("_" + serviceAbstractName).Lang);
             return View();
         }
 
@@ -187,7 +183,7 @@ namespace @Model.ControllerNamespace
                     return RedirectToAction(nameof(Details), new { id = @(Model.ModelVariable).Record.Id });
             }
             Message = @("_" + serviceAbstractName).Message;
-            SetViewData();
+            SetViewData(@("_" + serviceAbstractName).Lang);
             return View(@Model.ModelVariable);
         }
 
@@ -198,7 +194,7 @@ namespace @Model.ControllerNamespace
             var item = @("_" + serviceAbstractName).Get(id);
 
             Message = @("_" + serviceAbstractName).Message;
-            SetViewData();
+            SetViewData(@("_" + serviceAbstractName).Lang);
             return View(item);
         }
 
@@ -218,7 +214,7 @@ namespace @Model.ControllerNamespace
                     return RedirectToAction(nameof(Details), new { id = @(Model.ModelVariable).Record.Id });
             }
             Message = @("_" + serviceAbstractName).Message;
-            SetViewData();
+            SetViewData(@("_" + serviceAbstractName).Lang);
             return View(@Model.ModelVariable);
         }
 
@@ -229,7 +225,7 @@ namespace @Model.ControllerNamespace
             var item = @("_" + serviceAbstractName).Get(id);
 
             Message = @("_" + serviceAbstractName).Message;
-            SetViewData();
+            SetViewData(@("_" + serviceAbstractName).Lang);
             return View(item);
         }
 
@@ -261,7 +257,7 @@ namespace @Model.ControllerNamespace
             @("_" + serviceAbstractName).DeleteFile(id);
 
             Message = @("_" + serviceAbstractName).Message;
-            return RedirectToAction(nameof(Details), new { id = id });
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // GET: @routePrefix/Export

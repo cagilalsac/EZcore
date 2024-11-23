@@ -1,26 +1,26 @@
 ﻿#nullable disable
 
 using EZcore.Attributes;
-using EZcore.DAL;
+using EZcore.DAL.Users;
 using System.Security.Claims;
 
-namespace EZcore.Models
+namespace EZcore.Models.Users
 {
     public class UserModel : Model<User>
     {
-        [DisplayName("User Name", "Kullanıcı Adı")]
+        [DisplayName("Kullanıcı Adı", "User Name")]
         public string UserName => Record.UserName;
 
-        [DisplayName("Password", "Şifre")]
+        [DisplayName("Şifre", "Password")]
         public string Password => Record.Password;
 
-        [DisplayName("E-Mail", "E-Posta")]
+        [DisplayName("E-Posta", "E-Mail")]
         public string EMail => Record.EMail;
 
-        [DisplayName("Status", "Durum")]
-        public string IsActive => Record.IsActive ? "Active" : "Not Active";
+        [DisplayName("Durum", "Status")]
+        public string IsActive => Record.IsActive ? "Aktif" : "Aktif değil";
 
-        [DisplayName("Roles", "Roller")]
+        [DisplayName("Roller", "Roles")]
         public string Roles => string.Join(", ", Record.UserRoles?.Select(ur => ur.Role?.Name));
 
         public List<Claim> Claims
@@ -45,7 +45,7 @@ namespace EZcore.Models
             }
         }
 
-        [DisplayName("Confirm Password", "Şifre Onay")]
+        [DisplayName("Şifre Onay", "Confirm Password")]
         public string ConfirmPassword { get; set; }
     }
 }

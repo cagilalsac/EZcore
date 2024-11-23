@@ -1,4 +1,4 @@
-﻿@using EZcore.Models
+﻿@using EZcore.Extensions
 
 @model StoreModel
 
@@ -7,7 +7,7 @@
 
 @{
     // ViewData:
-    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     var modelName = ViewData["ViewModelName"];
     var containerDivClass = "container-fluid"; // "container" can be used for not full width
     var details = lang == Lang.EN ? "Details" : "Detayı";
@@ -25,7 +25,7 @@
     <partial name="_EZmessage" />
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(model => model.Name, lang)
         </div>
         <div class="col-10">
             @Html.Raw(Model.Name)
@@ -33,26 +33,26 @@
     </div>
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.IsVirtual)
+            @Html.DisplayNameFor(model => model.IsVirtual, lang)
         </div>
         <div class="col-10">
             @Html.Raw(Model.IsVirtual)
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.Products)
+        <div class="row mb-3">
+            <div class="col-2 fw-bold">
+                @Html.DisplayNameFor(model => model.Products, lang)
+            </div>
+            <div class="col-10">
+                @Html.Raw(Model.Products)
+            </div>
         </div>
-        <div class="col-10">
-            @Html.Raw(Model.Products)
-        </div>
-    </div>
 
 @* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. *@
     @*
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            <b>@Html.DisplayNameFor(model => model.{Entity}s)</b>
+            <b>@Html.DisplayNameFor(model => model.{Entity}s, lang)</b>
         </div>
         <div class="col-10">
             @Html.Raw(Model.{Entity}s)
@@ -61,8 +61,11 @@
     *@
 
     <hr /> 
-    <a asp-action="Edit" asp-route-id="@Model.Record.Id">@edit</a>&nbsp;|&nbsp;
-    <a asp-action="Delete" asp-route-id="@Model.Record.Id">@delete</a>&nbsp;|&nbsp;
-    <a asp-action="Index" asp-route-pageordersession="true">@backToList</a>
+@if (User.Identity.IsAuthenticated)
+{
+    <a asp-action="Edit" asp-route-id="@Model.Record.Id">@edit</a>@:&nbsp;|&nbsp;
+    <a asp-action="Delete" asp-route-id="@Model.Record.Id">@delete</a>@:&nbsp;|&nbsp;
+}
+    <a asp-action="Index" asp-route-session="true">@backToList</a>
 </div>
 }

@@ -3,9 +3,9 @@
 using EZcore.Attributes;
 using System.Text.Json.Serialization;
 
-namespace EZcore.DAL
+namespace EZcore.DAL.Users
 {
-	public class Role : Record, ISoftDelete, IModifiedBy
+    public class Role : Record, ISoftDelete, IModifiedBy
     {
         [Required]
         [StringLength(50)]

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace EZcore.Models
+namespace EZcore.Models.JsonWebToken
 {
     public class JwtSettings : AppSettingsBase
     {

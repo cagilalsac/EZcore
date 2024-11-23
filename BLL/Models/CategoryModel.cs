@@ -9,10 +9,10 @@ namespace BLL.Models
 {
     public class CategoryModel : Model<Category>
     {
-        [DisplayName("Name", "Adı")]
+        [DisplayName("Adı", "Name")]
         public string Name => Record.Name;
 
-        [DisplayName("Description", "Açıklaması")]
+        [DisplayName("Açıklaması", "Description")]
         public string Description => Record.Description;
     }
 }

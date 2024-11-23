@@ -1,4 +1,4 @@
-﻿@using EZcore.Models
+﻿@using EZcore.Extensions
 
 @model ProductModel
 
@@ -7,7 +7,7 @@
 
 @{
     // ViewData:
-    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     var modelName = ViewData["ViewModelName"];
     var containerDivClass = "container-fluid"; // "container" can be used for not full width
     var delete = lang == Lang.EN ? "Delete" : "Sil";
@@ -24,7 +24,7 @@
     <partial name="_EZmessage" />
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(model => model.Name, lang)
         </div>
         <div class="col-10">
             @Html.Raw(Model.Name)
@@ -32,7 +32,7 @@
     </div>
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.UnitPrice)
+            @Html.DisplayNameFor(model => model.UnitPrice, lang)
         </div>
         <div class="col-10">
             @Html.Raw(Model.UnitPrice)
@@ -40,7 +40,7 @@
     </div>
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.StockAmount)
+            @Html.DisplayNameFor(model => model.StockAmount, lang)
         </div>
         <div class="col-10">
             @Html.Raw(Model.StockAmount)
@@ -48,7 +48,7 @@
     </div>
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.ExpirationDate)
+            @Html.DisplayNameFor(model => model.ExpirationDate, lang)
         </div>
         <div class="col-10">
             @Html.Raw(Model.ExpirationDate)
@@ -56,7 +56,7 @@
     </div>
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.Category)
+            @Html.DisplayNameFor(model => model.Category, lang)
         </div>
         <div class="col-10">
             @Html.Raw(Model.Category)
@@ -64,7 +64,7 @@
     </div>
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.MainFormFilePath)
+            @Html.DisplayNameFor(model => model.MainFormFilePath, lang)
         </div>
         <div class="col-4">
         @if (string.IsNullOrWhiteSpace(Model.Record.MainFilePath))
@@ -82,7 +82,7 @@
     
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            <b>@Html.DisplayNameFor(model => model.Stores)</b>
+            <b>@Html.DisplayNameFor(model => model.Stores, lang)</b>
         </div>
         <div class="col-10">
             @Html.Raw(Model.Stores)
@@ -96,7 +96,7 @@
 	    @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Record.Id" />
         <button type="submit" class="btn btn-danger">@save</button>&nbsp;&nbsp;
-        <a asp-action="Index" asp-route-pageordersession="true" class="btn btn-outline-danger">@backToList</a>
+        <a asp-action="Index" asp-route-session="true" class="btn btn-outline-danger">@backToList</a>
     </form>
 </div>
 }

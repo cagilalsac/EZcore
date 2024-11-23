@@ -1,62 +1,58 @@
 ﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using EZcore.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using EZcore.Services;
 using EZcore.Models;
+using EZcore.Controllers;
 using BLL.Models;
 using BLL.DAL;
-using Microsoft.AspNetCore.Authorization;
 
 // Generated from EZcore Template.
 
 namespace MVC.Controllers
 {
-    [Authorize(Roles = "EZcodeAdmin")]
+    [Authorize(Roles = "Admin,EZcodeAdmin")]
     public class StoresController : MvcController
     {
-        // Views may be configured here by overriding the base controller properties starting with "View", "Lang" base property can also be overriden if necessary:
-        protected override string ViewModelName => Lang == Lang.TR ? "Mağaza" : "Store";
-        protected override bool ViewPageOrder => false;
-        
         // Service injections:
         private readonly Service<Store, StoreModel> _storeService;
 
         /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
         //private readonly Service<{Entity}, {Entity}Model> _{Entity}Service;
 
-        public StoresController(HttpServiceBase httpService
-			, Service<Store, StoreModel> storeService
+        public StoresController(Service<Store, StoreModel> storeService
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
             //, Service<{Entity}, {Entity}Model> {Entity}Service
-        ) : base(httpService)
+        )
         {
             _storeService = storeService;
-            _storeService.Lang = Lang;
+            _storeService.ViewModelName = _storeService.Lang == Lang.EN ? "Store" : "Mağaza";
+            _storeService.UsePageOrder = false;
+            _storeService.ExcelFileNameWithoutExtension = _storeService.Lang == Lang.EN ? "Report" : "Rapor";
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
             //_{Entity}Service = {Entity}Service;
         }
 
-        protected override void SetViewData()
+        private void SetViewData(Lang lang = Lang.TR, PageOrder pageOrder = null)
         {
-            base.SetViewData();
+            base.SetViewData(lang, _storeService.ViewModelName, pageOrder);
             
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
-            //ViewBag.{Entity}s = new MultiSelectList(_{Entity}Service.Read(), "Record.Id", "Name");
+            //ViewBag.{Entity}s = new MultiSelectList(_{Entity}Service.Get(), "Record.Id", "Name");
         }
 
         // GET: Stores
-        public IActionResult Index(PageOrder pageOrder = null)
+        //[AllowAnonymous]
+        public IActionResult Index(PageOrder pageOrder)
         {
-            PageOrder = pageOrder;
-
             // Get collection service logic:
-            var list = _storeService.Get(PageOrder);
+            var list = _storeService.Get(pageOrder);
             
             Message = _storeService.Message;
-            SetViewData();
+            SetViewData(_storeService.Lang, pageOrder);
             return View(list);
         }
 
@@ -67,20 +63,19 @@ namespace MVC.Controllers
             var item = _storeService.Get(id);
 
             Message = _storeService.Message;
-            SetViewData();
+            SetViewData(_storeService.Lang);
             return View(item);
         }
 
         // GET: Stores/Create
         public IActionResult Create()
         {
-            SetViewData();
+            SetViewData(_storeService.Lang);
             return View();
         }
 
         // POST: Stores/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(StoreModel store)
         {
             if (ModelState.IsValid && _storeService.Validate(store).IsSuccessful)
@@ -93,7 +88,7 @@ namespace MVC.Controllers
                     return RedirectToAction(nameof(Details), new { id = store.Record.Id });
             }
             Message = _storeService.Message;
-            SetViewData();
+            SetViewData(_storeService.Lang);
             return View(store);
         }
 
@@ -104,13 +99,12 @@ namespace MVC.Controllers
             var item = _storeService.Get(id);
 
             Message = _storeService.Message;
-            SetViewData();
+            SetViewData(_storeService.Lang);
             return View(item);
         }
 
         // POST: Stores/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Edit(StoreModel store)
         {
             if (ModelState.IsValid && _storeService.Validate(store).IsSuccessful)
@@ -123,7 +117,7 @@ namespace MVC.Controllers
                     return RedirectToAction(nameof(Details), new { id = store.Record.Id });
             }
             Message = _storeService.Message;
-            SetViewData();
+            SetViewData(_storeService.Lang);
             return View(store);
         }
 
@@ -134,13 +128,12 @@ namespace MVC.Controllers
             var item = _storeService.Get(id);
 
             Message = _storeService.Message;
-            SetViewData();
+            SetViewData(_storeService.Lang);
             return View(item);
         }
 
         // POST: Stores/Delete
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
         {
             // Delete item service logic:
@@ -158,6 +151,22 @@ namespace MVC.Controllers
 
             Message = _storeService.Message;
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Stores/DeleteFile/5
+        public IActionResult DeleteFile(int id)
+        {
+            // Delete file logic:
+            _storeService.DeleteFile(id);
+
+            Message = _storeService.Message;
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // GET: Stores/Export
+        public void Export()
+        {
+            _storeService.GetExcel();
         }
 	}
 }

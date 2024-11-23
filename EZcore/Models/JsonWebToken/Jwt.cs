@@ -1,8 +1,8 @@
 ﻿#nullable disable
 
-namespace EZcore.Models
+namespace EZcore.Models.JsonWebToken
 {
-    public class JwtModel
+    public class Jwt
     {
         public string Token { get; set; }
         public DateTime Expiration { get; set; }

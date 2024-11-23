@@ -1,62 +1,58 @@
 ﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using EZcore.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using EZcore.Services;
 using EZcore.Models;
+using EZcore.Controllers;
 using BLL.Models;
 using BLL.DAL;
-using Microsoft.AspNetCore.Authorization;
 
 // Generated from EZcore Template.
 
 namespace MVC.Controllers
 {
-    [Authorize(Roles = "EZcodeAdmin")]
+    [Authorize(Roles = "Admin,EZcodeAdmin")]
     public class CategoriesController : MvcController
     {
-        // Views may be configured here by overriding the base controller properties starting with "View", "Lang" base property can also be overriden if necessary:
-        protected override string ViewModelName => Lang == Lang.TR ? "Kategori" : "Category";
-        protected override bool ViewPageOrder => false;
-        
         // Service injections:
         private readonly Service<Category, CategoryModel> _categoryService;
 
         /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
         //private readonly Service<{Entity}, {Entity}Model> _{Entity}Service;
 
-        public CategoriesController(HttpServiceBase httpService
-			, Service<Category, CategoryModel> categoryService
+        public CategoriesController(Service<Category, CategoryModel> categoryService
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
             //, Service<{Entity}, {Entity}Model> {Entity}Service
-        ) : base(httpService)
+        )
         {
             _categoryService = categoryService;
-            _categoryService.Lang = Lang;
+            _categoryService.ViewModelName = _categoryService.Lang == Lang.EN ? "Category" : "Kategori";
+            _categoryService.UsePageOrder = false;
+            _categoryService.ExcelFileNameWithoutExtension = _categoryService.Lang == Lang.EN ? "Report" : "Rapor";
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
             //_{Entity}Service = {Entity}Service;
         }
 
-        protected override void SetViewData()
+        private void SetViewData(Lang lang = Lang.TR, PageOrder pageOrder = null)
         {
-            base.SetViewData();
+            base.SetViewData(lang, _categoryService.ViewModelName, pageOrder);
             
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
-            //ViewBag.{Entity}s = new MultiSelectList(_{Entity}Service.Read(), "Record.Id", "Name");
+            //ViewBag.{Entity}s = new MultiSelectList(_{Entity}Service.Get(), "Record.Id", "Name");
         }
 
         // GET: Categories
-        public IActionResult Index(PageOrder pageOrder = null)
+        //[AllowAnonymous]
+        public IActionResult Index(PageOrder pageOrder)
         {
-            PageOrder = pageOrder;
-
             // Get collection service logic:
-            var list = _categoryService.Get(PageOrder);
+            var list = _categoryService.Get(pageOrder);
             
             Message = _categoryService.Message;
-            SetViewData();
+            SetViewData(_categoryService.Lang, pageOrder);
             return View(list);
         }
 
@@ -67,20 +63,19 @@ namespace MVC.Controllers
             var item = _categoryService.Get(id);
 
             Message = _categoryService.Message;
-            SetViewData();
+            SetViewData(_categoryService.Lang);
             return View(item);
         }
 
         // GET: Categories/Create
         public IActionResult Create()
         {
-            SetViewData();
+            SetViewData(_categoryService.Lang);
             return View();
         }
 
         // POST: Categories/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(CategoryModel category)
         {
             if (ModelState.IsValid && _categoryService.Validate(category).IsSuccessful)
@@ -93,7 +88,7 @@ namespace MVC.Controllers
                     return RedirectToAction(nameof(Details), new { id = category.Record.Id });
             }
             Message = _categoryService.Message;
-            SetViewData();
+            SetViewData(_categoryService.Lang);
             return View(category);
         }
 
@@ -104,13 +99,12 @@ namespace MVC.Controllers
             var item = _categoryService.Get(id);
 
             Message = _categoryService.Message;
-            SetViewData();
+            SetViewData(_categoryService.Lang);
             return View(item);
         }
 
         // POST: Categories/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Edit(CategoryModel category)
         {
             if (ModelState.IsValid && _categoryService.Validate(category).IsSuccessful)
@@ -123,7 +117,7 @@ namespace MVC.Controllers
                     return RedirectToAction(nameof(Details), new { id = category.Record.Id });
             }
             Message = _categoryService.Message;
-            SetViewData();
+            SetViewData(_categoryService.Lang);
             return View(category);
         }
 
@@ -134,13 +128,12 @@ namespace MVC.Controllers
             var item = _categoryService.Get(id);
 
             Message = _categoryService.Message;
-            SetViewData();
+            SetViewData(_categoryService.Lang);
             return View(item);
         }
 
         // POST: Categories/Delete
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
         {
             // Delete item service logic:
@@ -158,6 +151,22 @@ namespace MVC.Controllers
 
             Message = _categoryService.Message;
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Categories/DeleteFile/5
+        public IActionResult DeleteFile(int id)
+        {
+            // Delete file logic:
+            _categoryService.DeleteFile(id);
+
+            Message = _categoryService.Message;
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // GET: Categories/Export
+        public void Export()
+        {
+            _categoryService.GetExcel();
         }
 	}
 }

@@ -1,4 +1,4 @@
-﻿@using EZcore.Models
+﻿@using EZcore.Extensions
 
 @model CategoryModel
 
@@ -7,7 +7,7 @@
 
 @{
     // ViewData:
-    var lang = (Lang)(ViewData["Lang"] ?? 0);
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     var modelName = ViewData["ViewModelName"];
     var containerDivClass = "container-fluid"; // "container" can be used for not full width
     var delete = lang == Lang.EN ? "Delete" : "Sil";
@@ -24,7 +24,7 @@
     <partial name="_EZmessage" />
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(model => model.Name, lang)
         </div>
         <div class="col-10">
             @Html.Raw(Model.Name)
@@ -32,7 +32,7 @@
     </div>
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.Description)
+            @Html.DisplayNameFor(model => model.Description, lang)
         </div>
         <div class="col-10">
             @Html.Raw(Model.Description)
@@ -43,7 +43,7 @@
     @*
     <div class="row mb-3">
         <div class="col-2 fw-bold">
-            <b>@Html.DisplayNameFor(model => model.{Entity}s)</b>
+            <b>@Html.DisplayNameFor(model => model.{Entity}s, lang)</b>
         </div>
         <div class="col-10">
             @Html.Raw(Model.{Entity}s)
@@ -57,7 +57,7 @@
 	    @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Record.Id" />
         <button type="submit" class="btn btn-danger">@save</button>&nbsp;&nbsp;
-        <a asp-action="Index" asp-route-pageordersession="true" class="btn btn-outline-danger">@backToList</a>
+        <a asp-action="Index" asp-route-session="true" class="btn btn-outline-danger">@backToList</a>
     </form>
 </div>
 }
