@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BLL.Migrations
 {
     [DbContext(typeof(Db))]
-    [Migration("20241116201701_v1")]
+    [Migration("20241124081820_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -83,6 +83,9 @@ namespace BLL.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("OtherFilePaths")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("StockAmount")
                         .HasColumnType("int");
@@ -157,7 +160,7 @@ namespace BLL.Migrations
                     b.ToTable("Stores");
                 });
 
-            modelBuilder.Entity("EZcore.DAL.Role", b =>
+            modelBuilder.Entity("EZcore.DAL.Users.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -193,7 +196,7 @@ namespace BLL.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("EZcore.DAL.User", b =>
+            modelBuilder.Entity("EZcore.DAL.Users.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -241,7 +244,7 @@ namespace BLL.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("EZcore.DAL.UserRole", b =>
+            modelBuilder.Entity("EZcore.DAL.Users.UserRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -300,15 +303,15 @@ namespace BLL.Migrations
                     b.Navigation("Store");
                 });
 
-            modelBuilder.Entity("EZcore.DAL.UserRole", b =>
+            modelBuilder.Entity("EZcore.DAL.Users.UserRole", b =>
                 {
-                    b.HasOne("EZcore.DAL.Role", "Role")
+                    b.HasOne("EZcore.DAL.Users.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EZcore.DAL.User", "User")
+                    b.HasOne("EZcore.DAL.Users.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -334,12 +337,12 @@ namespace BLL.Migrations
                     b.Navigation("ProductStores");
                 });
 
-            modelBuilder.Entity("EZcore.DAL.Role", b =>
+            modelBuilder.Entity("EZcore.DAL.Users.Role", b =>
                 {
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("EZcore.DAL.User", b =>
+            modelBuilder.Entity("EZcore.DAL.Users.User", b =>
                 {
                     b.Navigation("UserRoles");
                 });

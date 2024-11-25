@@ -282,12 +282,23 @@ namespace EZcore.Services
         {
             if (model is IFileModel)
             {
+                var fileModel = model as IFileModel;
                 _fileService = new FileService(_httpService);
-                var filePath = _fileService.Create((model as IFileModel).MainFormFilePath);
+                var filePath = _fileService.Create(fileModel.MainFormFilePath);
                 if (_fileService.IsSuccessful)
-                    (model.Record as IFile).MainFilePath = filePath;
+                {
+                    var fileEntity = model.Record as IFile;
+                    fileEntity.MainFilePath = filePath;
+                    var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
+                    if (_fileService.IsSuccessful)
+                        fileEntity.OtherFilePaths = filePaths;
+                    else
+                        Error(_fileService.Message);
+                }
                 else
+                {
                     Error(_fileService.Message);
+                }
             }
             return IsSuccessful;
         }
@@ -303,30 +314,57 @@ namespace EZcore.Services
                 }
                 else
                 {
+                    var fileModel = model as IFileModel;
+                    var fileEntity = model.Record as IFile;
                     _fileService = new FileService(_httpService);
-                    var filePath = _fileService.Update((model as IFileModel).MainFormFilePath, (record as IFile).MainFilePath);
+                    var filePath = _fileService.Update(fileModel.MainFormFilePath, fileEntity.MainFilePath);
                     if (_fileService.IsSuccessful)
-                        (record as IFile).MainFilePath = filePath;
+                    {
+                        fileEntity.MainFilePath = filePath;
+                        var filePaths = _fileService.Update(fileModel.OtherFormFilePaths, fileEntity.OtherFilePaths);
+                        if (_fileService.IsSuccessful)
+                            fileEntity.OtherFilePaths = filePaths;
+                        else
+                            Error(_fileService.Message);
+                    }
                     else
+                    {
                         Error(_fileService.Message);
+                    }
                 }
             }
             return IsSuccessful;
         }
 
-        protected void DeleteFile(TEntity record)
+        protected void DeleteFile(TEntity record, string path = null)
         {
             if (record is IFile)
             {
+                var fileEntity = record as IFile;
                 _fileService = new FileService(_httpService);
-                _fileService.Delete((record as IFile).MainFilePath);
-                (record as IFile).MainFilePath = null;
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    _fileService.Delete(fileEntity.MainFilePath);
+                    fileEntity.MainFilePath = null;
+                    _fileService.Delete(fileEntity.OtherFilePaths);
+                    fileEntity.OtherFilePaths = null;
+                }
+                else if (path == fileEntity.MainFilePath)
+                {
+                    _fileService.Delete(fileEntity.MainFilePath);
+                    fileEntity.MainFilePath = null;
+                }
+                else
+                {
+                    _fileService.Delete(path);
+                    fileEntity.OtherFilePaths?.Remove(path);
+                }
                 _db.Set<TEntity>().Update(record);
-                Success(_fileService.FileDeleted);
+                Success(_fileService.FilesDeleted);
             }
         }
 
-        public virtual void DeleteFile(int id)
+        public virtual void DeleteFile(int id, string path = null)
         {
             var record = _db.Set<TEntity>().Find(id);
             if (record is null)
@@ -335,7 +373,7 @@ namespace EZcore.Services
             }
             else
             {
-                DeleteFile(record);
+                DeleteFile(record, path);
                 _db.SaveChanges();
             }
         }

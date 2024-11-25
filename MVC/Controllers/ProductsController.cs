@@ -31,7 +31,7 @@ namespace MVC.Controllers
         {
             _productService = productService;
             _productService.ViewModelName = _productService.Lang == Lang.EN ? "Product" : "Ürün";
-            _productService.UsePageOrder = false;
+            _productService.UsePageOrder = true;
             _productService.ExcelFileNameWithoutExtension = _productService.Lang == Lang.EN ? "Report" : "Rapor";
             _categoryService = categoryService;
 
@@ -89,9 +89,11 @@ namespace MVC.Controllers
                 // Insert item service logic:
                 _productService.Create(product);
                 
-                Message = _productService.Message;
                 if (_productService.IsSuccessful)
+                {
+                    Message = _productService.Message;
                     return RedirectToAction(nameof(Details), new { id = product.Record.Id });
+                }
             }
             Message = _productService.Message;
             SetViewData(_productService.Lang);
@@ -118,9 +120,11 @@ namespace MVC.Controllers
                 // Update item service logic:
                 _productService.Update(product);
                 
-                Message = _productService.Message;
                 if (_productService.IsSuccessful)
+                {
+                    Message = _productService.Message;
                     return RedirectToAction(nameof(Details), new { id = product.Record.Id });
+                }
             }
             Message = _productService.Message;
             SetViewData(_productService.Lang);
@@ -159,11 +163,10 @@ namespace MVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Products/DeleteFile/5
-        public IActionResult DeleteFile(int id)
+        public IActionResult DeleteFile(int id, string path = null)
         {
             // Delete file logic:
-            _productService.DeleteFile(id);
+            _productService.DeleteFile(id, path);
 
             Message = _productService.Message;
             return RedirectToAction(nameof(Details), new { id });

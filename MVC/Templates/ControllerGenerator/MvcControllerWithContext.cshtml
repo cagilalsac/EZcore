@@ -177,10 +177,12 @@ namespace @Model.ControllerNamespace
                 @:// Insert item service logic:
                 @:@("_" + serviceAbstractName).Create(@Model.ModelVariable);
                 @:
-                @:Message = @("_" + serviceAbstractName).Message;
                 @:if (@("_" + serviceAbstractName).IsSuccessful)
+                @:{
+                    @:Message = @("_" + serviceAbstractName).Message;
 }  
                     return RedirectToAction(nameof(Details), new { id = @(Model.ModelVariable).Record.Id });
+                }
             }
             Message = @("_" + serviceAbstractName).Message;
             SetViewData(@("_" + serviceAbstractName).Lang);
@@ -208,10 +210,12 @@ namespace @Model.ControllerNamespace
                 @:// Update item service logic:
                 @:@("_" + serviceAbstractName).Update(@Model.ModelVariable);
                 @:
-                @:Message = @("_" + serviceAbstractName).Message;
                 @:if (@("_" + serviceAbstractName).IsSuccessful)
+                @:{
+                    @:Message = @("_" + serviceAbstractName).Message;
 }
                     return RedirectToAction(nameof(Details), new { id = @(Model.ModelVariable).Record.Id });
+                }
             }
             Message = @("_" + serviceAbstractName).Message;
             SetViewData(@("_" + serviceAbstractName).Lang);
@@ -250,11 +254,10 @@ namespace @Model.ControllerNamespace
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: @routePrefix/DeleteFile/5
-        public IActionResult DeleteFile(@primaryKeyShortTypeName id)
+        public IActionResult DeleteFile(@primaryKeyShortTypeName id, string path = null)
         {
             // Delete file logic:
-            @("_" + serviceAbstractName).DeleteFile(id);
+            @("_" + serviceAbstractName).DeleteFile(id, path);
 
             Message = @("_" + serviceAbstractName).Message;
             return RedirectToAction(nameof(Details), new { id });

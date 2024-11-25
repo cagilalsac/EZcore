@@ -1,4 +1,6 @@
-﻿@model ProductModel
+﻿@using EZcore.Extensions
+
+@model ProductModel
 
 @* Generated from EZcore Template. *@
 @* Model namespace using directive should be added to _ViewImports.cshtml. *@
@@ -14,6 +16,7 @@
     var save = lang == Lang.EN ? "Save" : "Kaydet";
     var clear = lang == Lang.EN ? "Clear" : "Temizle";
     var backToList = lang == Lang.EN ? "Back to List" : "Listeye Dön";
+    var mainFileMessage = lang == Lang.EN ? "Main file must be selected!" : "Ana dosya seçilmelidir!";
 }
 @{
     ViewData["Title"] = $"{create} {modelName}";
@@ -63,8 +66,15 @@
         <div class="row mb-3">
             <displayname asp-for="MainFormFilePath" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
 	        <div class="col-10">
-	            <input asp-for="MainFormFilePath" class="form-control" type="file" />
+	            <input asp-for="MainFormFilePath" class="form-control mainfile" type="file" />
+                <span class="text-danger mainfilemessage"></span>
 	        </div>
+        </div>
+        <div class="row mb-3">
+            <displayname asp-for="OtherFormFilePaths" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
+            <div class="col-10">
+                <input asp-for="OtherFormFilePaths" class="form-control otherfiles" type="file" multiple />
+            </div>
         </div>
 
 @* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. *@
@@ -93,5 +103,15 @@
 
 @section Scripts {
     <partial name="_EZDateTimePicker" />
+    <script>
+        $(function () {
+            $('button[type="submit"]').click(function (event) {
+                if ($('.otherfiles').val() && !$('.mainfile').val()) {
+                    event.preventDefault();
+                    $('.mainfilemessage').text('@mainFileMessage');
+                }
+            });
+        });
+    </script>
     <partial name="_EZSelect2" />
 }

@@ -99,6 +99,7 @@ namespace BLL.Migrations
                     UpdateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MainFilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OtherFilePaths = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Guid = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>

@@ -17,7 +17,7 @@
     var save = lang == Lang.EN ? "Save" : "Kaydet";
     var clear = lang == Lang.EN ? "Clear" : "Temizle";
     var backToList = lang == Lang.EN ? "Back to List" : "Listeye Dön";
-    var deleteFile = lang == Lang.EN ? "Delete File" : "Dosya Sil";
+    var mainFileMessage = lang == Lang.EN ? "Main file must be selected!" : "Ana dosya seçilmelidir!";
 }
 @{
     ViewData["Title"] = $"{modelName} {edit}";
@@ -68,15 +68,17 @@
         </div>
         <div class="row mb-3">
             <displayname asp-for="MainFormFilePath" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
-            <div class="col-9">
-                <input asp-for="MainFormFilePath" class="form-control" type="file" />
+            <div class="col-10">
+                <input asp-for="MainFormFilePath" class="form-control mainfile" type="file" />
+                <input asp-for="Record.MainFilePath" type="hidden" class="mainfilehidden" />
+                <span class="text-danger mainfilemessage"></span>
             </div>
-            @if (!string.IsNullOrWhiteSpace(Model.Record.MainFilePath))
-            {
-            <div class="col-1 pt-2 text-end">
-                <a asp-action="DeleteFile" asp-route-id="@Model.Record.Id">@deleteFile</a>
+        </div>
+        <div class="row mb-3">
+            <displayname asp-for="OtherFormFilePaths" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
+            <div class="col-10">
+                <input asp-for="OtherFormFilePaths" class="form-control otherfiles" type="file" multiple />
             </div>
-            }
         </div>
         <input type="hidden" asp-for="Record.Id" />
 
@@ -112,5 +114,15 @@
 
 @section Scripts {
     <partial name="_EZDateTimePicker" />
+    <script>
+        $(function () {
+            $('button[type="submit"]').click(function (event) {
+                if ($('.otherfiles').val() && !($('.mainfilehidden').val() || $('.mainfile').val())) {
+                    event.preventDefault();
+                    $('.mainfilemessage').text('@mainFileMessage');
+                }
+            });
+        });
+    </script>
     <partial name="_EZSelect2" />
 }

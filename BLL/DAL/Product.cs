@@ -43,5 +43,6 @@ namespace BLL.DAL
         public string UpdatedBy { get; set; }
 
         public string MainFilePath { get; set; }
+        public List<string> OtherFilePaths { get; set; }
     }
 }

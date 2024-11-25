@@ -87,7 +87,7 @@
 
                 foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
                 {
-                    if (item.Name != "Guid" && item.Name != "IsDeleted" && item.Name != "CreateDate" && item.Name != "CreatedBy" && item.Name != "UpdateDate" && item.Name != "UpdatedBy")
+                    if (item.Name != "Guid" && item.Name != "IsDeleted" && item.Name != "CreateDate" && item.Name != "CreatedBy" && item.Name != "UpdateDate" && item.Name != "UpdatedBy" && item.Name != "OtherFilePaths")
                     {
                     if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
                         && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
@@ -121,7 +121,7 @@
 				@:<tr>
 				foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
 				{
-                    if (item.Name != "Guid" && item.Name != "IsDeleted" && item.Name != "CreateDate" && item.Name != "CreatedBy" && item.Name != "UpdateDate" && item.Name != "UpdatedBy")
+                    if (item.Name != "Guid" && item.Name != "IsDeleted" && item.Name != "CreateDate" && item.Name != "CreatedBy" && item.Name != "UpdateDate" && item.Name != "UpdatedBy" && item.Name != "OtherFilePaths")
                     {
 					if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
 						&& property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)

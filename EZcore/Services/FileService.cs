@@ -15,9 +15,9 @@ namespace EZcore.Services
 
         public string SizeNotValid { get; set; }
         public string ExtensionNotValid { get; set; }
-        public string FileCreated { get; set; }
-        public string FileUpdated { get; set; }
-        public string FileDeleted { get; set; }
+        public string FilesCreated { get; set; }
+        public string FilesUpdated { get; set; }
+        public string FilesDeleted { get; set; }
 
         public bool IsExcelLicenseCommercial { get; set; }
 
@@ -27,12 +27,12 @@ namespace EZcore.Services
                 $"Geçersiz dosya boyutu, geçerli maksimum dosya boyutu: {MaximumSizeInMb} MB!";
             ExtensionNotValid = Lang == Lang.EN ? $"Invalid file extension, valid file extensions: {string.Join(", ", Extensions)}!" :
                $"Geçersiz dosya uzantısı, geçerli dosya uzantıları: {string.Join(", ", Extensions)}!";
-            FileCreated = Lang == Lang.EN ? "File created successfully." : "Dosya başarıyla oluşturuldu.";
-            FileUpdated = Lang == Lang.EN ? "File updated successfully." : "Dosya başarıyla güncellendi.";
-            FileDeleted = Lang == Lang.EN ? "File deleted successfully." : "Dosya başarıyla silindi.";
+            FilesCreated = Lang == Lang.EN ? "Files created successfully." : "Dosyalar başarıyla oluşturuldu.";
+            FilesUpdated = Lang == Lang.EN ? "Files updated successfully." : "Dosyalar başarıyla güncellendi.";
+            FilesDeleted = Lang == Lang.EN ? "Files deleted successfully." : "Dosyalar başarıyla silindi.";
         }
 
-        public virtual string Create(IFormFile formFile)
+        public virtual string Create(IFormFile formFile, int? order = null)
         {
             string filePath = null;
             string fileName;
@@ -41,18 +41,20 @@ namespace EZcore.Services
                 if (Validate(formFile).IsSuccessful)
                 {
                     fileName = Guid.NewGuid().ToString() + Path.GetExtension(formFile.FileName).ToLower();
+                    if (order.HasValue)
+                        fileName = order.Value.ToString().PadLeft(2, '0') + "_" + fileName;
                     filePath = Path.Combine("wwwroot", Folder, fileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         formFile.CopyTo(fileStream);
                     }
-                    Success(FileCreated);
+                    Success(FilesCreated);
                 }
             }
             return filePath?.Substring(7).Replace(@"\", "/");
         }
 
-        public virtual string Update(IFormFile formFile, string currentFilePath)
+        public virtual string Update(IFormFile formFile, string currentFilePath, int? order = null)
         {
             string filePath = string.IsNullOrWhiteSpace(currentFilePath) ? null : "wwwroot" + currentFilePath;
             string fileName;
@@ -60,14 +62,17 @@ namespace EZcore.Services
             {
                 if (Validate(formFile).IsSuccessful)
                 {
-                    Delete(currentFilePath);
+                    if (!string.IsNullOrWhiteSpace(currentFilePath))
+                        Delete(currentFilePath);
                     fileName = Guid.NewGuid().ToString() + Path.GetExtension(formFile.FileName).ToLower();
+                    if (order.HasValue)
+                        fileName = order.Value.ToString().PadLeft(2, '0') + "_" + fileName;
                     filePath = Path.Combine("wwwroot", Folder, fileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         formFile.CopyTo(fileStream);
                     }
-                    Success(FileUpdated);
+                    Success(FilesUpdated);
                 }
             }
             return filePath?.Substring(7).Replace(@"\", "/");
@@ -81,7 +86,7 @@ namespace EZcore.Services
                 if (File.Exists(currentFilePath))
                 {
                     File.Delete(currentFilePath);
-                    Success(FileDeleted);
+                    Success(FilesDeleted);
                 }
             }
         }
@@ -93,6 +98,68 @@ namespace EZcore.Services
             if (!Extensions.Contains(Path.GetExtension(formFile.FileName).ToLower()))
                 return Error(ExtensionNotValid);
             return Success();
+        }
+
+        public virtual List<string> Create(List<IFormFile> formFiles)
+        {
+            List<string> filePathList = null;
+            bool valid = false;
+            int order = 1;
+            if (formFiles is not null && formFiles.Any())
+            {
+                filePathList = new List<string>();
+                foreach (var formFile in formFiles)
+                {
+                    valid = Validate(formFile).IsSuccessful;
+                    if (!valid)
+                        break;
+                }
+                if (valid)
+                {
+                    foreach (var formFile in formFiles)
+                    {
+                        filePathList.Add(Create(formFile, order++));
+                    }
+                }
+            }
+            return filePathList;
+        }
+
+        public virtual List<string> Update(List<IFormFile> formFiles, List<string> currentFilePaths)
+        {
+            List<string> filePathList = currentFilePaths?.ToList();
+            bool valid = false;
+            int order = 1;
+            if (formFiles is not null && formFiles.Any())
+            {
+                filePathList = new List<string>();
+                foreach (var formFile in formFiles)
+                {
+                    valid = Validate(formFile).IsSuccessful;
+                    if (!valid)
+                        break;
+                }
+                if (valid)
+                {
+                    Delete(currentFilePaths);
+                    foreach (var formFile in formFiles)
+                    {
+                        filePathList.Add(Update(formFile, null, order++));
+                    }
+                }
+            }
+            return filePathList;
+        }
+
+        public virtual void Delete(List<string> currentFilePaths)
+        {
+            if (currentFilePaths is not null && currentFilePaths.Any())
+            {
+                foreach (var currentFilePath in currentFilePaths)
+                {
+                    Delete(currentFilePath);
+                }
+            }
         }
 
         public virtual void GetExcel<T>(List<T> list, string fileNameWithoutExtension = null)

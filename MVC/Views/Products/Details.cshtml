@@ -14,6 +14,9 @@
     var edit = lang == Lang.EN ? "Edit" : "Düzenle";
     var delete = lang == Lang.EN ? "Delete" : "Sil";
     var backToList = lang == Lang.EN ? "Back to List" : "Listeye Dön";
+    var deleteFile = lang == Lang.EN ? "Delete File" : "Dosya Sil";
+    var filesStyle = "height:370px;overflow-y:auto;overflow-x:hidden;";
+    var mainFileMessage = lang == Lang.EN ? "Other files must be deleted first!" : "Önce diğer dosyalar silinmelidir!";
 }
 @{
     ViewData["Title"] = $"{modelName} {details}";
@@ -63,20 +66,58 @@
             @Html.Raw(Model.Category)
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-2 fw-bold">
-            @Html.DisplayNameFor(model => model.MainFormFilePath, lang)
+    <hr />
+    <div style="@filesStyle">
+        <div class="row mb-3">
+            <div class="col-2 fw-bold">
+                @Html.DisplayNameFor(model => model.MainFormFilePath, lang)
+            </div>
+            @if (string.IsNullOrWhiteSpace(Model.Record.MainFilePath))
+            {
+            <div class="col-4">
+                <span><i class="bx bx-image" style="font-size:xx-large;"></i></span>
+            </div>
+            }
+            else
+            {
+            <div class="col-4">
+                <img src="@Model.Record.MainFilePath" class="img-fluid" />
+                <br />
+                <span class="text-danger mainfilemessage"></span>
+            </div>
+            <div class="col-6 text-end pe-12">
+                <a asp-action="DeleteFile" asp-route-id="@Model.Record.Id" asp-route-path="@Model.Record.MainFilePath" class="deletemainfile">@deleteFile</a>
+            </div>
+            }
         </div>
-        <div class="col-4">
-        @if (string.IsNullOrWhiteSpace(Model.Record.MainFilePath))
-        {
-            <span><i class="bx bx-image" style="font-size:xx-large;"></i></span>
-        }
-        else
-        {
-            <img src="@Model.Record.MainFilePath" class="img-fluid" />
-        }
-        </div>
+        <hr />
+        <div class="row mb-3">
+            <div class="col-2 fw-bold">
+                @Html.DisplayNameFor(model => model.OtherFormFilePaths, lang)
+            </div>
+            <div class="col-10">
+            @if (Model.Record.OtherFilePaths is not null && Model.Record.OtherFilePaths.Any())
+            {
+            foreach (var otherFilePath in Model.Record.OtherFilePaths)
+            {
+                <div class="row">
+                    <div class="col-4">
+                        <img src="@otherFilePath" class="img-fluid" />
+                        <input type="hidden" value="@otherFilePath" class="otherfiles" />
+                    </div>
+                    <div class="col-8 text-end pe-12">
+                        <a asp-action="DeleteFile" asp-route-id="@Model.Record.Id" asp-route-path="@otherFilePath">@deleteFile</a>
+                    </div>
+                </div>
+                <hr />
+            }
+            }
+            else
+            {
+                <span><i class="bx bx-image" style="font-size:xx-large;"></i></span>
+            }
+            </div>
+        </div> 
     </div>
 
 @* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. *@
@@ -99,4 +140,25 @@
 }
     <a asp-action="Index" asp-route-session="true">@backToList</a>
 </div>
+}
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('.deletemainfile').click(function (event) {
+                var preventEvent = false;
+                if ($('.mainfile').val() != '') {
+                    $('.otherfiles').each(function () {
+                        if ($(this).val() != '') {
+                            preventEvent = true;
+                        }
+                    });
+                }
+                if (preventEvent) {
+                    event.preventDefault();
+                    $('.mainfilemessage').text('@mainFileMessage');
+                }
+            });
+        });
+    </script>
 }

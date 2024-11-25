@@ -83,7 +83,7 @@
                             </div>
                         </a>
                     </li>
-                    @if (User.IsInRole("Admin,EZcodeAdmin"))
+                    @if (User.IsInRole("Admin") || User.IsInRole("EZcodeAdmin"))
                     {
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
