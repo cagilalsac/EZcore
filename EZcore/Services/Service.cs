@@ -76,13 +76,13 @@ namespace EZcore.Services
 
         protected TEntity Records(int id) => Records().SingleOrDefault(entity => entity.Id == id);
 
-		/// <summary>
-		/// Must be added by related entity property names, seperated by a space character for multiple words if any, and the relevant Turkish expressions. 
-		/// Turkish characters will be replaced with corresponding English characters. 
-		/// </summary>
-		/// <param name="entityPropertyName"></param>
-		/// <param name="expressionTR"></param>
-		protected void AddPageOrderExpression(string entityPropertyName, string expressionTR = "")
+        /// <summary>
+        /// Must be added by related entity property names, seperated by a space character for multiple words if any, and the relevant Turkish expressions. 
+        /// Turkish characters will be replaced with corresponding English characters. 
+        /// </summary>
+        /// <param name="entityPropertyName"></param>
+        /// <param name="expressionTR"></param>
+        protected void AddPageOrderExpression(string entityPropertyName, string expressionTR = "")
         {
             var descKey = "DESC";
             var descValue = Lang == Lang.TR ? "Azalan" : "Descending";
@@ -289,7 +289,7 @@ namespace EZcore.Services
                 {
                     var fileEntity = model.Record as IFile;
                     fileEntity.MainFilePath = filePath;
-                    var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
+                    var filePaths = _fileService.Create(fileModel.OtherFormFilePaths, 0);
                     if (_fileService.IsSuccessful)
                         fileEntity.OtherFilePaths = filePaths;
                     else
@@ -321,11 +321,27 @@ namespace EZcore.Services
                     if (_fileService.IsSuccessful)
                     {
                         fileEntity.MainFilePath = filePath;
-                        var filePaths = _fileService.Update(fileModel.OtherFormFilePaths, fileEntity.OtherFilePaths);
+                        var fileRecord = record as IFile;
+                        var order = 0;
+                        if (fileRecord.OtherFilePaths is not null && fileRecord.OtherFilePaths.Any())
+                        {
+                            var lastOtherFilePath = fileRecord.OtherFilePaths.Order().Last();
+                            var lastOtherFileName = Path.GetFileName(lastOtherFilePath);
+                            order = Convert.ToInt32(lastOtherFileName.Split('-')[0]);
+                        }
+                        var filePaths = _fileService.Create(fileModel.OtherFormFilePaths, order);
                         if (_fileService.IsSuccessful)
-                            fileEntity.OtherFilePaths = filePaths;
+                        {
+                            if (filePaths is not null && filePaths.Any())
+                            {
+                                fileEntity.OtherFilePaths = fileEntity.OtherFilePaths ?? new List<string>();
+                                fileEntity.OtherFilePaths.AddRange(filePaths);
+                            }
+                        }
                         else
+                        {
                             Error(_fileService.Message);
+                        }
                     }
                     else
                     {

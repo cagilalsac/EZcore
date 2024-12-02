@@ -42,7 +42,7 @@ namespace EZcore.Services
                 {
                     fileName = Guid.NewGuid().ToString() + Path.GetExtension(formFile.FileName).ToLower();
                     if (order.HasValue)
-                        fileName = order.Value.ToString().PadLeft(2, '0') + "_" + fileName;
+                        fileName = order.Value.ToString().PadLeft(2, '0') + "-" + fileName;
                     filePath = Path.Combine("wwwroot", Folder, fileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
@@ -66,7 +66,7 @@ namespace EZcore.Services
                         Delete(currentFilePath);
                     fileName = Guid.NewGuid().ToString() + Path.GetExtension(formFile.FileName).ToLower();
                     if (order.HasValue)
-                        fileName = order.Value.ToString().PadLeft(2, '0') + "_" + fileName;
+                        fileName = order.Value.ToString().PadLeft(2, '0') + "-" + fileName;
                     filePath = Path.Combine("wwwroot", Folder, fileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
@@ -100,11 +100,10 @@ namespace EZcore.Services
             return Success();
         }
 
-        public virtual List<string> Create(List<IFormFile> formFiles)
+        public virtual List<string> Create(List<IFormFile> formFiles, int order)
         {
             List<string> filePathList = null;
             bool valid = false;
-            int order = 1;
             if (formFiles is not null && formFiles.Any())
             {
                 filePathList = new List<string>();
@@ -118,33 +117,7 @@ namespace EZcore.Services
                 {
                     foreach (var formFile in formFiles)
                     {
-                        filePathList.Add(Create(formFile, order++));
-                    }
-                }
-            }
-            return filePathList;
-        }
-
-        public virtual List<string> Update(List<IFormFile> formFiles, List<string> currentFilePaths)
-        {
-            List<string> filePathList = currentFilePaths?.ToList();
-            bool valid = false;
-            int order = 1;
-            if (formFiles is not null && formFiles.Any())
-            {
-                filePathList = new List<string>();
-                foreach (var formFile in formFiles)
-                {
-                    valid = Validate(formFile).IsSuccessful;
-                    if (!valid)
-                        break;
-                }
-                if (valid)
-                {
-                    Delete(currentFilePaths);
-                    foreach (var formFile in formFiles)
-                    {
-                        filePathList.Add(Update(formFile, null, order++));
+                        filePathList.Add(Create(formFile, ++order));
                     }
                 }
             }
