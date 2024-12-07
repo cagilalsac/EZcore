@@ -157,7 +157,7 @@ namespace MVC.Controllers
         public IActionResult DeleteFile(int id)
         {
             // Delete file logic:
-            _categoryService.DeleteFile(id);
+            _categoryService.DeleteFiles(id);
 
             Message = _categoryService.Message;
             return RedirectToAction(nameof(Details), new { id });

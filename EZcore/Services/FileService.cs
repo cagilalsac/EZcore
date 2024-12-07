@@ -32,7 +32,7 @@ namespace EZcore.Services
             FilesDeleted = Lang == Lang.EN ? "Files deleted successfully." : "Dosyalar başarıyla silindi.";
         }
 
-        public virtual string Create(IFormFile formFile, int? order = null)
+        public virtual string Create(IFormFile formFile)
         {
             string filePath = null;
             string fileName;
@@ -41,8 +41,6 @@ namespace EZcore.Services
                 if (Validate(formFile).IsSuccessful)
                 {
                     fileName = Guid.NewGuid().ToString() + Path.GetExtension(formFile.FileName).ToLower();
-                    if (order.HasValue)
-                        fileName = order.Value.ToString().PadLeft(2, '0') + "-" + fileName;
                     filePath = Path.Combine("wwwroot", Folder, fileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
@@ -54,7 +52,7 @@ namespace EZcore.Services
             return filePath?.Substring(7).Replace(@"\", "/");
         }
 
-        public virtual string Update(IFormFile formFile, string currentFilePath, int? order = null)
+        public virtual string Update(IFormFile formFile, string currentFilePath)
         {
             string filePath = string.IsNullOrWhiteSpace(currentFilePath) ? null : "wwwroot" + currentFilePath;
             string fileName;
@@ -65,8 +63,6 @@ namespace EZcore.Services
                     if (!string.IsNullOrWhiteSpace(currentFilePath))
                         Delete(currentFilePath);
                     fileName = Guid.NewGuid().ToString() + Path.GetExtension(formFile.FileName).ToLower();
-                    if (order.HasValue)
-                        fileName = order.Value.ToString().PadLeft(2, '0') + "-" + fileName;
                     filePath = Path.Combine("wwwroot", Folder, fileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
@@ -100,7 +96,7 @@ namespace EZcore.Services
             return Success();
         }
 
-        public virtual List<string> Create(List<IFormFile> formFiles, int order)
+        public virtual List<string> Create(List<IFormFile> formFiles)
         {
             List<string> filePathList = null;
             bool valid = false;
@@ -117,7 +113,7 @@ namespace EZcore.Services
                 {
                     foreach (var formFile in formFiles)
                     {
-                        filePathList.Add(Create(formFile, ++order));
+                        filePathList.Add(Create(formFile));
                     }
                 }
             }

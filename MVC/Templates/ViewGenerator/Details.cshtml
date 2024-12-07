@@ -209,7 +209,7 @@ if (mainFileFound)
                 @:}
                 @:if (preventEvent) {
                     @:event.preventDefault();
-                    @:$('.mainfilemessage').text('@@mainFileMessage');
+                    @:$('.mainfilemessage').text('@@Html.Raw(mainFileMessage)');
                 @:}
             @:});
         @:});

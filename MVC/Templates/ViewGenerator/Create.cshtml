@@ -188,7 +188,7 @@ if (mainFileFound)
             @:$('button[type="submit"]').click(function (event) {
                 @:if ($('.otherfiles').val() && !$('.mainfile').val()) {
                     @:event.preventDefault();
-                    @:$('.mainfilemessage').text('@@mainFileMessage');
+                    @:$('.mainfilemessage').text('@@Html.Raw(mainFileMessage)');
                 @:}
             @:});
         @:});

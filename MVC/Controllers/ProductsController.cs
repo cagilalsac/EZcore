@@ -166,7 +166,7 @@ namespace MVC.Controllers
         public IActionResult DeleteFile(int id, string path = null)
         {
             // Delete file logic:
-            _productService.DeleteFile(id, path);
+            _productService.DeleteFiles(id, path);
 
             Message = _productService.Message;
             return RedirectToAction(nameof(Details), new { id });

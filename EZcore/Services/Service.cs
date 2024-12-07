@@ -116,7 +116,16 @@ namespace EZcore.Services
                     pageOrder.OrderExpression = pageOrder.OrderExpressions.FirstOrDefault().Key;
                 list = Records().AsNoTracking().OrderBy(pageOrder).Paginate(pageOrder).Select(entity => new TModel() { Record = entity }).ToList();
                 if (pageOrder.TotalRecordsCount > 0)
+                {
+                    if (list.First() is IFileModel)
+                    {
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            UpdateOtherFilePaths((list[i].Record as IFile).OtherFilePaths);
+                        }
+                    }
                     Success($"{pageOrder.TotalRecordsCount} {(pageOrder.TotalRecordsCount == 1 ? RecordFound : RecordsFound)}");
+                }
                 if (!Api)
                     _httpService.SetSession(nameof(PageOrder), pageOrder);
             }
@@ -126,7 +135,16 @@ namespace EZcore.Services
                     pageOrder.PageNumber = 0;
                 list = Records().AsNoTracking().Select(entity => new TModel() { Record = entity }).ToList();
                 if (list.Any())
+                {
+                    if (list.First() is IFileModel)
+                    {
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            UpdateOtherFilePaths((list[i].Record as IFile).OtherFilePaths);
+                        }
+                    }
                     Success($"{list.Count} {(list.Count == 1 ? RecordFound : RecordsFound)}");
+                }
             }
             return list;
         }
@@ -136,6 +154,8 @@ namespace EZcore.Services
             var item = Records().Select(entity => new TModel() { Record = entity }).SingleOrDefault(model => model.Record.Id == id);
             if (item is null)
                 Error(RecordNotFound);
+            if (item is IFileModel)
+                UpdateOtherFilePaths((item.Record as IFile).OtherFilePaths);
             return item;
         }
 
@@ -153,7 +173,7 @@ namespace EZcore.Services
         {
             if (!IsSuccessful)
                 return;
-            if (!CreateFile(model))
+            if (!CreateFiles(model))
                 return;
             if (_hasGuidProperty)
             {
@@ -177,7 +197,7 @@ namespace EZcore.Services
         {
             if (!IsSuccessful)
                 return;
-            if (!UpdateFile(model))
+            if (!UpdateFiles(model))
                 return;
             if (_hasModifiedByProperty)
             {
@@ -226,7 +246,7 @@ namespace EZcore.Services
             }
             else
             {
-                DeleteFile(record);
+                DeleteFiles(record);
                 _db.Set<TEntity>().Remove(record);
             }
             Success(RecordNotSaved);
@@ -278,7 +298,7 @@ namespace EZcore.Services
             return _db.SaveChanges();
         }
 
-        public virtual bool CreateFile(TModel model)
+        public virtual bool CreateFiles(TModel model)
         {
             if (model is IFileModel)
             {
@@ -289,11 +309,16 @@ namespace EZcore.Services
                 {
                     var fileEntity = model.Record as IFile;
                     fileEntity.MainFilePath = filePath;
-                    var filePaths = _fileService.Create(fileModel.OtherFormFilePaths, 0);
+                    var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
                     if (_fileService.IsSuccessful)
+                    {
+                        UpdateOtherFilePaths(filePaths, 1);
                         fileEntity.OtherFilePaths = filePaths;
+                    }
                     else
+                    {
                         Error(_fileService.Message);
+                    }
                 }
                 else
                 {
@@ -303,7 +328,31 @@ namespace EZcore.Services
             return IsSuccessful;
         }
 
-        public virtual bool UpdateFile(TModel model)
+        private void UpdateOtherFilePaths(List<string> filePaths, int orderInitialValue, int paddingTotalWidth = 2)
+        {
+            if (filePaths is not null && filePaths.Any())
+            {
+                for (int i = 0; i < filePaths.Count; i++)
+                {
+                    filePaths[i] = "/" + filePaths[i].Split('/')[1] + "/" +
+                        orderInitialValue++.ToString().PadLeft(paddingTotalWidth, '0') +
+                        "_" + filePaths[i].Split('/')[2];
+                }
+            }
+        }
+
+        private void UpdateOtherFilePaths(List<string> filePaths)
+        {
+            if (filePaths is not null && filePaths.Any())
+            {
+                for (int i = 0; i < filePaths.Count; i++)
+                {
+                    filePaths[i] = "/" + filePaths[i].Split('/')[1] + "/" + filePaths[i].Split('/')[2].Split('_')[1];
+                }
+            }
+        }
+
+        public virtual bool UpdateFiles(TModel model)
         {
             if (model is IFileModel)
             {
@@ -322,18 +371,19 @@ namespace EZcore.Services
                     {
                         fileEntity.MainFilePath = filePath;
                         var fileRecord = record as IFile;
-                        var order = 0;
+                        var orderInitialValue = 1;
                         if (fileRecord.OtherFilePaths is not null && fileRecord.OtherFilePaths.Any())
                         {
                             var lastOtherFilePath = fileRecord.OtherFilePaths.Order().Last();
                             var lastOtherFileName = Path.GetFileName(lastOtherFilePath);
-                            order = Convert.ToInt32(lastOtherFileName.Split('-')[0]);
+                            orderInitialValue = Convert.ToInt32(lastOtherFileName.Split('_')[0]) + 1;
                         }
-                        var filePaths = _fileService.Create(fileModel.OtherFormFilePaths, order);
+                        var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
                         if (_fileService.IsSuccessful)
                         {
                             if (filePaths is not null && filePaths.Any())
                             {
+                                UpdateOtherFilePaths(filePaths, orderInitialValue);
                                 fileEntity.OtherFilePaths = fileEntity.OtherFilePaths ?? new List<string>();
                                 fileEntity.OtherFilePaths.AddRange(filePaths);
                             }
@@ -352,7 +402,7 @@ namespace EZcore.Services
             return IsSuccessful;
         }
 
-        protected void DeleteFile(TEntity record, string path = null)
+        protected void DeleteFiles(TEntity record, string path = null)
         {
             if (record is IFile)
             {
@@ -373,14 +423,18 @@ namespace EZcore.Services
                 else
                 {
                     _fileService.Delete(path);
-                    fileEntity.OtherFilePaths?.Remove(path);
+                    path = fileEntity.OtherFilePaths.Single(otherFilePath => 
+                        "/" + otherFilePath.Split('/')[1] + "/" + otherFilePath.Split('/')[2].Split('_')[1] == path);
+                    fileEntity.OtherFilePaths.Remove(path);
+                    if (!fileEntity.OtherFilePaths.Any())
+                        fileEntity.OtherFilePaths = null;
                 }
                 _db.Set<TEntity>().Update(record);
                 Success(_fileService.FilesDeleted);
             }
         }
 
-        public virtual void DeleteFile(int id, string path = null)
+        public virtual void DeleteFiles(int id, string path = null)
         {
             var record = _db.Set<TEntity>().Find(id);
             if (record is null)
@@ -389,7 +443,7 @@ namespace EZcore.Services
             }
             else
             {
-                DeleteFile(record, path);
+                DeleteFiles(record, path);
                 _db.SaveChanges();
             }
         }
