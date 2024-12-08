@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BLL.Migrations
 {
     [DbContext(typeof(Db))]
-    [Migration("20241124081820_v1")]
+    [Migration("20241208091114_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -116,9 +116,6 @@ namespace BLL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Guid")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProductId")
@@ -253,9 +250,6 @@ namespace BLL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Guid")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoleId")

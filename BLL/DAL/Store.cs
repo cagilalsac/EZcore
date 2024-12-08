@@ -6,11 +6,11 @@ using System.Text.Json.Serialization;
 
 namespace BLL.DAL
 {
-	public class Store : Record
+	public class Store : Record, IName
     {
 		[Required]
 		[StringLength(200, MinimumLength = 5)]
-		public override string Name { get => base.Name; set => base.Name = value; }
+		public string Name { get; set; }
 
         public bool IsVirtual { get; set; }
 

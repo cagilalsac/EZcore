@@ -5,11 +5,11 @@ using System.Text.Json.Serialization;
 
 namespace EZcore.DAL.Users
 {
-    public class Role : Record, ISoftDelete, IModifiedBy
+    public class Role : Record, IName, ISoftDelete, IModifiedBy
     {
         [Required]
         [StringLength(50)]
-        public override string Name { get => base.Name; set => base.Name = value; }
+        public string Name { get; set; }
 
         [JsonIgnore]
         public List<UserRole> UserRoles { get; private set; } = new List<UserRole>();

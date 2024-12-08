@@ -161,10 +161,14 @@ namespace EZcore.Services
 
         public virtual ServiceBase Validate(TModel model)
         {
-            if (Records().Any(entity => entity.Id != model.Record.Id &&
-                EF.Functions.Collate(entity.Name, Collation) == EF.Functions.Collate(model.Record.Name ?? "", Collation).Trim()))
+            if (model.Record is IName)
             {
-                return Error(RecordWithSameNameExists);
+                var record = model.Record as IName;
+                if (Records().Any(entity => entity.Id != model.Record.Id &&
+                    EF.Functions.Collate((entity as IName).Name, Collation) == EF.Functions.Collate(record.Name ?? "", Collation).Trim()))
+                {
+                    return Error(RecordWithSameNameExists);
+                }
             }
             return Success();
         }
@@ -336,7 +340,7 @@ namespace EZcore.Services
                 {
                     filePaths[i] = "/" + filePaths[i].Split('/')[1] + "/" +
                         orderInitialValue++.ToString().PadLeft(paddingTotalWidth, '0') +
-                        "_" + filePaths[i].Split('/')[2];
+                        "/" + filePaths[i].Split('/')[2];
                 }
             }
         }
@@ -347,7 +351,7 @@ namespace EZcore.Services
             {
                 for (int i = 0; i < filePaths.Count; i++)
                 {
-                    filePaths[i] = "/" + filePaths[i].Split('/')[1] + "/" + filePaths[i].Split('/')[2].Split('_')[1];
+                    filePaths[i] = "/" + filePaths[i].Split('/')[1] + "/" + filePaths[i].Split('/')[3];
                 }
             }
         }
@@ -375,8 +379,7 @@ namespace EZcore.Services
                         if (fileRecord.OtherFilePaths is not null && fileRecord.OtherFilePaths.Any())
                         {
                             var lastOtherFilePath = fileRecord.OtherFilePaths.Order().Last();
-                            var lastOtherFileName = Path.GetFileName(lastOtherFilePath);
-                            orderInitialValue = Convert.ToInt32(lastOtherFileName.Split('_')[0]) + 1;
+                            orderInitialValue = Convert.ToInt32(lastOtherFilePath.Split('/')[2]) + 1;
                         }
                         var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
                         if (_fileService.IsSuccessful)
@@ -423,11 +426,14 @@ namespace EZcore.Services
                 else
                 {
                     _fileService.Delete(path);
-                    path = fileEntity.OtherFilePaths.Single(otherFilePath => 
-                        "/" + otherFilePath.Split('/')[1] + "/" + otherFilePath.Split('/')[2].Split('_')[1] == path);
-                    fileEntity.OtherFilePaths.Remove(path);
-                    if (!fileEntity.OtherFilePaths.Any())
-                        fileEntity.OtherFilePaths = null;
+                    path = fileEntity.OtherFilePaths.SingleOrDefault(otherFilePath => 
+                        "/" + otherFilePath.Split('/')[1] + "/" + otherFilePath.Split('/')[3] == path);
+                    if (!string.IsNullOrWhiteSpace(path))
+                    {
+                        fileEntity.OtherFilePaths.Remove(path);
+                        if (!fileEntity.OtherFilePaths.Any())
+                            fileEntity.OtherFilePaths = null;
+                    }
                 }
                 _db.Set<TEntity>().Update(record);
                 Success(_fileService.FilesDeleted);

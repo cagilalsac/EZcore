@@ -7,11 +7,11 @@ using System.Text.Json.Serialization;
 
 namespace BLL.DAL
 {
-    public class Product : Record, ISoftDelete, IModifiedBy, IFile
+    public class Product : Record, IName, ISoftDelete, IModifiedBy, IFile
     {
         [Required]
         [StringLength(150)]
-        public override string Name { get => base.Name; set => base.Name = value; }
+        public string Name { get; set; }
 
         [Required]
         public decimal? UnitPrice { get; set; }

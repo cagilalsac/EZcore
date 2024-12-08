@@ -8,9 +8,6 @@ namespace EZcore.DAL.Users
 {
     public class User : Record, ISoftDelete, IModifiedBy
     {
-        [NotMapped, Obsolete]
-        public override string Name { get => base.Name; set => base.Name = value; }
-
         [Required]
         [StringLength(30, MinimumLength = 3)]
         public string UserName { get; set; }

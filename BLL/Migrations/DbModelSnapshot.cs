@@ -115,9 +115,6 @@ namespace BLL.Migrations
                     b.Property<string>("Guid")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -250,9 +247,6 @@ namespace BLL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Guid")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoleId")

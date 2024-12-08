@@ -6,11 +6,11 @@ using System.Text.Json.Serialization;
 
 namespace BLL.DAL
 {
-    public class Category : Record
+    public class Category : Record, IName
     {
         [Required]
         [StringLength(100)]
-        public override string Name { get => base.Name; set => base.Name = value; }
+        public string Name { get; set; }
 
         public string Description { get; set; }
 
