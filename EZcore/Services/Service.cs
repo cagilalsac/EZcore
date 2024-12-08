@@ -302,34 +302,16 @@ namespace EZcore.Services
             return _db.SaveChanges();
         }
 
-        public virtual bool CreateFiles(TModel model)
+        protected virtual ServiceBase ValidateOtherFiles(IFileModel fileModel, IFile fileEntity = null, byte maximumOtherFilesCount = 25)
         {
-            if (model is IFileModel)
-            {
-                var fileModel = model as IFileModel;
-                _fileService = new FileService(_httpService);
-                var filePath = _fileService.Create(fileModel.MainFormFilePath);
-                if (_fileService.IsSuccessful)
-                {
-                    var fileEntity = model.Record as IFile;
-                    fileEntity.MainFilePath = filePath;
-                    var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
-                    if (_fileService.IsSuccessful)
-                    {
-                        UpdateOtherFilePaths(filePaths, 1);
-                        fileEntity.OtherFilePaths = filePaths;
-                    }
-                    else
-                    {
-                        Error(_fileService.Message);
-                    }
-                }
-                else
-                {
-                    Error(_fileService.Message);
-                }
-            }
-            return IsSuccessful;
+            var otherFilesCount = 0;
+            if (fileModel.OtherFormFilePaths is not null)
+                otherFilesCount += fileModel.OtherFormFilePaths.Count;
+            if (fileEntity is not null && fileEntity.OtherFilePaths is not null)
+                otherFilesCount += fileEntity.OtherFilePaths.Count;
+            if (otherFilesCount > maximumOtherFilesCount)
+                return Error(Lang == Lang.TR ? $"Diğer dosya sayısı maksimum {maximumOtherFilesCount} olmalıdır!" : $"Other files count must be maximum {maximumOtherFilesCount}!");
+            return Success();
         }
 
         private void UpdateOtherFilePaths(List<string> filePaths, int orderInitialValue, int paddingTotalWidth = 2)
@@ -356,6 +338,39 @@ namespace EZcore.Services
             }
         }
 
+        public virtual bool CreateFiles(TModel model)
+        {
+            if (model is IFileModel)
+            {
+                var fileModel = model as IFileModel;
+                if (ValidateOtherFiles(fileModel).IsSuccessful)
+                {
+                    _fileService = new FileService(_httpService);
+                    var filePath = _fileService.Create(fileModel.MainFormFilePath);
+                    if (_fileService.IsSuccessful)
+                    {
+                        var fileEntity = model.Record as IFile;
+                        fileEntity.MainFilePath = filePath;
+                        var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
+                        if (_fileService.IsSuccessful)
+                        {
+                            UpdateOtherFilePaths(filePaths, 1);
+                            fileEntity.OtherFilePaths = filePaths;
+                        }
+                        else
+                        {
+                            Error(_fileService.Message);
+                        }
+                    }
+                    else
+                    {
+                        Error(_fileService.Message);
+                    }
+                }
+            }
+            return IsSuccessful;
+        }
+
         public virtual bool UpdateFiles(TModel model)
         {
             if (model is IFileModel)
@@ -369,36 +384,39 @@ namespace EZcore.Services
                 {
                     var fileModel = model as IFileModel;
                     var fileEntity = model.Record as IFile;
-                    _fileService = new FileService(_httpService);
-                    var filePath = _fileService.Update(fileModel.MainFormFilePath, fileEntity.MainFilePath);
-                    if (_fileService.IsSuccessful)
+                    if (ValidateOtherFiles(fileModel, fileEntity).IsSuccessful)
                     {
-                        fileEntity.MainFilePath = filePath;
-                        var fileRecord = record as IFile;
-                        var orderInitialValue = 1;
-                        if (fileRecord.OtherFilePaths is not null && fileRecord.OtherFilePaths.Any())
-                        {
-                            var lastOtherFilePath = fileRecord.OtherFilePaths.Order().Last();
-                            orderInitialValue = Convert.ToInt32(lastOtherFilePath.Split('/')[2]) + 1;
-                        }
-                        var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
+                        _fileService = new FileService(_httpService);
+                        var filePath = _fileService.Update(fileModel.MainFormFilePath, fileEntity.MainFilePath);
                         if (_fileService.IsSuccessful)
                         {
-                            if (filePaths is not null && filePaths.Any())
+                            fileEntity.MainFilePath = filePath;
+                            var fileRecord = record as IFile;
+                            var orderInitialValue = 1;
+                            if (fileRecord.OtherFilePaths is not null && fileRecord.OtherFilePaths.Any())
                             {
-                                UpdateOtherFilePaths(filePaths, orderInitialValue);
-                                fileEntity.OtherFilePaths = fileEntity.OtherFilePaths ?? new List<string>();
-                                fileEntity.OtherFilePaths.AddRange(filePaths);
+                                var lastOtherFilePath = fileRecord.OtherFilePaths.Order().Last();
+                                orderInitialValue = Convert.ToInt32(lastOtherFilePath.Split('/')[2]) + 1;
+                            }
+                            var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
+                            if (_fileService.IsSuccessful)
+                            {
+                                if (filePaths is not null && filePaths.Any())
+                                {
+                                    UpdateOtherFilePaths(filePaths, orderInitialValue);
+                                    fileEntity.OtherFilePaths = fileEntity.OtherFilePaths ?? new List<string>();
+                                    fileEntity.OtherFilePaths.AddRange(filePaths);
+                                }
+                            }
+                            else
+                            {
+                                Error(_fileService.Message);
                             }
                         }
                         else
                         {
                             Error(_fileService.Message);
                         }
-                    }
-                    else
-                    {
-                        Error(_fileService.Message);
                     }
                 }
             }
