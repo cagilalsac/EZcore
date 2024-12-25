@@ -20,9 +20,9 @@ namespace BLL.Models
         [Ignore]
         public string StockAmount => Record.StockAmount.HasValue ?
             ("<span class=" +
-                (Record.StockAmount.Value < 10 ? "\"badge bg-danger\">"
-                : Record.StockAmount.Value < 100 ? "\"badge bg-warning\">"
-                : "\"badge bg-success\">") + Record.StockAmount.Value + "</span>")
+                (Record.StockAmount.Value < 10 ? "'badge bg-danger'>"
+                : Record.StockAmount.Value < 100 ? "'badge bg-warning'>"
+                : "'badge bg-success'>") + Record.StockAmount.Value + "</span>")
             : string.Empty;
 
         [DisplayName("Son Kullanma Tarihi", "Expiration Date")]
@@ -37,16 +37,20 @@ namespace BLL.Models
 
         [DisplayName("Ana Dosya", "Main File")]
         [Ignore]
-        public IFormFile MainFormFilePath { get; set; }
+        public IFormFile MainFormFile { get; set; }
 
         [DisplayName("Diğer Dosyalar", "Other Files")]
         [Ignore]
-        public List<IFormFile> OtherFormFilePaths { get; set; }
+        public List<IFormFile> OtherFormFiles { get; set; }
 
         [DisplayName("Stok Miktarı", "Stock Amount")]
         public string StockAmountExcel => Record.StockAmount.HasValue ? Record.StockAmount.Value.ToString() : "";
 
         [DisplayName("Mağazalar", "Stores")]
         public string StoresExcel => string.Join(", ", Record.ProductStores?.OrderBy(ps => ps.Store?.Name).Select(ps => ps.Store?.Name));
+
+        [DisplayName("Birim Fiyatı Yazı", "Unit Price Text")]
+        [Ignore]
+        public string UnitPriceText { get; set; }
     }
 }

@@ -1,23 +1,18 @@
 ﻿@using EZcore.Extensions
+@using EZcore.Models.Users
 
-@model StoreModel
-
-@* Generated from EZcore Template. *@
-@* Model namespace using directive should be added to _ViewImports.cshtml. *@
+@model RoleModel
 
 @{
     // ViewData:
     var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
     var modelName = ViewData["ViewModelName"];
     var containerDivClass = "container-fluid"; // "container" can be used for not full width
-    var dateTimePickerClass = "datepicker"; // "datetimepicker" can be used for date with time
     var edit = lang == Lang.EN ? "Edit" : "Düzenle";
     var delete = lang == Lang.EN ? "Delete" : "Sil";
-    var select = lang == Lang.EN ? "-- Select --" : "-- Seçiniz --";
     var save = lang == Lang.EN ? "Save" : "Kaydet";
     var clear = lang == Lang.EN ? "Clear" : "Temizle";
     var backToList = lang == Lang.EN ? "Back to List" : "Listeye Dön";
-    var deleteFile = lang == Lang.EN ? "Delete File" : "Dosya Sil";
 }
 @{
     ViewData["Title"] = $"{modelName} {edit}";
@@ -26,7 +21,7 @@
 {
 <div class="@containerDivClass">
     <partial name="_EZMessage" />
-    <form asp-action="Edit" autocomplete="off" enctype="multipart/form-data">
+    <form asp-action="CreateEdit" autocomplete="off" enctype="multipart/form-data">
 	    @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row mb-3">
@@ -36,24 +31,7 @@
 		        <validation asp-for="Record.Name" asp-lang="@lang" class="text-danger"></validation>
 	        </div>
         </div>
-        <div class="row mb-3">
-		    <displayname asp-for="IsVirtual" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
-		    <div class="col-10 pt-2">
-			    <input class="form-check-input" asp-for="Record.IsVirtual" />
-            </div>
-        </div>
         <input type="hidden" asp-for="Record.Id" />
-
-@* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. *@
-        @*
-        <div class="row mb-3">
-            <displayname asp-for="{Entity}s" asp-lang="@lang" class="col-2 col-form-label fw-bold"></displayname>
-	        <div class="col-10">
-		        <select multiple asp-for="Record.{Entity}s" class="form-select select2" asp-items="ViewBag.{Entity}s"></select>
-                <validation asp-for="Record.{Entity}s" asp-lang="@lang" class="text-danger"></validation>
-	        </div>
-        </div>
-        *@
 
         <hr />
         <div class="row mb-3">
@@ -61,12 +39,7 @@
                 <button type="submit" class="btn btn-primary">@save</button>
 		        &nbsp;&nbsp;
                 <button type="reset" class="btn btn-outline-primary">@clear</button>
-            @if (User.Identity.IsAuthenticated)
-            {
-		        @:&nbsp;&nbsp;
-                <a asp-action="Delete" asp-route-id="@Model.Record.Id">@delete</a>
-                @:&nbsp;|&nbsp;
-            }
+		        &nbsp;&nbsp;
 		        <a asp-action="Index" asp-route-session="true">@backToList</a>
 	        </div>
         </div>

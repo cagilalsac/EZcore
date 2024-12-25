@@ -10,22 +10,25 @@ namespace EZcore.Services
 {
     public abstract class Service<TEntity, TModel> : ServiceBase, IDisposable where TEntity : Record, new() where TModel : Model<TEntity>, new()
     {
-        private readonly PropertyInfo _guidProperty = typeof(TEntity).GetProperty(nameof(Record.Guid));
-        private readonly PropertyInfo _isDeletedProperty = typeof(TEntity).GetProperty(nameof(ISoftDelete.IsDeleted));
-        private readonly PropertyInfo _createDateProperty = typeof(TEntity).GetProperty(nameof(IModifiedBy.CreateDate));
-        private readonly PropertyInfo _createdByProperty = typeof(TEntity).GetProperty(nameof(IModifiedBy.CreatedBy));
-        private readonly PropertyInfo _updateDateProperty = typeof(TEntity).GetProperty(nameof(IModifiedBy.UpdateDate));
-        private readonly PropertyInfo _updatedByProperty = typeof(TEntity).GetProperty(nameof(IModifiedBy.UpdatedBy));
+        private readonly PropertyInfo _guidProperty = ObjectExtensions.GetPropertyInfo<TEntity>(nameof(Record.Guid));
+        private readonly PropertyInfo _nameProperty = ObjectExtensions.GetPropertyInfo<TEntity>(nameof(IName.Name));
+        private readonly PropertyInfo _isDeletedProperty = ObjectExtensions.GetPropertyInfo<TEntity>(nameof(ISoftDelete.IsDeleted));
+        private readonly PropertyInfo _createDateProperty = ObjectExtensions.GetPropertyInfo<TEntity>(nameof(IModifiedBy.CreateDate));
+        private readonly PropertyInfo _createdByProperty = ObjectExtensions.GetPropertyInfo<TEntity>(nameof(IModifiedBy.CreatedBy));
+        private readonly PropertyInfo _updateDateProperty = ObjectExtensions.GetPropertyInfo<TEntity>(nameof(IModifiedBy.UpdateDate));
+        private readonly PropertyInfo _updatedByProperty = ObjectExtensions.GetPropertyInfo<TEntity>(nameof(IModifiedBy.UpdatedBy));
+        private readonly PropertyInfo _mainFilePathProperty = ObjectExtensions.GetPropertyInfo<TEntity>(nameof(IFile.MainFilePath));
+        private readonly PropertyInfo _otherFilePathsProperty = ObjectExtensions.GetPropertyInfo<TEntity>(nameof(IFile.OtherFilePaths));
 
-        private bool _hasGuidProperty => _guidProperty is not null;
-        private bool _hasIsDeletedProperty => _isDeletedProperty is not null;
-        private bool _hasModifiedByProperty => _createDateProperty is not null && _createdByProperty is not null &&
+        private bool _hasGuid => _guidProperty is not null;
+        private bool _hasName => _nameProperty is not null;
+        private bool _hasFile => _mainFilePathProperty is not null && _otherFilePathsProperty is not null;
+        private bool _hasIsDeleted => _isDeletedProperty is not null;
+        private bool _hasModifiedBy => _createDateProperty is not null && _createdByProperty is not null &&
             _updateDateProperty is not null && _updatedByProperty is not null;
 
         private Dictionary<string, string> _pageOrderExpressions = new Dictionary<string, string>();
         private string _pageOrderExpression;
-
-        protected FileServiceBase _fileService;
 
         protected virtual string Collation => "Turkish_CI_AS";
 
@@ -47,7 +50,7 @@ namespace EZcore.Services
                 base.Lang = value;
                 RecordNotFound = Lang == Lang.TR ? "Kayıt bulunamadı!" : "Record not found!";
                 RecordWithSameNameExists = Lang == Lang.TR ? "Aynı ada sahip kayıt bulunmaktadır!" : "Record with the same name exists!";
-                RelationalRecordsFound = Lang == Lang.TR ? "İlişkili kayıtlar bulunmaktadır!" : "Related records found!";
+                RelationalRecordsFound = Lang == Lang.TR ? "İlişkili kayıtlar bulunmaktadır!" : "Relational records found!";
                 RecordFound = Lang == Lang.TR ? "kayıt bulundu." : "record found.";
                 RecordsFound = Lang == Lang.TR ? "kayıt bulundu." : "records found.";
                 RecordCreated = Lang == Lang.TR ? "Kayıt başarıyla oluşturuldu." : "Record created successfully.";
@@ -57,28 +60,20 @@ namespace EZcore.Services
             }
         }
 
-        public bool UsePageOrder { get; set; }
-        public string ExcelFileNameWithoutExtension { get; set; }
+        protected virtual bool ViewPageOrder { get; }
 
-        protected readonly IDb _db;
+        protected FileService _fileService;
+
+        private readonly IDb _db;
 
         protected Service(IDb db, HttpServiceBase httpService) : base(httpService)
         {
             _db = db;
         }
 
-        protected virtual IQueryable<TEntity> Records()
-        {
-            if (_hasIsDeletedProperty)
-                return _db.Set<TEntity>().Where(entity => (EF.Property<bool?>(entity, _isDeletedProperty.Name) ?? false) == false);
-            return _db.Set<TEntity>();
-        }
-
-        protected TEntity Records(int id) => Records().SingleOrDefault(entity => entity.Id == id);
-
         /// <summary>
-        /// Must be added by related entity property names, seperated by a space character for multiple words if any, and the relevant Turkish expressions. 
-        /// Turkish characters will be replaced with corresponding English characters. 
+        /// Must be added by related entity property names, seperated by a space character for multiple words if any, 
+        /// and the relevant Turkish expressions. Turkish characters will be replaced with corresponding English characters. 
         /// </summary>
         /// <param name="entityPropertyName"></param>
         /// <param name="expressionTR"></param>
@@ -95,11 +90,21 @@ namespace EZcore.Services
             }
         }
 
+        protected virtual IQueryable<TEntity> Records()
+        {
+            var query = _db.Set<TEntity>().AsNoTracking();
+            if (_hasIsDeleted)
+                query = query.Where(entity => (EF.Property<bool?>(entity, _isDeletedProperty.Name) ?? false) == false);
+            return query;
+        }
+
+        protected TEntity Records(int id) => Records().SingleOrDefault(entity => entity.Id == id);
+
         public virtual List<TModel> Get(PageOrder pageOrder = null)
         {
             List<TModel> list;
-            Error(RecordNotFound);
-            if (UsePageOrder && pageOrder is not null)
+            var totalRecordsCount = 0;
+            if (ViewPageOrder && pageOrder is not null)
             {
                 if (!Api && pageOrder.Session)
                 {
@@ -114,18 +119,8 @@ namespace EZcore.Services
                 pageOrder.OrderExpressions = _pageOrderExpressions;
                 if (pageOrder.OrderExpressions.Any() && string.IsNullOrWhiteSpace(pageOrder.OrderExpression))
                     pageOrder.OrderExpression = pageOrder.OrderExpressions.FirstOrDefault().Key;
-                list = Records().AsNoTracking().OrderBy(pageOrder).Paginate(pageOrder).Select(entity => new TModel() { Record = entity }).ToList();
-                if (pageOrder.TotalRecordsCount > 0)
-                {
-                    if (list.First() is IFileModel)
-                    {
-                        for (int i = 0; i < list.Count; i++)
-                        {
-                            UpdateOtherFilePaths((list[i].Record as IFile).OtherFilePaths);
-                        }
-                    }
-                    Success($"{pageOrder.TotalRecordsCount} {(pageOrder.TotalRecordsCount == 1 ? RecordFound : RecordsFound)}");
-                }
+                list = Records().OrderBy(pageOrder).Paginate(pageOrder).Select(entity => new TModel() { Record = entity }).ToList();
+                totalRecordsCount = pageOrder.TotalRecordsCount;
                 if (!Api)
                     _httpService.SetSession(nameof(PageOrder), pageOrder);
             }
@@ -133,18 +128,24 @@ namespace EZcore.Services
             {
                 if (pageOrder is not null)
                     pageOrder.PageNumber = 0;
-                list = Records().AsNoTracking().Select(entity => new TModel() { Record = entity }).ToList();
-                if (list.Any())
+                list = Records().Select(entity => new TModel() { Record = entity }).ToList();
+                totalRecordsCount = list.Count;
+            }
+            if (totalRecordsCount > 0)
+            {
+                Success($"{totalRecordsCount} {(totalRecordsCount == 1 ? RecordFound : RecordsFound)}");
+                if (_hasFile)
                 {
-                    if (list.First() is IFileModel)
+                    _fileService = new FileService(_httpService);
+                    foreach (var item in list)
                     {
-                        for (int i = 0; i < list.Count; i++)
-                        {
-                            UpdateOtherFilePaths((list[i].Record as IFile).OtherFilePaths);
-                        }
+                        _fileService.UpdateOtherFilePaths((item.Record as IFile).OtherFilePaths);
                     }
-                    Success($"{list.Count} {(list.Count == 1 ? RecordFound : RecordsFound)}");
                 }
+            }
+            else
+            {
+                Error(RecordNotFound, false);
             }
             return list;
         }
@@ -153,37 +154,43 @@ namespace EZcore.Services
         {
             var item = Records().Select(entity => new TModel() { Record = entity }).SingleOrDefault(model => model.Record.Id == id);
             if (item is null)
-                Error(RecordNotFound);
-            if (item is IFileModel)
-                UpdateOtherFilePaths((item.Record as IFile).OtherFilePaths);
+            {
+                Error(RecordNotFound, false);
+            }
+            else if (_hasFile)
+            {
+                _fileService = new FileService(_httpService);
+                _fileService.UpdateOtherFilePaths((item.Record as IFile).OtherFilePaths);
+            }
             return item;
         }
 
-        public virtual ServiceBase Validate(TModel model)
+        public virtual bool Validate(TModel model)
         {
-            if (model.Record is IName)
+            if (_hasName)
             {
                 var record = model.Record as IName;
                 if (Records().Any(entity => entity.Id != model.Record.Id &&
                     EF.Functions.Collate((entity as IName).Name, Collation) == EF.Functions.Collate(record.Name ?? "", Collation).Trim()))
                 {
-                    return Error(RecordWithSameNameExists);
+                    Error(RecordWithSameNameExists);
                 }
             }
-            return Success();
+            return IsSuccessful;
         }
 
         public virtual void Create(TModel model, bool save = true)
         {
             if (!IsSuccessful)
                 return;
-            if (!CreateFiles(model))
+            CreateFiles(model);
+            if (!IsSuccessful)
                 return;
-            if (_hasGuidProperty)
+            if (_hasGuid)
             {
                 model.Record.Guid = Guid.NewGuid().ToString();
             }
-            if (_hasModifiedByProperty)
+            if (_hasModifiedBy)
             {
                 (model.Record as IModifiedBy).CreateDate = DateTime.Now;
                 (model.Record as IModifiedBy).CreatedBy = _httpService.UserName;
@@ -201,14 +208,23 @@ namespace EZcore.Services
         {
             if (!IsSuccessful)
                 return;
-            if (!UpdateFiles(model))
+            var record = _db.Set<TEntity>().Find(model.Record.Id);
+            if (record is null)
+            {
+                Error(RecordNotFound);
                 return;
-            if (_hasModifiedByProperty)
+            }
+            UpdateFiles(model, record);
+            if (!IsSuccessful)
+                return;
+            if (_hasModifiedBy)
             {
                 (model.Record as IModifiedBy).UpdateDate = DateTime.Now;
                 (model.Record as IModifiedBy).UpdatedBy = _httpService.UserName;
             }
-            _db.Set<TEntity>().Update(model.Record.Trim());
+            _db.Entry(record).State = EntityState.Detached;
+            record = model.Record.Map<TEntity>();
+            _db.Set<TEntity>().Update(record.Trim());
             Success(RecordNotSaved);
             if (save)
             {
@@ -226,22 +242,24 @@ namespace EZcore.Services
 
         protected void Update<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
         {
-            if (typeof(TRelationalEntity).GetProperties().Any(property => property.PropertyType == typeof(TEntity)))
+            if (ObjectExtensions.GetPropertyInfo<TRelationalEntity>().Any(property => property.PropertyType == typeof(TEntity)))
                 _db.Set<TRelationalEntity>().RemoveRange(relationalRecords);
         }
 
         public virtual void Delete(int id, bool save = true)
         {
+            if (!IsSuccessful)
+                return;
             var record = _db.Set<TEntity>().Find(id);
             if (record is null)
             {
                 Error(RecordNotFound);
                 return;
             }
-            if (_hasIsDeletedProperty)
+            if (_hasIsDeleted)
             {
                 (record as ISoftDelete).IsDeleted = true;
-                if (_hasModifiedByProperty)
+                if (_hasModifiedBy)
                 {
                     (record as IModifiedBy).UpdateDate = DateTime.Now;
                     (record as IModifiedBy).UpdatedBy = _httpService.UserName;
@@ -251,6 +269,8 @@ namespace EZcore.Services
             else
             {
                 DeleteFiles(record);
+                if (!IsSuccessful)
+                    return;
                 _db.Set<TEntity>().Remove(record);
             }
             Success(RecordNotSaved);
@@ -263,98 +283,64 @@ namespace EZcore.Services
 
         protected void Delete<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
         {
-            if (typeof(TRelationalEntity).GetProperties().Any(property => property.PropertyType == typeof(TEntity)))
+            if (ObjectExtensions.GetPropertyInfo<TRelationalEntity>().Any(property => property.PropertyType == typeof(TEntity)))
             {
-                if (!_hasIsDeletedProperty)
+                if (!_hasIsDeleted)
                     _db.Set<TRelationalEntity>().RemoveRange(relationalRecords);
             }
         }
 
-        protected bool Validate<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
+        protected void Validate<TRelationalEntity>(List<TRelationalEntity> relationalRecords) where TRelationalEntity : Record, new()
         {
-            if (typeof(TRelationalEntity).GetProperties().Any(property => property.PropertyType == typeof(TEntity)) && relationalRecords.Any())
+            if (ObjectExtensions.GetPropertyInfo<TRelationalEntity>().Any(property => property.PropertyType == typeof(TEntity)) && relationalRecords.Any())
                 Error(RelationalRecordsFound);
-            else
-                Success();
-            return IsSuccessful;
         }
 
-        protected virtual int Save()
+        protected virtual void Save()
         {
             foreach (var entityEntry in _db.ChangeTracker.Entries<TEntity>())
             {
                 switch (entityEntry.State)
                 {
                     case EntityState.Modified:
-                        if (_hasGuidProperty)
+                        if (_hasGuid)
                         {
                             entityEntry.Property(_guidProperty.Name).IsModified = false;
+                        }
+                        if (_hasModifiedBy)
+                        {
+                            entityEntry.Property(_createDateProperty.Name).IsModified = false;
+                            entityEntry.Property(_createdByProperty.Name).IsModified = false;
                         }
                         break;
                     case EntityState.Deleted:
-                        if (_hasGuidProperty && _hasIsDeletedProperty)
+                        if (_hasGuid && _hasIsDeleted)
                         {
                             entityEntry.Property(_guidProperty.Name).IsModified = false;
                         }
                         break;
                 }
             }
-            return _db.SaveChanges();
+            _db.SaveChanges();
         }
 
-        protected virtual ServiceBase ValidateOtherFiles(IFileModel fileModel, IFile fileEntity = null, byte maximumOtherFilesCount = 25)
+        public virtual void CreateFiles(TModel model)
         {
-            var otherFilesCount = 0;
-            if (fileModel.OtherFormFilePaths is not null)
-                otherFilesCount += fileModel.OtherFormFilePaths.Count;
-            if (fileEntity is not null && fileEntity.OtherFilePaths is not null)
-                otherFilesCount += fileEntity.OtherFilePaths.Count;
-            if (otherFilesCount > maximumOtherFilesCount)
-                return Error(Lang == Lang.TR ? $"Diğer dosya sayısı maksimum {maximumOtherFilesCount} olmalıdır!" : $"Other files count must be maximum {maximumOtherFilesCount}!");
-            return Success();
-        }
-
-        private void UpdateOtherFilePaths(List<string> filePaths, int orderInitialValue, int paddingTotalWidth = 2)
-        {
-            if (filePaths is not null && filePaths.Any())
+            if (_hasFile)
             {
-                for (int i = 0; i < filePaths.Count; i++)
-                {
-                    filePaths[i] = "/" + filePaths[i].Split('/')[1] + "/" +
-                        orderInitialValue++.ToString().PadLeft(paddingTotalWidth, '0') +
-                        "/" + filePaths[i].Split('/')[2];
-                }
-            }
-        }
-
-        private void UpdateOtherFilePaths(List<string> filePaths)
-        {
-            if (filePaths is not null && filePaths.Any())
-            {
-                for (int i = 0; i < filePaths.Count; i++)
-                {
-                    filePaths[i] = "/" + filePaths[i].Split('/')[1] + "/" + filePaths[i].Split('/')[3];
-                }
-            }
-        }
-
-        public virtual bool CreateFiles(TModel model)
-        {
-            if (model is IFileModel)
-            {
+                _fileService = new FileService(_httpService);
                 var fileModel = model as IFileModel;
-                if (ValidateOtherFiles(fileModel).IsSuccessful)
+                if (_fileService.ValidateOtherFiles(fileModel?.OtherFormFiles))
                 {
-                    _fileService = new FileService(_httpService);
-                    var filePath = _fileService.Create(fileModel.MainFormFilePath);
+                    var filePath = _fileService.Create(fileModel.MainFormFile);
                     if (_fileService.IsSuccessful)
                     {
                         var fileEntity = model.Record as IFile;
                         fileEntity.MainFilePath = filePath;
-                        var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
+                        var filePaths = _fileService.Create(fileModel.OtherFormFiles);
                         if (_fileService.IsSuccessful)
                         {
-                            UpdateOtherFilePaths(filePaths, 1);
+                            _fileService.UpdateOtherFilePaths(filePaths, 1);
                             fileEntity.OtherFilePaths = filePaths;
                         }
                         else
@@ -368,14 +354,17 @@ namespace EZcore.Services
                     }
                 }
             }
-            return IsSuccessful;
         }
 
-        public virtual bool UpdateFiles(TModel model)
+        public virtual void UpdateFiles(TModel model, TEntity record = null)
         {
-            if (model is IFileModel)
+            if (_hasFile)
             {
-                var record = _db.Set<TEntity>().Find(model.Record.Id);
+                _fileService = new FileService(_httpService);
+                if (record is null)
+                {
+                    record = _db.Set<TEntity>().Find(model.Record.Id);
+                }
                 if (record is null)
                 {
                     Error(RecordNotFound);
@@ -384,10 +373,9 @@ namespace EZcore.Services
                 {
                     var fileModel = model as IFileModel;
                     var fileEntity = model.Record as IFile;
-                    if (ValidateOtherFiles(fileModel, fileEntity).IsSuccessful)
+                    if (_fileService.ValidateOtherFiles(fileModel.OtherFormFiles, fileEntity.OtherFilePaths))
                     {
-                        _fileService = new FileService(_httpService);
-                        var filePath = _fileService.Update(fileModel.MainFormFilePath, fileEntity.MainFilePath);
+                        var filePath = _fileService.Update(fileModel.MainFormFile, fileEntity.MainFilePath);
                         if (_fileService.IsSuccessful)
                         {
                             fileEntity.MainFilePath = filePath;
@@ -395,15 +383,16 @@ namespace EZcore.Services
                             var orderInitialValue = 1;
                             if (fileRecord.OtherFilePaths is not null && fileRecord.OtherFilePaths.Any())
                             {
+                                fileEntity.OtherFilePaths = fileRecord.OtherFilePaths;
                                 var lastOtherFilePath = fileRecord.OtherFilePaths.Order().Last();
-                                orderInitialValue = Convert.ToInt32(lastOtherFilePath.Split('/')[2]) + 1;
+                                orderInitialValue = _fileService.GetFileOrder(lastOtherFilePath) + 1;
                             }
-                            var filePaths = _fileService.Create(fileModel.OtherFormFilePaths);
+                            var filePaths = _fileService.Create(fileModel.OtherFormFiles);
                             if (_fileService.IsSuccessful)
                             {
                                 if (filePaths is not null && filePaths.Any())
                                 {
-                                    UpdateOtherFilePaths(filePaths, orderInitialValue);
+                                    _fileService.UpdateOtherFilePaths(filePaths, orderInitialValue);
                                     fileEntity.OtherFilePaths = fileEntity.OtherFilePaths ?? new List<string>();
                                     fileEntity.OtherFilePaths.AddRange(filePaths);
                                 }
@@ -420,35 +409,34 @@ namespace EZcore.Services
                     }
                 }
             }
-            return IsSuccessful;
         }
 
-        protected void DeleteFiles(TEntity record, string path = null)
+        protected void DeleteFiles(TEntity record, string filePath = null)
         {
-            if (record is IFile)
+            if (_hasFile)
             {
-                var fileEntity = record as IFile;
                 _fileService = new FileService(_httpService);
-                if (string.IsNullOrWhiteSpace(path))
+                var fileEntity = record as IFile;
+                if (string.IsNullOrWhiteSpace(filePath))
                 {
                     _fileService.Delete(fileEntity.MainFilePath);
                     fileEntity.MainFilePath = null;
                     _fileService.Delete(fileEntity.OtherFilePaths);
                     fileEntity.OtherFilePaths = null;
                 }
-                else if (path == fileEntity.MainFilePath)
+                else if (filePath == fileEntity.MainFilePath)
                 {
                     _fileService.Delete(fileEntity.MainFilePath);
                     fileEntity.MainFilePath = null;
                 }
                 else
                 {
-                    _fileService.Delete(path);
-                    path = fileEntity.OtherFilePaths.SingleOrDefault(otherFilePath => 
-                        "/" + otherFilePath.Split('/')[1] + "/" + otherFilePath.Split('/')[3] == path);
-                    if (!string.IsNullOrWhiteSpace(path))
+                    _fileService.Delete(filePath);
+                    filePath = fileEntity.OtherFilePaths.SingleOrDefault(otherFilePath => 
+                        $"/{_fileService.GetFileFolder(otherFilePath)}/{_fileService.GetFileName(otherFilePath)}" == filePath);
+                    if (!string.IsNullOrWhiteSpace(filePath))
                     {
-                        fileEntity.OtherFilePaths.Remove(path);
+                        fileEntity.OtherFilePaths.Remove(filePath);
                         if (!fileEntity.OtherFilePaths.Any())
                             fileEntity.OtherFilePaths = null;
                     }
@@ -458,7 +446,7 @@ namespace EZcore.Services
             }
         }
 
-        public virtual void DeleteFiles(int id, string path = null)
+        public virtual void DeleteFiles(int id, string filePath = null)
         {
             var record = _db.Set<TEntity>().Find(id);
             if (record is null)
@@ -467,7 +455,7 @@ namespace EZcore.Services
             }
             else
             {
-                DeleteFiles(record, path);
+                DeleteFiles(record, filePath);
                 _db.SaveChanges();
             }
         }
@@ -475,7 +463,20 @@ namespace EZcore.Services
         public virtual void GetExcel()
         {
             _fileService = new FileService(_httpService);
-            _fileService.GetExcel(Get(), ExcelFileNameWithoutExtension);
+            _fileService.GetExcel(Get());
+        }
+
+        public virtual FileDownloadModel GetFile(string filePath)
+        {
+            _fileService = new FileService(_httpService);
+            if (_hasFile)
+            {
+                var file = _fileService.GetFile(filePath);
+                if (file is null)
+                    Error(_fileService.FileNotFound, false);
+                return file;
+            }
+            return null;
         }
 
         public void Dispose()

@@ -64,7 +64,7 @@
                         @Html.DisplayNameFor(model => model.First().Category, lang)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.First().MainFormFilePath, lang)
+                        @Html.DisplayNameFor(model => model.First().MainFormFile, lang)
                     </th>
                     <th></th>
                 </tr>
@@ -94,7 +94,7 @@
                         }
                         else
                         {
-                            <img src="@item.Record.MainFilePath" class="img-thumbnail" />
+                            <a asp-action="Download" asp-route-path="@item.Record.MainFilePath"><img src="@item.Record.MainFilePath" class="img-thumbnail" /></a>
                         }
                     </td>   
 					<td class="text-end w-25">

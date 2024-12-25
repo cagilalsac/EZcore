@@ -68,7 +68,7 @@ namespace @Model.ControllerNamespace
         [HttpPost]
         public IActionResult Post(@modelType @Model.ModelVariable)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@Model.ModelVariable))
             {
                 // Insert item service logic:
                 @("_" + serviceAbstractName).Create(@Model.ModelVariable);
@@ -86,7 +86,7 @@ namespace @Model.ControllerNamespace
         [HttpPut]
         public IActionResult Put(@modelType @Model.ModelVariable)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@Model.ModelVariable))
             {
                 // Update item service logic:
                 @("_" + serviceAbstractName).Update(@Model.ModelVariable);

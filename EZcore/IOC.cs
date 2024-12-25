@@ -64,6 +64,7 @@ namespace EZcore
             builder.Services.AddScoped<HttpServiceBase, HttpService>();
             builder.Services.AddScoped<ServiceBase, Service>();
             builder.Services.AddScoped<Service<User, UserModel>, UserService>();
+            builder.Services.AddScoped<Service<Role, RoleModel>, RoleService>();
         }
 
         public static void ConfigureEZcore(this WebApplication application)

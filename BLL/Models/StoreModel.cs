@@ -2,6 +2,7 @@
 
 using BLL.DAL;
 using EZcore.Attributes;
+using EZcore.Extensions;
 using EZcore.Models;
 
 namespace BLL.Models
@@ -12,7 +13,7 @@ namespace BLL.Models
         public string Name => Record.Name;
 
         [DisplayName("Sanal", "Virtual")]
-        public string IsVirtual => Record.IsVirtual ? "Evet" : "Hayır";
+        public string IsVirtual => Record.IsVirtual.ToHtml();
 
         [DisplayName("Ürün Sayısı", "Product Count")]
         public string ProductCount => Record.ProductStores?.Count(ps => (ps.Product?.IsDeleted ?? false) == false).ToString();

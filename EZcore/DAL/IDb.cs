@@ -8,5 +8,6 @@ namespace EZcore.DAL
         public DbSet<TEntity> Set<TEntity>() where TEntity : class;
         public int SaveChanges();
         public ChangeTracker ChangeTracker { get; }
+        public EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
     }
 }

@@ -1,18 +1,17 @@
 ﻿#nullable disable
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Authorization;
-using EZcore.Services;
-using EZcore.Models;
-using EZcore.Controllers;
-using BLL.Models;
 using BLL.DAL;
+using BLL.Models;
+using EZcore.Controllers;
+using EZcore.Models;
+using EZcore.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 // Generated from EZcore Template.
 
 namespace MVC.Controllers
 {
-    [Authorize(Roles = "Admin,EZcodeAdmin")]
+    [Authorize(Roles = "Admin")]
     public class CategoriesController : MvcController
     {
         // Service injections:
@@ -28,9 +27,6 @@ namespace MVC.Controllers
         )
         {
             _categoryService = categoryService;
-            _categoryService.ViewModelName = _categoryService.Lang == Lang.EN ? "Category" : "Kategori";
-            _categoryService.UsePageOrder = false;
-            _categoryService.ExcelFileNameWithoutExtension = _categoryService.Lang == Lang.EN ? "Report" : "Rapor";
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
             //_{Entity}Service = {Entity}Service;
@@ -78,7 +74,7 @@ namespace MVC.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(CategoryModel category)
         {
-            if (ModelState.IsValid && _categoryService.Validate(category).IsSuccessful)
+            if (ModelState.IsValid && _categoryService.Validate(category))
             {
                 // Insert item service logic:
                 _categoryService.Create(category);
@@ -107,7 +103,7 @@ namespace MVC.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Edit(CategoryModel category)
         {
-            if (ModelState.IsValid && _categoryService.Validate(category).IsSuccessful)
+            if (ModelState.IsValid && _categoryService.Validate(category))
             {
                 // Update item service logic:
                 _categoryService.Update(category);
@@ -153,20 +149,26 @@ namespace MVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Categories/DeleteFile/5
-        public IActionResult DeleteFile(int id)
+        public IActionResult DeleteFile(int id, string path = null)
         {
             // Delete file logic:
-            _categoryService.DeleteFiles(id);
+            _categoryService.DeleteFiles(id, path);
 
             Message = _categoryService.Message;
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        // GET: Categories/Export
         public void Export()
         {
             _categoryService.GetExcel();
         }
-	}
+
+        public IActionResult Download(string path)
+        {
+            var file = _categoryService.GetFile(path);
+            if (_categoryService.IsSuccessful)
+                return File(file.Stream, file.ContentType, file.Name);
+            return View("_EZMessage", _categoryService.Message);
+        }
+    }
 }

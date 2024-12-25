@@ -44,6 +44,14 @@
     </div>
     <div class="row mb-3">
         <div class="col-2 fw-bold">
+            @Html.DisplayNameFor(model => model.UnitPriceText, lang)
+        </div>
+        <div class="col-10">
+            @Html.Raw(Model.UnitPriceText)
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-2 fw-bold">
             @Html.DisplayNameFor(model => model.StockAmount, lang)
         </div>
         <div class="col-10">
@@ -70,7 +78,7 @@
     <div style="@filesStyle">
         <div class="row mb-3">
             <div class="col-2 fw-bold">
-                @Html.DisplayNameFor(model => model.MainFormFilePath, lang)
+                @Html.DisplayNameFor(model => model.MainFormFile, lang)
             </div>
             @if (string.IsNullOrWhiteSpace(Model.Record.MainFilePath))
             {
@@ -81,7 +89,7 @@
             else
             {
             <div class="col-4">
-                <img src="@Model.Record.MainFilePath" class="img-fluid" />
+                <a asp-action="Download" asp-route-path="@Model.Record.MainFilePath"><img src="@Model.Record.MainFilePath" class="img-fluid" /></a>
                 <br />
                 <span class="text-danger mainfilemessage"></span>
             </div>
@@ -93,7 +101,7 @@
         <hr />
         <div class="row mb-3">
             <div class="col-2 fw-bold">
-                @Html.DisplayNameFor(model => model.OtherFormFilePaths, lang)
+                @Html.DisplayNameFor(model => model.OtherFormFiles, lang)
             </div>
             <div class="col-10">
             @if (Model.Record.OtherFilePaths is not null && Model.Record.OtherFilePaths.Any())
@@ -102,7 +110,7 @@
             {
                 <div class="row">
                     <div class="col-4">
-                        <img src="@otherFilePath" class="img-fluid" />
+                        <a asp-action="Download" asp-route-path="@otherFilePath"><img src="@otherFilePath" class="img-fluid" /></a>
                         <input type="hidden" value="@otherFilePath" class="otherfiles" />
                     </div>
                     <div class="col-8 text-end pe-12">

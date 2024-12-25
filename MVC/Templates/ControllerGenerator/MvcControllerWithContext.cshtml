@@ -102,9 +102,6 @@ namespace @Model.ControllerNamespace
         )
         {
             @("_" + serviceAbstractName) = @serviceAbstractName;
-            @("_" + serviceAbstractName).ViewModelName = @("_" + serviceAbstractName).Lang == Lang.EN ? "@Model.ModelTypeName" : "Kayıt";
-            @("_" + serviceAbstractName).UsePageOrder = false;
-            @("_" + serviceAbstractName).ExcelFileNameWithoutExtension = @("_" + serviceAbstractName).Lang == Lang.EN ? "Report" : "Rapor";
 @foreach (var relatedProperty in relatedProperties.Keys)
 {
             @:@("_" + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service = " + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service");
@@ -167,7 +164,7 @@ namespace @Model.ControllerNamespace
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(@modelType @Model.ModelVariable)
         {
-            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@Model.ModelVariable).IsSuccessful)
+            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@Model.ModelVariable))
             {
 @{
     if (!string.IsNullOrEmpty(primaryKeyType) && IsGuid(primaryKeyType))
@@ -204,7 +201,7 @@ namespace @Model.ControllerNamespace
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Edit(@modelType @Model.ModelVariable)
         {
-            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@Model.ModelVariable).IsSuccessful)
+            if (ModelState.IsValid && @("_" + serviceAbstractName).Validate(@Model.ModelVariable))
             {
 @{
                 @:// Update item service logic:
@@ -257,16 +254,23 @@ namespace @Model.ControllerNamespace
         public IActionResult DeleteFile(@primaryKeyShortTypeName id, string path = null)
         {
             // Delete file logic:
-            @("_" + serviceAbstractName).DeleteFile(id, path);
+            @("_" + serviceAbstractName).DeleteFiles(id, path);
 
             Message = @("_" + serviceAbstractName).Message;
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        // GET: @routePrefix/Export
         public void Export()
         {
             @("_" + serviceAbstractName).GetExcel();
+        }
+
+        public IActionResult Download(string path)
+        {
+            var file = @("_" + serviceAbstractName).GetFile(path);
+            if (@("_" + serviceAbstractName).IsSuccessful)
+                return File(file.Stream, file.ContentType, file.Name);
+            return View("_EZMessage", @("_" + serviceAbstractName).Message);
         }
 	}
 }

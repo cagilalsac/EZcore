@@ -1,18 +1,17 @@
 ﻿#nullable disable
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Authorization;
-using EZcore.Services;
-using EZcore.Models;
-using EZcore.Controllers;
-using BLL.Models;
 using BLL.DAL;
+using BLL.Models;
+using EZcore.Controllers;
+using EZcore.Models;
+using EZcore.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 // Generated from EZcore Template.
 
 namespace MVC.Controllers
 {
-    [Authorize(Roles = "Admin,EZcodeAdmin")]
+    [Authorize(Roles = "Admin")]
     public class StoresController : MvcController
     {
         // Service injections:
@@ -28,9 +27,6 @@ namespace MVC.Controllers
         )
         {
             _storeService = storeService;
-            _storeService.ViewModelName = _storeService.Lang == Lang.EN ? "Store" : "Mağaza";
-            _storeService.UsePageOrder = false;
-            _storeService.ExcelFileNameWithoutExtension = _storeService.Lang == Lang.EN ? "Report" : "Rapor";
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
             //_{Entity}Service = {Entity}Service;
@@ -78,7 +74,7 @@ namespace MVC.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(StoreModel store)
         {
-            if (ModelState.IsValid && _storeService.Validate(store).IsSuccessful)
+            if (ModelState.IsValid && _storeService.Validate(store))
             {
                 // Insert item service logic:
                 _storeService.Create(store);
@@ -107,7 +103,7 @@ namespace MVC.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Edit(StoreModel store)
         {
-            if (ModelState.IsValid && _storeService.Validate(store).IsSuccessful)
+            if (ModelState.IsValid && _storeService.Validate(store))
             {
                 // Update item service logic:
                 _storeService.Update(store);
@@ -153,20 +149,26 @@ namespace MVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Stores/DeleteFile/5
-        public IActionResult DeleteFile(int id)
+        public IActionResult DeleteFile(int id, string path = null)
         {
             // Delete file logic:
-            _storeService.DeleteFiles(id);
+            _storeService.DeleteFiles(id, path);
 
             Message = _storeService.Message;
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        // GET: Stores/Export
         public void Export()
         {
             _storeService.GetExcel();
         }
-	}
+
+        public IActionResult Download(string path)
+        {
+            var file = _storeService.GetFile(path);
+            if (_storeService.IsSuccessful)
+                return File(file.Stream, file.ContentType, file.Name);
+            return View("_EZMessage", _storeService.Message);
+        }
+    }
 }

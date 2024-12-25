@@ -2,6 +2,7 @@
 
 using EZcore.Attributes;
 using EZcore.DAL.Users;
+using EZcore.Extensions;
 using System.Security.Claims;
 
 namespace EZcore.Models.Users
@@ -17,11 +18,11 @@ namespace EZcore.Models.Users
         [DisplayName("E-Posta", "E-Mail")]
         public string EMail => Record.EMail;
 
-        [DisplayName("Durum", "Status")]
-        public string IsActive => Record.IsActive ? "Aktif" : "Aktif değil";
+        [DisplayName("Aktif Mi", "Is Active")]
+        public string IsActive => Record.IsActive.ToHtml("<i class='bx bxs-user-check fs-3'></i>", "<i class='bx bxs-user-x fs-3'></i>");
 
         [DisplayName("Roller", "Roles")]
-        public string Roles => string.Join(", ", Record.UserRoles?.Select(ur => ur.Role?.Name));
+        public List<Role> Roles => Record.UserRoles?.Select(ur => ur.Role).ToList();
 
         public List<Claim> Claims
         {
@@ -38,7 +39,8 @@ namespace EZcore.Models.Users
                 {
                     foreach (var userRole in Record.UserRoles)
                     {
-                        claims.Add(new Claim(ClaimTypes.Role, userRole.Role.Name));
+                        if (userRole.Role is not null)
+                            claims.Add(new Claim(ClaimTypes.Role, userRole.Role.Name));
                     }
                 }
                 return claims;
@@ -47,5 +49,19 @@ namespace EZcore.Models.Users
 
         [DisplayName("Şifre Onay", "Confirm Password")]
         public string ConfirmPassword { get; set; }
+
+        [DisplayName("Oluşturulma Tarihi", "Create Date")]
+        public string CreateDate => Record.CreateDate.HasValue ?
+            Record.CreateDate.Value.ToShortDateString() : string.Empty;
+
+        [DisplayName("Oluşturan", "Created By")]
+        public string CreatedBy => Record.CreatedBy;
+
+        [DisplayName("Güncellenme Tarihi", "Update Date")]
+        public string UpdateDate => Record.UpdateDate.HasValue ?
+            Record.UpdateDate.Value.ToShortDateString() : string.Empty;
+
+        [DisplayName("Güncelleyen", "Updated By")]
+        public string UpdatedBy => Record.UpdatedBy;
     }
 }

@@ -28,7 +28,9 @@ namespace EZcore.Services
         }
 
         public bool Api { get; set; }
-        public string ViewModelName { get; set; }
+
+        public virtual string ViewModelName => Lang == Lang.EN ? "Record" : "Kayıt";
+
 
         protected readonly HttpServiceBase _httpService;
 
@@ -39,21 +41,18 @@ namespace EZcore.Services
                 Lang = Lang.TR;
             else
                 Lang = (Lang)int.Parse(_httpService.GetCookie(nameof(Lang)) ?? "0");
-            ViewModelName = Lang == Lang.EN ? "Record" : "Kayıt";
         }
 
-        public ServiceBase Success(string message = "")
+        public void Success(string message = "")
         {
             IsSuccessful = true;
             Message = message;
-            return this;
         }
 
-        public ServiceBase Error(string message = "", bool operationFailed = true)
+        public void Error(string message = "", bool operationFailed = true)
         {
             IsSuccessful = false;
             Message = operationFailed ? $"{OperationFailed} {message}" : message;
-            return this;
         }
     }
 }

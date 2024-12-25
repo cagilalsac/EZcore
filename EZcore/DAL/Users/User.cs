@@ -25,6 +25,7 @@ namespace EZcore.DAL.Users
         public List<UserRole> UserRoles { get; private set; } = new List<UserRole>();
 
         [NotMapped]
+        [Required]
         public List<int> Roles
         {
             get => UserRoles?.Select(ur => ur.RoleId).ToList();

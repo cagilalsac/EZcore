@@ -1,7 +1,7 @@
 ﻿using BLL.DAL;
-using BLL.Models;
 using EZcore.Controllers;
 using EZcore.DAL.Users;
+using EZcore.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -10,7 +10,7 @@ namespace MVC.Controllers
 {
     public class DbController : MvcController
     {
-        const int PIN = 0905;
+        const int PIN = 2024;
 
         private readonly Db _db;
 
@@ -23,8 +23,7 @@ namespace MVC.Controllers
         {
             if (pin == PIN)
             {
-                if (_db.Stores.Any() || _db.Products.Any() || _db.Categories.Any()
-                    || _db.Roles.Any() || _db.Users.Any())
+                if (_db.Stores.Any() || _db.Products.Any() || _db.Categories.Any() || _db.Roles.Any() || _db.Users.Any())
                 {
                     _db.Database.ExecuteSqlRaw("dbcc CHECKIDENT ('Stores', RESEED, 0)");
                     _db.Database.ExecuteSqlRaw("dbcc CHECKIDENT ('Products', RESEED, 0)");
@@ -238,24 +237,38 @@ namespace MVC.Controllers
 
                 _db.Roles.Add(new Role()
                 {
-                    Name = Roles.EZcodeAdmin.ToString(),
+                    Name = Roles.SystemAdmin.ToString(),
                 });
                 _db.Roles.Add(new Role()
                 {
-                    Name = Roles.EZcodeUser.ToString(),
+                    Name = Roles.Admin.ToString(),
+                });
+                _db.Roles.Add(new Role()
+                {
+                    Name = Roles.User.ToString(),
                 });
 
                 _db.SaveChanges();
 
                 _db.Users.Add(new User()
                 {
+                    UserName = "systemadmin",
+                    Password = "systemadmin",
+                    IsActive = true,
+                    Roles = new List<int>()
+                    {
+                        _db.Roles.SingleOrDefault(r => r.Name == Roles.SystemAdmin.ToString()).Id
+                    }
+                });
+                _db.Users.Add(new User()
+                {
                     UserName = "admin",
                     Password = "admin",
                     IsActive = true,
                     Roles = new List<int>()
-                {
-                    _db.Roles.SingleOrDefault(r => r.Name == Roles.EZcodeAdmin.ToString()).Id
-                }
+                    {
+                        _db.Roles.SingleOrDefault(r => r.Name == Roles.Admin.ToString()).Id
+                    }
                 });
                 _db.Users.Add(new User()
                 {
@@ -263,9 +276,9 @@ namespace MVC.Controllers
                     Password = "user",
                     IsActive = true,
                     Roles = new List<int>()
-                {
-                    _db.Roles.SingleOrDefault(r => r.Name == Roles.EZcodeUser.ToString()).Id
-                }
+                    {
+                        _db.Roles.SingleOrDefault(r => r.Name == Roles.User.ToString()).Id
+                    }
                 });
 
                 _db.SaveChanges();

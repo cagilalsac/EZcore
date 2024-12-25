@@ -30,9 +30,6 @@ namespace MVC.Controllers
         )
         {
             _productService = productService;
-            _productService.ViewModelName = _productService.Lang == Lang.EN ? "Product" : "Ürün";
-            _productService.UsePageOrder = true;
-            _productService.ExcelFileNameWithoutExtension = _productService.Lang == Lang.EN ? "Report" : "Rapor";
             _categoryService = categoryService;
 
             /* Can be uncommented and used for many to many relationships. Entity must be replaced with the related name in the controller and views. */
@@ -84,7 +81,7 @@ namespace MVC.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(ProductModel product)
         {
-            if (ModelState.IsValid && _productService.Validate(product).IsSuccessful)
+            if (ModelState.IsValid && _productService.Validate(product))
             {
                 // Insert item service logic:
                 _productService.Create(product);
@@ -115,7 +112,7 @@ namespace MVC.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Edit(ProductModel product)
         {
-            if (ModelState.IsValid && _productService.Validate(product).IsSuccessful)
+            if (ModelState.IsValid && _productService.Validate(product))
             {
                 // Update item service logic:
                 _productService.Update(product);
@@ -172,10 +169,17 @@ namespace MVC.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        // GET: Products/Export
         public void Export()
         {
             _productService.GetExcel();
+        }
+
+        public IActionResult Download(string path)
+        {
+            var file = _productService.GetFile(path);
+            if (_productService.IsSuccessful)
+                return File(file.Stream, file.ContentType, file.Name);
+            return View("_EZMessage", _productService.Message); 
         }
 	}
 }

@@ -75,40 +75,63 @@
                             @(lang == Lang.EN ? "MENU" : "MENÜ")
                         </span>
                     </li>
-                    <li class="menu-item">
-                        <a asp-area="" asp-action="Index" asp-controller="Products" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-spreadsheet"></i>
-                            <div class="text-truncate">
-                                @(lang == Lang.EN ? "Products" : "Ürünler")
-                            </div>
-                        </a>
-                    </li>
-                    @if (User.IsInRole("Admin") || User.IsInRole("EZcodeAdmin"))
+                    @if (User.IsInRole("SystemAdmin"))
                     {
                         <li class="menu-item">
-                            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                                <i class="menu-icon tf-icons bx bx-menu"></i>
+                            <a asp-area="" asp-action="Index" asp-controller="Users" class="menu-link">
+                                <i class="menu-icon tf-icons bx bxs-user-detail"></i>
                                 <div class="text-truncate">
-                                    @(lang == Lang.EN ? "Admin" : "Yönetici")
+                                    @(lang == Lang.EN ? "Users" : "Kullanıcılar")
                                 </div>
                             </a>
-                            <ul class="menu-sub">
-                                <li class="menu-item">
-                                    <a asp-area="" asp-action="Index" asp-controller="Categories" class="menu-link">
-                                        <div class="text-truncate">
-                                            @(lang == Lang.EN ? "Categories" : "Kategoriler")
-                                        </div>
-                                    </a>
-                                </li>
-                                <li class="menu-item">
-                                    <a asp-area="" asp-action="Index" asp-controller="Stores" class="menu-link">
-                                        <div class="text-truncate">
-                                            @(lang == Lang.EN ? "Stores" : "Mağazalar")
-                                        </div>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
+                        <li class="menu-item">
+                            <a asp-area="" asp-action="Index" asp-controller="Roles" class="menu-link">
+                                <i class="menu-icon tf-icons bx bxs-user-account"></i>
+                                <div class="text-truncate">
+                                    @(lang == Lang.EN ? "Roles" : "Roller")
+                                </div>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="menu-item">
+                            <a asp-area="" asp-action="Index" asp-controller="Products" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-spreadsheet"></i>
+                                <div class="text-truncate">
+                                    @(lang == Lang.EN ? "Products" : "Ürünler")
+                                </div>
+                            </a>
+                        </li>
+                        if (User.IsInRole("Admin"))
+                        {
+                            <li class="menu-item">
+                                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                    <i class="menu-icon tf-icons bx bx-menu"></i>
+                                    <div class="text-truncate">
+                                        @(lang == Lang.EN ? "Admin" : "Yönetici")
+                                    </div>
+                                </a>
+                                <ul class="menu-sub">
+                                    <li class="menu-item">
+                                        <a asp-area="" asp-action="Index" asp-controller="Categories" class="menu-link">
+                                            <div class="text-truncate">
+                                                @(lang == Lang.EN ? "Categories" : "Kategoriler")
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a asp-area="" asp-action="Index" asp-controller="Stores" class="menu-link">
+                                            <div class="text-truncate">
+                                                @(lang == Lang.EN ? "Stores" : "Mağazalar")
+                                            </div>
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        }
                     }
                 </ul>
             </aside>

@@ -22,6 +22,7 @@ namespace EZcore.Controllers.Users
         [HttpPost("[action]")]
         public IActionResult Token(UserModel user)
         {
+            ModelState.Remove("Record.Roles");
             if (ModelState.IsValid)
             {
                 var userService = _userService as UserService;

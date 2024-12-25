@@ -95,7 +95,7 @@
                     if (item.Name == "MainFilePath")
                     {
                     <th>
-                        @@Html.DisplayNameFor(model => model.First().MainFormFilePath, lang)
+                        @@Html.DisplayNameFor(model => model.First().MainFormFile, lang)
                     </th>
                     }
                     else
@@ -136,7 +136,7 @@
                         @:}
                         @:else
                         @:{
-                            @:<img src="@@item.Record.MainFilePath" class="img-thumbnail" />
+                            @:<a asp-action="Download" asp-route-path="@@item.Record.MainFilePath"><img src="@@item.Record.MainFilePath" class="img-thumbnail" /></a>
                         @:}
                     }
                     </td>   

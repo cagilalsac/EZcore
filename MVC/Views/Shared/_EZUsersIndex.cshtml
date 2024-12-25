@@ -1,0 +1,87 @@
+﻿@using EZcore.Extensions
+@using EZcore.Models.Users
+
+@model IEnumerable<UserModel>
+
+@{
+    // ViewData:
+    var lang = (Lang)(ViewData[nameof(Lang)] ?? 0);
+    var modelName = ViewData["ViewModelName"];
+    var pageOrder = ViewData[nameof(PageOrder)] is null ? null : ViewData[nameof(PageOrder)] as PageOrder;
+    var containerDivClass = "container-fluid"; // "container" can be used for not full width
+    var list = lang == Lang.EN ? "List" : "Listesi";
+    var details = lang == Lang.EN ? "Details" : "Detay";
+    var create = lang == Lang.EN ? "Create" : "Yeni";
+    var edit = lang == Lang.EN ? "Edit" : "Düzenle";
+    var delete = lang == Lang.EN ? "Delete" : "Sil";
+}
+@{
+    ViewData["Title"] = $"{modelName} {list}";
+}
+
+@if (Model is not null)
+{
+<form asp-action="Index" autocomplete="off" id="form">
+    <div class="@containerDivClass">
+        <div class="row">
+            <div class="col-10">
+                <partial name="_EZMessage" />
+            </div>
+            <div class="col-2 text-end">
+                <a asp-action="CreateEdit">@create</a>
+            </div>
+        </div>
+        @if (Model.Any())
+        {
+        @if (pageOrder is not null)
+        {
+        <partial name="_EZPageOrder" model="pageOrder" />  
+        }
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-secondary">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().UserName, lang)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().EMail, lang)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().IsActive, lang)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+		        @foreach (var item in Model) {
+				<tr>
+					<td>
+						@Html.Raw(item.UserName)
+					</td>
+					<td>
+						@Html.Raw(item.EMail)
+					</td>
+					<td>
+						@Html.Raw(item.IsActive)
+					</td>
+					<td class="text-end w-25">
+						<a asp-action="Details" asp-route-id="@item.Record.Id">@details</a>&nbsp;|&nbsp;
+						<a asp-action="CreateEdit" asp-route-id="@item.Record.Id">@edit</a>&nbsp;|&nbsp;
+                        <a href="#" onclick="deleteRecord(@item.Record.Id);">@delete</a>
+					</td>
+				</tr>
+		        }
+            </tbody>
+        </table>
+        }
+    </div>
+</form>
+}
+
+@section Scripts {
+    <partial name="_EZAlertify" />
+    @if (pageOrder is not null)
+    {
+    <partial name="_EZPageOrderScripts" />
+    }
+}

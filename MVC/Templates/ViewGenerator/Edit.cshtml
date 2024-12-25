@@ -129,17 +129,17 @@ foreach (PropertyMetadata property in Model.ModelMetadata.Properties)
         {
             mainFileFound = true;
         @:<div class="row mb-3">
-            @:<displayname asp-for="MainFormFilePath" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
+            @:<displayname asp-for="MainFormFile" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
             @:<div class="col-10">
-                @:<input asp-for="MainFormFilePath" class="form-control mainfile" type="file" />
+                @:<input asp-for="MainFormFile" class="form-control mainfile" type="file" />
                 @:<input asp-for="Record.MainFilePath" type="hidden" class="mainfilehidden" />
                 <span class="text-danger mainfilemessage"></span>
             @:</div>
         @:</div>
         @:<div class="row mb-3">
-            @:<displayname asp-for="OtherFormFilePaths" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
+            @:<displayname asp-for="OtherFormFiles" asp-lang="@@lang" class="col-2 col-form-label fw-bold"></displayname>
             @:<div class="col-10">
-                @:<input asp-for="OtherFormFilePaths" class="form-control otherfiles" type="file" multiple />
+                @:<input asp-for="OtherFormFiles" class="form-control otherfiles" type="file" multiple />
             @:</div>
         @:</div>
         }
@@ -178,8 +178,8 @@ foreach (PropertyMetadata property in Model.ModelMetadata.Properties)
             @:{
 		        @:@@:&nbsp;&nbsp;
                 @:<a asp-action="Delete" asp-route-id="@@Model.Record.Id">@@delete</a>
+                @:&nbsp;|&nbsp;
             @:}
-                @:&nbsp;&nbsp;
 		        @:<a asp-action="Index" asp-route-session="true">@@backToList</a>
 	        @:</div>
         @:</div>
